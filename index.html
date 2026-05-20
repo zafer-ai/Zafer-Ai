@@ -69,20 +69,18 @@
         .matrix-table td { padding: 10px 6px; border: 1px solid var(--border-color); }
         .matrix-cell-box { background: #FFF5F5; border: 1px solid #FFCDCD; padding: 8px 4px; border-radius: 10px; font-weight: 700; color: var(--primary-dark); display: flex; flex-direction: column; }
 
-        /* OTO PROGRAM DERS SEÇİM SATIRLARI */
-        .hour-setter-row { display: flex; justify-content: space-between; align-items: center; background: white; border: 1px solid var(--border-color); padding: 12px 16px; border-radius: 12px; margin-bottom: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.01); }
+        .hour-setter-row { display: flex; justify-content: space-between; align-items: center; background: white; border: 1px solid var(--border-color); padding: 12px 16px; border-radius: 12px; margin-bottom: 8px; }
         .hour-setter-row span { font-weight: 700; color: #475569; font-size: 0.9rem; }
         .hour-controls { display: flex; align-items: center; gap: 12px; }
         .hour-badge { background: #F1F5F9; font-weight: 800; padding: 6px 14px; border-radius: 8px; font-size: 0.9rem; min-width: 65px; text-align: center; border: 1px solid #CBD5E1; color: #334155; }
-        .h-btn { background: #FFF; border: 1px solid #CBD5E1; width: 32px; height: 32px; border-radius: 8px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: #475569; transition: all 0.2s; }
-        .h-btn:hover { background: var(--primary-color); color: white; border-color: var(--primary-color); }
+        .h-btn { background: #FFF; border: 1px solid #CBD5E1; width: 32px; height: 32px; border-radius: 8px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: #475569; }
 
         .crud-item-row { background: #FFF; border: 1px solid var(--border-color); padding: 12px 16px; border-radius: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
         .crud-info { display: flex; flex-direction: column; gap: 2px; }
         .crud-name { font-weight: 700; color: #1E293B; font-size: 0.95rem; }
         .crud-sub { font-size: 0.75rem; color: #64748B; font-weight: 600; }
         .crud-actions { display: flex; gap: 10px; }
-        .crud-icon-btn { background: none; border: none; cursor: pointer; font-size: 1rem; transition: color 0.2s; }
+        .crud-icon-btn { background: none; border: none; cursor: pointer; font-size: 1rem; }
         .crud-icon-btn.edit { color: #3498DB; }
         .crud-icon-btn.delete { color: #E74C3C; }
 
@@ -155,7 +153,7 @@
     <script>
         let currentRole = "Yönetici"; let currentUserName = "";
         let selectedAdminClassView = "8/A"; 
-        let selectedScheduleClassPlan = "8/A"; // Motor için seçili olan sınıf
+        let selectedScheduleClassPlan = "8/A";
 
         const SECURITY_KEYS = { "Yönetici": "zafer1925" };
 
@@ -200,7 +198,7 @@
 
         // --- BULUT BAĞLANTI AYARLARI ---
         const firebaseConfig = {
-            databaseURL: "https://zaferkampus-default-rtdb.firebaseio.com/" // Sizin URL adresiniz
+            databaseURL: "https://zaferkampus-b0a34-default-rtdb.firebaseio.com/" // Sizin Firebase linkiniz tam olarak gömüldü hocam!
         };
         
         if(!firebaseConfig.databaseURL.includes("default-rtdb")) {
@@ -312,8 +310,6 @@
                 content.innerHTML = `<div class="modern-class-grid">${Object.keys(localState.schoolData).map(x=>`<div class="modern-class-card ${selectedAdminClassView===x?'active':''}" onclick="selectedAdminClassView='${x}'; refreshCurrentActiveModule();">${x}</div>`).join('')}</div><div id="mC"></div>`;
                 renderMatrixView(selectedAdminClassView);
             }
-            
-            // --- TAM İSTEDİĞİNİZ SINIFA GÖRE HOCA SAAT SEÇİMLİ OTO PROGRAM MOTORU ---
             else if(currentOpenModuleId === 'auto_schedule') {
                 title.innerText = "Otomatik Ders Programı Motoru";
                 content.innerHTML = `
@@ -324,7 +320,6 @@
                     
                     <div class="feature-box" style="background:#FFF;">
                         <h4><i class="fa-solid fa-clock"></i> 2. Sınıf ${selectedScheduleClassPlan} İçin Haftalık Ders Saatleri:</h4>
-                        <p style="font-size:0.75rem; color:#64748B; margin-bottom:12px;">Sistemdeki tüm kayıtlı hocalar listelenmiştir. Bu sınıf için ders saatlerini giriniz:</p>
                         <div id="teachersHourInputsContainer"></div>
                     </div>
 
@@ -332,7 +327,6 @@
                 
                 renderTeachersHourInputs();
             }
-            
             else if(currentOpenModuleId === 'ajanda') {
                 title.innerText = "Okul Ajanda & Takvim";
                 let formHTML = (currentRole === 'Yönetici') ? `
@@ -359,10 +353,9 @@
             }
         }
 
-        // --- DINAMIK MOTOR SAAT AYARLAYICI GÖRÜNÜMÜ ---
         function renderTeachersHourInputs() {
             const container = document.getElementById('teachersHourInputsContainer'); if(!container) return;
-            if(localState.teachersList.length === 0) { container.innerHTML = "<p style='color:#64748B;'>Kayıtlı öğretmen bulunamadı. Önce kadrodan öğretmen ekleyin.</p>"; return; }
+            if(localState.teachersList.length === 0) { container.innerHTML = "<p style='color:#64748B;'>Kayıtlı öğretmen bulunamadı.</p>"; return; }
 
             container.innerHTML = localState.teachersList.map(t => {
                 let currentHours = (localState.teacherRequirements[t] && localState.teacherRequirements[t][selectedScheduleClassPlan]) ? localState.teacherRequirements[t][selectedScheduleClassPlan] : 0;
@@ -381,47 +374,29 @@
         function adjustTeacherHour(teacherName, offset) {
             if(!localState.teacherRequirements[teacherName]) localState.teacherRequirements[teacherName] = {};
             let currentHours = localState.teacherRequirements[teacherName][selectedScheduleClassPlan] || 0;
-            
             currentHours += offset;
             if(currentHours < 0) currentHours = 0;
-            if(currentHours > 40) currentHours = 40;
-
             localState.teacherRequirements[teacherName][selectedScheduleClassPlan] = currentHours;
-            
-            // Buluta anlık gönderme yapmıyoruz ki tek tek basarken internet kasmasın, "Oluştur" deyince hepsi mühürlenecek
             const badge = document.getElementById(`badge-${teacherName.replace(/\s+/g, '')}`);
             if(badge) badge.innerText = `${currentHours} saat`;
         }
 
         function triggerCloudAutoScheduleAI() {
             const days = ["Pzt","Sal","Çar","Per","Cum"];
-            
-            // Tüm sınıflar için ders matrisini sıfırla veya oluştur
             Object.keys(localState.schoolData).forEach(s => {
                 let idx = 0; 
-                // Matrisi boşalt
                 ["Pzt","Sal","Çar","Per","Cum"].forEach(d => { localState.scheduleDatabase[s][d] = {}; for(let h=1; h<=8; h++) localState.scheduleDatabase[s][d][h]="-"; });
-                
                 localState.teachersList.forEach(t => {
                     let req = (localState.teacherRequirements[t] && localState.teacherRequirements[t][s]) ? localState.teacherRequirements[t][s] : 0;
-                    for(let i=0; i<req; i++) { 
-                        if(idx < 40) { 
-                            let d = days[Math.floor(idx/8)]; 
-                            let hr = (idx % 8) + 1; 
-                            localState.scheduleDatabase[s][d][hr] = t; 
-                            idx++; 
-                        } 
-                    }
+                    for(let i=0; i<req; i++) { if(idx < 40) { let d = days[Math.floor(idx/8)]; let hr = (idx % 8) + 1; localState.scheduleDatabase[s][d][hr] = t; idx++; } }
                 });
             });
-            
             pushStateToCloud(); 
-            alert(`Zafer AI: Belirlediğiniz ders saat yüklerine göre tüm sınıfların çakışmasız programları başarıyla bulutta hesaplandı!`); 
+            alert(`Zafer AI: Ders programları bulutta başarıyla hesaplandı!`); 
             selectedAdminClassView = selectedScheduleClassPlan;
             openModule('view_schedules');
         }
 
-        // --- DİĞER MODÜL YARDIMCILARI ---
         function renderTeachersCrudList() {
             const area = document.getElementById('teachersCrudListArea'); if(!area) return;
             if(localState.teachersList.length === 0) { area.innerHTML = "<p>Kadro boş.</p>"; return; }
