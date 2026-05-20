@@ -5,19 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zafer Kampüs - K12 Yönetim Sistemi Pro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <style>
-        /* Tasarım ve mobil uyum kodları bozulmadan aynen korundu */
         :root {
-            --primary-color: #D32F2F;
-            --primary-dark: #B71C1C;
-            --bg-color: #F4F6F9;
-            --card-bg: #FFFFFF;
-            --text-color: #2C3E50;
-            --border-color: #E2E8F0;
-            --status-geldi: #2ECC71;
-            --status-gelmedi: #E74C3C;
-            --status-izinli: #3498DB;
+            --primary-color: #D32F2F; --primary-dark: #B71C1C;
+            --bg-color: #F4F6F9; --card-bg: #FFFFFF;
+            --text-color: #2C3E50; --border-color: #E2E8F0;
+            --status-geldi: #2ECC71; --status-gelmedi: #E74C3C; --status-izinli: #3498DB;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-color); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; padding-bottom: 80px;}
@@ -43,7 +36,7 @@
         .modern-class-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 14px; margin-bottom: 20px; }
         .modern-class-card { background: #FFF; border: 2px solid #E2E8F0; padding: 15px; border-radius: 14px; text-align: center; font-size: 1.1rem; font-weight: 800; color: #475569; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .modern-class-card.active { border-color: var(--primary-color); background: #FFF5F5; color: var(--primary-color); }
-        .attendance-student-card { background: white; border: 1px solid var(--border-color); padding: 16px; border-radius: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+        .attendance-student-card { background: white; border: 1px solid var(--border-color); padding: 16px; border-radius: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.02); flex-wrap: wrap; gap:10px;}
         .status-options { display: flex; gap: 8px; }
         .status-btn { border: 1px solid #CBD5E1; background: white; padding: 8px 16px; border-radius: 10px; font-size: 0.8rem; font-weight: 800; cursor: pointer; color: #64748B; }
         .status-btn.geldi-active { background: var(--status-geldi); color: white; border-color: var(--status-geldi); }
@@ -56,7 +49,7 @@
         .matrix-table th { background: var(--primary-color); color: white; padding: 12px 8px; border: 1px solid var(--primary-dark); }
         .matrix-table td { padding: 10px 6px; border: 1px solid var(--border-color); }
         .matrix-cell-box { background: #FFF5F5; border: 1px solid #FFCDCD; padding: 8px 4px; border-radius: 10px; font-weight: 700; color: var(--primary-dark); display: flex; flex-direction: column; }
-        .hour-setter-row { display: flex; justify-content: space-between; align-items: center; background: white; border: 1px solid var(--border-color); padding: 12px 16px; border-radius: 12px; margin-bottom: 8px; }
+        .hour-setter-row { display: flex; justify-content: space-between; align-items: center; background: white; border: 1px solid var(--border-color); padding: 12px 16px; border-radius: 12px; margin-bottom: 8px; flex-wrap:wrap; gap:10px;}
         .hour-controls { display: flex; align-items: center; gap: 12px; }
         .hour-badge { background: #F1F5F9; font-weight: 800; padding: 6px 14px; border-radius: 8px; font-size: 0.9rem; min-width: 65px; text-align: center; border: 1px solid #CBD5E1; }
         .h-btn { background: #FFF; border: 1px solid #CBD5E1; width: 32px; height: 32px; border-radius: 8px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; }
@@ -66,7 +59,6 @@
         .crud-sub { font-size: 0.75rem; color: #64748B; }
         .crud-actions { display: flex; gap: 10px; }
         .crud-icon-btn { background: none; border: none; cursor: pointer; font-size: 1rem; }
-        .crud-icon-btn.delete { color: #E74C3C; }
         .flex-row { display: flex; gap: 10px; width: 100%; }
         .bottom-nav { background: white; display: flex; justify-content: space-around; padding: 16px; border-top: 1px solid var(--border-color); position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;}
         .nav-item { color: #94A3B8; font-size: 1.5rem; cursor: pointer; }
@@ -89,24 +81,23 @@
 </head>
 <body>
 
-    <!-- GİRİŞ EKRANI -->
     <div class="login-container" id="loginScreen">
         <div class="logo-area">
             <div class="digital-flama"><i class="fa-solid fa-cloud"></i><div class="flama-text">ZAFER KAMPÜS V4.0 (CLOUD)</div></div>
             <div class="logo-title" style="margin-bottom: 20px;">SİSTEM GİRİŞİ</div>
         </div>
         <div class="role-selector">
-            <button class="role-btn active" onclick="selectRole('Yönetici', this)"><i class="fa-solid fa-user-tie"></i>Yönetici</button>
-            <button class="role-btn" onclick="selectRole('Öğretmen', this)"><i class="fa-solid fa-chalkboard-teacher"></i>Öğretmen</button>
-            <button class="role-btn" onclick="selectRole('Öğrenci', this)"><i class="fa-solid fa-user-graduate"></i>Öğrenci</button>
-            <button class="role-btn" onclick="selectRole('Veli', this)"><i class="fa-solid fa-users"></i>Veli</button>
+            <button class="role-btn active" onclick="window.selectRole('Yönetici', this)"><i class="fa-solid fa-user-tie"></i>Yönetici</button>
+            <button class="role-btn" onclick="window.selectRole('Öğretmen', this)"><i class="fa-solid fa-chalkboard-teacher"></i>Öğretmen</button>
+            <button class="role-btn" onclick="window.selectRole('Öğrenci', this)"><i class="fa-solid fa-user-graduate"></i>Öğrenci</button>
+            <button class="role-btn" onclick="window.selectRole('Veli', this)"><i class="fa-solid fa-users"></i>Veli</button>
         </div>
         <div class="input-group"><input type="text" id="loginUsername" placeholder="Kullanıcı Adı"></div>
         <div class="input-group"><input type="password" id="loginPassword" placeholder="Şifre"></div>
-        <button class="action-btn" onclick="handleLogin()">Bulut Sunucusuna Bağlan</button>
+        <button class="action-btn" onclick="window.handleLogin()">Bulut Sunucusuna Bağlan</button>
+        <p style="font-size: 0.8rem; color: #94A3B8; margin-top: 15px;">İlk Kurulum Yönetici Girişi: admin / 1234</p>
     </div>
 
-    <!-- ANA PANEL -->
     <div class="dashboard-container" id="dashboardScreen">
         <div class="header">
             <div><h1 id="brandTitle">ZAFER KAMPÜS</h1><p id="welcomeText">Yükleniyor...</p><p id="userRoleText">Erişim Rolü: -</p></div>
@@ -115,20 +106,18 @@
         <div class="grid-menu" id="mainMenuGrid"></div>
     </div>
 
-    <!-- DETAY PANELİ -->
     <div class="detail-container" id="detailScreen">
         <div class="detail-header">
             <div style="display:flex; align-items:center;">
-                <i class="fa-solid fa-arrow-left nav-item" onclick="goHome()" style="margin-right: 15px; color: var(--text-color);"></i>
+                <i class="fa-solid fa-arrow-left nav-item" onclick="window.goHome()" style="margin-right: 15px; color: var(--text-color);"></i>
                 <h2 id="detailTitle">Yükleniyor...</h2>
             </div>
         </div>
         <div id="detailContent"></div>
     </div>
 
-    <!-- CHATBOT WIDGET -->
     <div class="chatbot-widget collapsed" id="chatbotWidget">
-        <div class="chat-header" onclick="toggleChat()">
+        <div class="chat-header" onclick="window.toggleChat()">
             <span><i class="fa-solid fa-robot"></i> Zafer Asistan AI</span>
             <i class="fa-solid fa-chevron-up" id="chatToggleIcon"></i>
         </div>
@@ -136,61 +125,42 @@
             <div class="bot-msg">Merhaba! Ben Zafer Koleji bulut asistanıyım. Sorularınızı bekliyorum.</div>
         </div>
         <div class="chat-input-area">
-            <input type="text" id="chatInput" placeholder="Soru sorun..." onkeypress="if(event.key === 'Enter') sendChatMessage()">
-            <button onclick="sendChatMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+            <input type="text" id="chatInput" placeholder="Soru sorun..." onkeypress="if(event.key === 'Enter') window.sendChatMessage()">
+            <button onclick="window.sendChatMessage()"><i class="fa-solid fa-paper-plane"></i></button>
         </div>
     </div>
 
-    <!-- ALT NAVİGASYON -->
     <div class="bottom-nav">
-        <i class="fa-solid fa-chevron-left nav-item" onclick="goHome()"></i>
-        <i class="fa-solid fa-house nav-item active" onclick="goHome()"></i>
-        <i class="fa-solid fa-power-off nav-item" onclick="logout()" style="color:var(--primary-color);"></i>
+        <i class="fa-solid fa-chevron-left nav-item" onclick="window.goHome()"></i>
+        <i class="fa-solid fa-house nav-item active" onclick="window.goHome()"></i>
+        <i class="fa-solid fa-power-off nav-item" onclick="window.logout()" style="color:var(--primary-color);"></i>
     </div>
 
-    <!-- FIREBASE MIGRATION VE TÜM UYGULAMA MANTIĞI -->
     <script type="module">
-        // 1. Buradaki Firebase kütüphaneleri CDN üzerinden doğrudan tarayıcıya akar
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // ⚠️ ADIM 1.2: BURAYI KENDİ FIREBASE KONSOLUNDAN ALDIĞIN DEĞERLERLE DEĞİŞTİR!
-        const firebaseConfig = {// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyCw8wekTKw3Qn-efTBylldgVsRtKgGlW3c",
-  authDomain: "zaferai.firebaseapp.com",
-  projectId: "zaferai",
-  storageBucket: "zaferai.firebasestorage.app",
-  messagingSenderId: "808774923591",
-  appId: "1:808774923591:web:e8ad9b8b7388ab6eb18862",
-  measurementId: "G-QHYZ31962G"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+        // Sen in bilgilerini bizzat buraya gömdüm
+        const firebaseConfig = {
+            apiKey: "AIzaSyCw8wekTKw3Qn-efTBylldgVsRtKgGlW3c",
+            authDomain: "zaferai.firebaseapp.com",
+            projectId: "zaferai",
+            storageBucket: "zaferai.firebasestorage.app",
+            messagingSenderId: "808774923591",
+            appId: "1:808774923591:web:e8ad9b8b7388ab6eb18862",
+            measurementId: "G-QHYZ31962G"
         };
 
-        // Firebase Başlatma
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Uygulama Değişkenleri
         let currentRole = "Yönetici";
         let currentUserFullName = "";
         let currentUserName = "";
         let selectedAdminClassView = "8/A";
         let selectedScheduleClassPlan = "8/A";
 
-        // Dinamik Bulut Hafızası (Firestore'dan beslenir)
-        let cloudState = {
+        window.cloudState = {
             users: [{ role: "Yönetici", fullname: "Sistem Yöneticisi", username: "admin", password: "1234" }],
             schoolData: {"8/A": ["Ahmet Yılmaz", "Ayşe Kaya"]},
             teachersList: ["Mehmet Hoca (Türkçe)", "Ahmet Hoca (Matematik)"],
@@ -200,54 +170,52 @@ const analytics = getAnalytics(app);
             chatbotKB: [{soru: "okul saatleri", cevap: "Dersler 09:00 - 16:30 arasındadır."}]
         };
 
-        // Gerçek Zamanlı Bulut Dinleyicisi (Realtime Sync)
-        function listenToCloudDatabase() {
-            const docRef = doc(db, "zafer_kampus", "main_db");
-            onSnapshot(docRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    cloudState = docSnap.data();
-                    // Eksik alan korumaları
-                    if(!cloudState.users) cloudState.users = [];
-                    if(!cloudState.schoolData) cloudState.schoolData = {};
-                    if(!cloudState.teachersList) cloudState.teachersList = [];
-                    if(!cloudState.teacherRequirements) cloudState.teacherRequirements = {};
-                    if(!cloudState.attendanceDatabase) cloudState.attendanceDatabase = {};
-                    if(!cloudState.scheduleDatabase) cloudState.scheduleDatabase = {};
-                    if(!cloudState.chatbotKB) cloudState.chatbotKB = [];
-                    
-                    document.getElementById('cloudSyncStatus').innerHTML = `<i class="fa-solid fa-cloud" style="color:#2ECC71;"></i> Canlı Bağlantı`;
-                    refreshCurrentActiveModule();
-                } else {
-                    // İlk açılışta veritabanı boşsa default veriyi sunucuya yaz
-                    saveToCloudDatabase();
-                }
-            }, (error) => {
-                console.error("Bulut okuma hatası:", error);
-                document.getElementById('cloudSyncStatus').innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color:#E74C3C;"></i> Yapılandırma Gerekli`;
-            });
-        }
+        const docRef = doc(db, "zafer_kampus", "main_db");
+        
+        onSnapshot(docRef, (docSnap) => {
+            if (docSnap.exists()) {
+                window.cloudState = docSnap.data();
+                
+                // Güvenlik kontrolleri (Boşlukları doldurma)
+                if(!window.cloudState.users) window.cloudState.users = [];
+                if(!window.cloudState.schoolData) window.cloudState.schoolData = {};
+                if(!window.cloudState.teachersList) window.cloudState.teachersList = [];
+                if(!window.cloudState.teacherRequirements) window.cloudState.teacherRequirements = {};
+                if(!window.cloudState.attendanceDatabase) window.cloudState.attendanceDatabase = {};
+                if(!window.cloudState.scheduleDatabase) window.cloudState.scheduleDatabase = {};
+                if(!window.cloudState.chatbotKB) window.cloudState.chatbotKB = [];
+                
+                document.getElementById('cloudSyncStatus').innerHTML = `<i class="fa-solid fa-cloud" style="color:#2ECC71;"></i> Canlı Bağlantı (Aktif)`;
+                window.refreshCurrentActiveModule();
+            } else {
+                saveToCloudDatabase(); // İlk defa açılıyorsa buluta varsayılan veriyi yaz
+            }
+        }, (error) => {
+            console.error("Firebase Hatası:", error);
+            document.getElementById('cloudSyncStatus').innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color:#E74C3C;"></i> Bulut Hatası`;
+        });
 
         async function saveToCloudDatabase() {
             try {
-                await setDoc(doc(db, "zafer_kampus", "main_db"), cloudState);
+                await setDoc(docRef, window.cloudState);
             } catch (e) {
                 console.error("Buluta yazma hatası: ", e);
             }
         }
 
-        // Başlangıç tetiği
-        listenToCloudDatabase();
-
-        // Fonksiyonları HTML elementlerinden çağırabilmek için global window nesnesine bağlıyoruz
-        window.selectRole = function(r, el) { currentRole = r; document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('active')); el.classList.add('active'); };
+        window.selectRole = function(r, el) { 
+            currentRole = r; 
+            document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('active')); 
+            el.classList.add('active'); 
+        };
         
         window.handleLogin = function() {
             const uInput = document.getElementById('loginUsername').value.trim();
             const pInput = document.getElementById('loginPassword').value;
-            if(!uInput || !pInput) { alert("Lütfen alanları doldurunuz."); return; }
+            if(!uInput || !pInput) { alert("Lütfen kullanıcı adı ve şifre giriniz."); return; }
 
-            const foundUser = cloudState.users.find(u => u.username === uInput && u.password === pInput && u.role === currentRole);
-            if(!foundUser) { alert("Hata: Bilgiler hatalı veya rolünüz uyuşmuyor."); return; }
+            const foundUser = window.cloudState.users.find(u => u.username === uInput && u.password === pInput && u.role === currentRole);
+            if(!foundUser) { alert("Hata: Bilgiler hatalı veya bu rolde böyle bir kullanıcı yok."); return; }
 
             currentUserFullName = foundUser.fullname;
             currentUserName = foundUser.username;
@@ -256,13 +224,13 @@ const analytics = getAnalytics(app);
             document.getElementById('dashboardScreen').style.display = 'flex';
             document.getElementById('welcomeText').innerText = `Hoşgeldiniz, ${currentUserFullName}`;
             document.getElementById('userRoleText').innerText = `Rol: ${currentRole}`;
-            renderMenu();
+            window.renderMenu();
         };
 
-        window.goHome = function() { document.getElementById('detailScreen').style.display = 'none'; document.getElementById('dashboardScreen').style.display = 'flex'; renderMenu(); };
+        window.goHome = function() { document.getElementById('detailScreen').style.display = 'none'; document.getElementById('dashboardScreen').style.display = 'flex'; window.renderMenu(); };
         window.logout = function() { location.reload(); };
 
-        function renderMenu() {
+        window.renderMenu = function() {
             const grid = document.getElementById('mainMenuGrid'); if(!grid) return; grid.innerHTML = "";
             const modules = [
                 { id: 'dersler', title: 'Ders Programları', icon: 'fa-book-open', roles: ['Yönetici', 'Öğretmen', 'Öğrenci', 'Veli'] },
@@ -274,41 +242,42 @@ const analytics = getAnalytics(app);
                 { id: 'chatbot_admin', title: 'Chatbot Eğitimi', icon: 'fa-brain', roles: ['Yönetici'] },
                 { id: 'yardim', title: 'Destek & Yardım', icon: 'fa-circle-question', roles: ['Yönetici', 'Öğretmen', 'Öğrenci', 'Veli'] }
             ];
-            modules.forEach(m => { if(m.roles.includes(currentRole)) { grid.innerHTML += `<div class="menu-card" onclick="openModule('${m.id}')"><i class="fa-solid ${m.icon}"></i><span>${m.title}</span></div>`; } });
+            modules.forEach(m => { if(m.roles.includes(currentRole)) { grid.innerHTML += `<div class="menu-card" onclick="window.openModule('${m.id}')"><i class="fa-solid ${m.icon}"></i><span>${m.title}</span></div>`; } });
         }
-        window.openModule = function(id) { currentOpenModuleId = id; document.getElementById('dashboardScreen').style.display = 'none'; document.getElementById('detailScreen').style.display = 'flex'; refreshCurrentActiveModule(); };
 
-        let currentOpenModuleId = "";
-        function refreshCurrentActiveModule() {
+        window.currentOpenModuleId = "";
+        window.openModule = function(id) { window.currentOpenModuleId = id; document.getElementById('dashboardScreen').style.display = 'none'; document.getElementById('detailScreen').style.display = 'flex'; window.refreshCurrentActiveModule(); };
+
+        window.refreshCurrentActiveModule = function() {
             const content = document.getElementById('detailContent'); const title = document.getElementById('detailTitle');
             if(!content || document.getElementById('detailScreen').style.display === 'none') return;
             content.innerHTML = "";
 
-            if(currentOpenModuleId === 'ogrenci_yonetim') {
+            if(window.currentOpenModuleId === 'ogrenci_yonetim') {
                 title.innerText = "Sınıf ve Öğrenci Kontrol Merkezi";
                 content.innerHTML = `
                     <div class="feature-box" style="background:#E3F2FD; border-left-color:#1565C0;">
                         <h4><i class="fa-solid fa-layer-group"></i> Yeni Sınıf Şubesi Aç</h4>
-                        <div class="flex-row"><input type="text" id="newClassName" placeholder="Şube Adı (Örn: 9/A)"><button class="action-btn" style="background:#1565C0; width:150px;" onclick="createNewClass()">Sınıfı Aç</button></div>
+                        <div class="flex-row"><input type="text" id="newClassName" placeholder="Şube Adı (Örn: 9/A)"><button class="action-btn" style="background:#1565C0; width:150px;" onclick="window.createNewClass()">Sınıfı Aç</button></div>
                     </div>
-                    <div class="modern-class-grid">${Object.keys(cloudState.schoolData).map(x=>`<div class="modern-class-card ${selectedAdminClassView===x?'active':''}" onclick="changeAdminClassView('${x}')">Sınıf ${x}</div>`).join('')}</div>
-                    ${Object.keys(cloudState.schoolData).length > 0 ? `
+                    <div class="modern-class-grid">${Object.keys(window.cloudState.schoolData).map(x=>`<div class="modern-class-card ${selectedAdminClassView===x?'active':''}" onclick="window.changeAdminClassView('${x}')">Sınıf ${x}</div>`).join('')}</div>
+                    ${Object.keys(window.cloudState.schoolData).length > 0 ? `
                     <div class="feature-box" style="background:#FFF;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
                             <h4>${selectedAdminClassView} Şubesi Öğrencileri</h4>
-                            <button class="action-btn" style="width:auto; margin:0; padding:8px 15px; font-size:0.8rem;" onclick="deleteClass('${selectedAdminClassView}')">Sınıfı Kapat</button>
+                            <button class="action-btn" style="width:auto; margin:0; padding:8px 15px; font-size:0.8rem;" onclick="window.deleteClass('${selectedAdminClassView}')">Sınıfı Kapat</button>
                         </div>
-                        <div class="flex-row" style="margin-bottom:15px;"><input type="text" id="newStudentName" placeholder="Öğrenci Adı Soyadı"><button class="action-btn" style="width:120px;" onclick="addStudentToClass()">Kaydet</button></div>
-                        <div>${(cloudState.schoolData[selectedAdminClassView] || []).map((stu, idx) => `
+                        <div class="flex-row" style="margin-bottom:15px;"><input type="text" id="newStudentName" placeholder="Öğrenci Adı Soyadı"><button class="action-btn" style="width:120px;" onclick="window.addStudentToClass()">Kaydet</button></div>
+                        <div>${(window.cloudState.schoolData[selectedAdminClassView] || []).map((stu, idx) => `
                             <div class="crud-item-row">
                                 <span class="crud-name">${stu}</span>
                                 <div class="crud-actions">
-                                    <button class="crud-icon-btn" onclick="deleteStudent(${idx})" style="color:#E74C3C;"><i class="fa-solid fa-trash"></i></button>
+                                    <button class="crud-icon-btn" onclick="window.deleteStudent(${idx})" style="color:#E74C3C;"><i class="fa-solid fa-trash"></i></button>
                                 </div>
                             </div>`).join('')}</div>
                     </div>` : ''}`;
             }
-            else if(currentOpenModuleId === 'kullanici_yonetim') {
+            else if(window.currentOpenModuleId === 'kullanici_yonetim') {
                 title.innerText = "Kullanıcı Hesapları ve Yetki Yönetimi";
                 content.innerHTML = `
                     <div class="feature-box" style="background:#F3E5F5; border-left-color:#7B1FA2;">
@@ -316,73 +285,73 @@ const analytics = getAnalytics(app);
                         <select id="newUserRole"><option value="Öğretmen">Öğretmen</option><option value="Öğrenci">Öğrenci</option><option value="Veli">Veli</option><option value="Yönetici">Yönetici</option></select>
                         <input type="text" id="newUserFullname" placeholder="Adı Soyadı">
                         <div class="flex-row"><input type="text" id="newUserUsername" placeholder="Kullanıcı Adı"><input type="text" id="newUserPassword" placeholder="Şifre"></div>
-                        <button class="action-btn" style="background:#7B1FA2;" onclick="createUserAccount()">Hesabı Aktifleştir</button>
+                        <button class="action-btn" style="background:#7B1FA2;" onclick="window.createUserAccount()">Hesabı Aktifleştir</button>
                     </div>
                     <div class="feature-box" style="background:#FFF;">
                         <h4>Sistem Kullanıcıları</h4>
-                        <div>${cloudState.users.map((u, idx) => `
+                        <div>${window.cloudState.users.map((u, idx) => `
                             <div class="crud-item-row">
                                 <div class="crud-info"><span class="crud-name">${u.fullname} [${u.role}]</span><span class="crud-sub">Giriş: ${u.username} | Şifre: ${u.password}</span></div>
-                                <button class="crud-icon-btn" onclick="deleteUserAccount(${idx})" style="color:#E74C3C;"><i class="fa-solid fa-trash"></i></button>
+                                <button class="crud-icon-btn" onclick="window.deleteUserAccount(${idx})" style="color:#E74C3C;"><i class="fa-solid fa-trash"></i></button>
                             </div>`).join('')}</div>
                     </div>`;
             }
-            else if(currentOpenModuleId === 'devamsizlik') {
+            else if(window.currentOpenModuleId === 'devamsizlik') {
                 title.innerText = "Canlı Yoklama Sistemi";
-                content.innerHTML = `<div class="modern-class-grid">${Object.keys(cloudState.schoolData).map(x=>`<div class="modern-class-card ${selectedAdminClassView===x?'active':''}" onclick="changeAdminClassView('${x}')">Sınıf ${x}</div>`).join('')}</div><div id="attArea"></div>`;
+                content.innerHTML = `<div class="modern-class-grid">${Object.keys(window.cloudState.schoolData).map(x=>`<div class="modern-class-card ${selectedAdminClassView===x?'active':''}" onclick="window.changeAdminClassView('${x}')">Sınıf ${x}</div>`).join('')}</div><div id="attArea"></div>`;
                 const area = document.getElementById('attArea');
-                if(area && cloudState.attendanceDatabase[selectedAdminClassView]) {
-                    area.innerHTML = cloudState.attendanceDatabase[selectedAdminClassView].map((r, i) => `
+                if(area && window.cloudState.attendanceDatabase[selectedAdminClassView]) {
+                    area.innerHTML = window.cloudState.attendanceDatabase[selectedAdminClassView].map((r, i) => `
                         <div class="attendance-student-card">
                             <span style="font-weight:bold;">${r.ogrenci}</span>
                             <div class="status-options">
-                                <button class="status-btn ${r.durum==='geldi'?'geldi-active':''}" onclick="updateAttendance('${selectedAdminClassView}', ${i}, 'geldi')">GELDİ</button>
-                                <button class="status-btn ${r.durum==='gelmedi'?'gelmedi-active':''}" onclick="updateAttendance('${selectedAdminClassView}', ${i}, 'gelmedi')">GELMEDİ</button>
-                                <button class="status-btn ${r.durum==='izinli'?'izinli-active':''}" onclick="updateAttendance('${selectedAdminClassView}', ${i}, 'izinli')">İZİNLİ</button>
+                                <button class="status-btn ${r.durum==='geldi'?'geldi-active':''}" onclick="window.updateAttendance('${selectedAdminClassView}', ${i}, 'geldi')">GELDİ</button>
+                                <button class="status-btn ${r.durum==='gelmedi'?'gelmedi-active':''}" onclick="window.updateAttendance('${selectedAdminClassView}', ${i}, 'gelmedi')">GELMEDİ</button>
+                                <button class="status-btn ${r.durum==='izinli'?'izinli-active':''}" onclick="window.updateAttendance('${selectedAdminClassView}', ${i}, 'izinli')">İZİNLİ</button>
                             </div>
                         </div>`).join('');
                 }
             }
-            else if(currentOpenModuleId === 'dersler') {
+            else if(window.currentOpenModuleId === 'dersler') {
                 title.innerText = "Haftalık Sınıf Ders Programı";
-                content.innerHTML = `<div class="modern-class-grid">${Object.keys(cloudState.schoolData).map(x=>`<div class="modern-class-card ${selectedAdminClassView===x?'active':''}" onclick="changeAdminClassView('${x}')">${x}</div>`).join('')}</div><div id="mC"></div>`;
-                renderMatrixView(selectedAdminClassView);
+                content.innerHTML = `<div class="modern-class-grid">${Object.keys(window.cloudState.schoolData).map(x=>`<div class="modern-class-card ${selectedAdminClassView===x?'active':''}" onclick="window.changeAdminClassView('${x}')">${x}</div>`).join('')}</div><div id="mC"></div>`;
+                window.renderMatrixView(selectedAdminClassView);
             }
-            else if(currentOpenModuleId === 'auto_schedule') {
+            else if(window.currentOpenModuleId === 'auto_schedule') {
                 title.innerText = "Yapay Zeka Ders Dağıtım Motoru";
                 content.innerHTML = `
-                    <div class="modern-class-grid">${Object.keys(cloudState.schoolData).map(x=>`<div class="modern-class-card ${selectedScheduleClassPlan===x?'active':''}" onclick="changeScheduleClassPlan('${x}')">Sınıf ${x}</div>`).join('')}</div>
+                    <div class="modern-class-grid">${Object.keys(window.cloudState.schoolData).map(x=>`<div class="modern-class-card ${selectedScheduleClassPlan===x?'active':''}" onclick="window.changeScheduleClassPlan('${x}')">Sınıf ${x}</div>`).join('')}</div>
                     <div class="feature-box" style="background:#FFF;"><div id="teachersHourInputsContainer"></div></div>
-                    <button class="action-btn" style="background:#2ECC71;" onclick="triggerAutoScheduleAI()"><i class="fa-solid fa-calculator"></i> Dağıtımı Hesapla ve Buluta Gönder</button>`;
-                renderTeachersHourInputs();
+                    <button class="action-btn" style="background:#2ECC71;" onclick="window.triggerAutoScheduleAI()"><i class="fa-solid fa-calculator"></i> Dağıtımı Hesapla ve Buluta Gönder</button>`;
+                window.renderTeachersHourInputs();
             }
-            else if(currentOpenModuleId === 'siniflar') {
+            else if(window.currentOpenModuleId === 'siniflar') {
                 title.innerText = "Öğretmen Kadrosu";
                 content.innerHTML = `
                     <div class="feature-box">
                         <h4>Yeni Öğretmen Ekle</h4>
                         <input type="text" id="nT" placeholder="Adı Soyadı">
                         <input type="text" id="nB" placeholder="Branşı">
-                        <button class="action-btn" onclick="addNewTeacherLocal()">Kadroyu Güncelle</button>
+                        <button class="action-btn" onclick="window.addNewTeacherLocal()">Kadroyu Güncelle</button>
                     </div>
                     <div class="feature-box" style="background:#FFF;">
-                        ${cloudState.teachersList.map((t, index) => `<div class="crud-item-row"><span>${t}</span><i class="fa-solid fa-trash" style="color:#E74C3C; cursor:pointer;" onclick="deleteTeacherLocal(${index}, '${t}')"></i></div>`).join('')}
+                        ${window.cloudState.teachersList.map((t, index) => `<div class="crud-item-row"><span>${t}</span><i class="fa-solid fa-trash" style="color:#E74C3C; cursor:pointer;" onclick="window.deleteTeacherLocal(${index}, '${t}')"></i></div>`).join('')}
                     </div>`;
             }
-            else if(currentOpenModuleId === 'chatbot_admin') {
+            else if(window.currentOpenModuleId === 'chatbot_admin') {
                 title.innerText = "Asistan Yapay Zeka Eğitimi";
                 content.innerHTML = `
                     <div class="feature-box">
                         <h4>Yeni Bilgi Ekle</h4>
                         <input type="text" id="cbSoru" placeholder="Soru Anahtar Kelimesi">
                         <textarea id="cbCevap" placeholder="Cevap metni..."></textarea>
-                        <button class="action-btn" onclick="addKBLocal()">Buluta Öğret</button>
+                        <button class="action-btn" onclick="window.addKBLocal()">Buluta Öğret</button>
                     </div>
                     <div class="feature-box" style="background:#FFF;">
-                        ${cloudState.chatbotKB.map((kb, idx)=>`<div class="crud-item-row"><div class="crud-info"><strong>${kb.soru}</strong><small>${kb.cevap}</small></div><i class="fa-solid fa-trash" style="color:#E74C3C; cursor:pointer;" onclick="deleteKBLocal(${idx})"></i></div>`).join('')}
+                        ${window.cloudState.chatbotKB.map((kb, idx)=>`<div class="crud-item-row"><div class="crud-info"><strong>${kb.soru}</strong><small>${kb.cevap}</small></div><i class="fa-solid fa-trash" style="color:#E74C3C; cursor:pointer;" onclick="window.deleteKBLocal(${idx})"></i></div>`).join('')}
                     </div>`;
             }
-            else if(currentOpenModuleId === 'yardim') {
+            else if(window.currentOpenModuleId === 'yardim') {
                 title.innerText = "Teknik Destek Bilgileri";
                 content.innerHTML = `
                     <div class="feature-box" style="text-align:center; padding:30px;">
@@ -395,39 +364,38 @@ const analytics = getAnalytics(app);
                         </div>
                     </div>`;
             }
-        }
+        };
 
-        // Window Scope Bağlantıları (Firestore Tetikleyicileri)
-        window.changeAdminClassView = function(x) { selectedAdminClassView = x; refreshCurrentActiveModule(); };
-        window.changeScheduleClassPlan = function(x) { selectedScheduleClassPlan = x; refreshCurrentActiveModule(); };
+        window.changeAdminClassView = function(x) { selectedAdminClassView = x; window.refreshCurrentActiveModule(); };
+        window.changeScheduleClassPlan = function(x) { selectedScheduleClassPlan = x; window.refreshCurrentActiveModule(); };
 
         window.createNewClass = function() {
             const cName = document.getElementById('newClassName').value.trim(); if(!cName) return;
-            if(cloudState.schoolData[cName]) return;
-            cloudState.schoolData[cName] = [];
-            cloudState.attendanceDatabase[cName] = [];
-            cloudState.scheduleDatabase[cName] = {};
-            ["Pzt","Sal","Çar","Per","Cum"].forEach(d => { cloudState.scheduleDatabase[cName][d] = {}; for(let h=1; h<=8; h++) cloudState.scheduleDatabase[cName][d][h]="-"; });
-            cloudState.teachersList.forEach(t => { if(!cloudState.teacherRequirements[t]) cloudState.teacherRequirements[t]={}; cloudState.teacherRequirements[t][cName]=0; });
+            if(window.cloudState.schoolData[cName]) return;
+            window.cloudState.schoolData[cName] = [];
+            window.cloudState.attendanceDatabase[cName] = [];
+            window.cloudState.scheduleDatabase[cName] = {};
+            ["Pzt","Sal","Çar","Per","Cum"].forEach(d => { window.cloudState.scheduleDatabase[cName][d] = {}; for(let h=1; h<=8; h++) window.cloudState.scheduleDatabase[cName][d][h]="-"; });
+            window.cloudState.teachersList.forEach(t => { if(!window.cloudState.teacherRequirements[t]) window.cloudState.teacherRequirements[t]={}; window.cloudState.teacherRequirements[t][cName]=0; });
             saveToCloudDatabase();
         };
 
         window.deleteClass = function(cName) {
             if(!confirm("Sınıfı silmek istiyor musunuz?")) return;
-            delete cloudState.schoolData[cName]; delete cloudState.attendanceDatabase[cName]; delete cloudState.scheduleDatabase[cName];
+            delete window.cloudState.schoolData[cName]; delete window.cloudState.attendanceDatabase[cName]; delete window.cloudState.scheduleDatabase[cName];
             saveToCloudDatabase();
         };
 
         window.addStudentToClass = function() {
             const name = document.getElementById('newStudentName').value.trim(); if(!name) return;
-            cloudState.schoolData[selectedAdminClassView].push(name);
-            cloudState.attendanceDatabase[selectedAdminClassView].push({ogrenci: name, durum: "geldi"});
+            window.cloudState.schoolData[selectedAdminClassView].push(name);
+            window.cloudState.attendanceDatabase[selectedAdminClassView].push({ogrenci: name, durum: "geldi"});
             saveToCloudDatabase();
         };
 
         window.deleteStudent = function(idx) {
-            cloudState.schoolData[selectedAdminClassView].splice(idx,1);
-            cloudState.attendanceDatabase[selectedAdminClassView].splice(idx,1);
+            window.cloudState.schoolData[selectedAdminClassView].splice(idx,1);
+            window.cloudState.attendanceDatabase[selectedAdminClassView].splice(idx,1);
             saveToCloudDatabase();
         };
 
@@ -437,64 +405,63 @@ const analytics = getAnalytics(app);
             const u = document.getElementById('newUserUsername').value.trim();
             const p = document.getElementById('newUserPassword').value.trim();
             if(!f || !u || !p) return;
-            cloudState.users.push({role:r, fullname:f, username:u, password:p});
+            window.cloudState.users.push({role:r, fullname:f, username:u, password:p});
             saveToCloudDatabase();
         };
 
         window.deleteUserAccount = function(idx) {
-            cloudState.users.splice(idx, 1); saveToCloudDatabase();
+            window.cloudState.users.splice(idx, 1); saveToCloudDatabase();
         };
 
         window.updateAttendance = function(s, idx, stat) {
-            cloudState.attendanceDatabase[s][idx].durum = stat; saveToCloudDatabase();
+            window.cloudState.attendanceDatabase[s][idx].durum = stat; saveToCloudDatabase();
         };
 
         window.addNewTeacherLocal = function() {
             const n = document.getElementById('nT').value.trim(); const b = document.getElementById('nB').value.trim(); if(!n || !b) return;
             const full = `${n} Hoca (${b})`;
-            cloudState.teachersList.push(full);
-            cloudState.teacherRequirements[full] = {};
-            Object.keys(cloudState.schoolData).forEach(s => cloudState.teacherRequirements[full][s] = 0);
+            window.cloudState.teachersList.push(full);
+            window.cloudState.teacherRequirements[full] = {};
+            Object.keys(window.cloudState.schoolData).forEach(s => window.cloudState.teacherRequirements[full][s] = 0);
             saveToCloudDatabase();
         };
 
         window.deleteTeacherLocal = function(idx, name) {
-            cloudState.teachersList.splice(idx, 1); delete cloudState.teacherRequirements[name]; saveToCloudDatabase();
+            window.cloudState.teachersList.splice(idx, 1); delete window.cloudState.teacherRequirements[name]; saveToCloudDatabase();
         };
 
-        // Otomatik Programlama Algoritması
-        function renderTeachersHourInputs() {
+        window.renderTeachersHourInputs = function() {
             const container = document.getElementById('teachersHourInputsContainer'); if(!container) return;
             let total = 0;
-            container.innerHTML = cloudState.teachersList.map(t => {
-                let hours = cloudState.teacherRequirements[t]?.[selectedScheduleClassPlan] || 0;
+            container.innerHTML = window.cloudState.teachersList.map(t => {
+                let hours = window.cloudState.teacherRequirements[t]?.[selectedScheduleClassPlan] || 0;
                 total += hours;
                 return `<div class="hour-setter-row"><span>${t}</span><div class="hour-controls">
-                    <button class="h-btn" onclick="adjustTeacherHour('${t}', -1)">-</button><div class="hour-badge">${hours} Saat</div>
-                    <button class="h-btn" onclick="adjustTeacherHour('${t}', 1)">+</button></div></div>`;
+                    <button class="h-btn" onclick="window.adjustTeacherHour('${t}', -1)">-</button><div class="hour-badge">${hours} Saat</div>
+                    <button class="h-btn" onclick="window.adjustTeacherHour('${t}', 1)">+</button></div></div>`;
             }).join('') + `<div style='margin-top:10px; font-weight:bold;'>Sınıf Toplam Yükü: ${total} / 40 Saat</div>`;
-        }
+        };
 
         window.adjustTeacherHour = function(t, offset) {
-            if(!cloudState.teacherRequirements[t]) cloudState.teacherRequirements[t] = {};
-            let hr = cloudState.teacherRequirements[t][selectedScheduleClassPlan] || 0;
+            if(!window.cloudState.teacherRequirements[t]) window.cloudState.teacherRequirements[t] = {};
+            let hr = window.cloudState.teacherRequirements[t][selectedScheduleClassPlan] || 0;
             hr += offset; if(hr < 0) hr = 0;
-            cloudState.teacherRequirements[t][selectedScheduleClassPlan] = hr;
-            saveToCloudDatabase(); renderTeachersHourInputs();
+            window.cloudState.teacherRequirements[t][selectedScheduleClassPlan] = hr;
+            saveToCloudDatabase(); window.renderTeachersHourInputs();
         };
 
         window.triggerAutoScheduleAI = function() {
             const days = ["Pzt","Sal","Çar","Per","Cum"];
             let total = 0;
-            cloudState.teachersList.forEach(t => total += cloudState.teacherRequirements[t]?.[selectedScheduleClassPlan] || 0);
+            window.cloudState.teachersList.forEach(t => total += window.cloudState.teacherRequirements[t]?.[selectedScheduleClassPlan] || 0);
             if(total !== 40) { alert(`Hata: Program saat yükü tam olarak 40 olmalıdır. Şu an: ${total}`); return; }
 
-            let temp = JSON.parse(JSON.stringify(cloudState.scheduleDatabase));
+            let temp = JSON.parse(JSON.stringify(window.cloudState.scheduleDatabase));
             days.forEach(d => { for(let h=1; h<=8; h++) temp[selectedScheduleClassPlan][d][h] = "-"; });
 
             let reqList = [];
-            cloudState.teachersList.forEach(t => {
-                let req = cloudState.teacherRequirements[t]?.[selectedScheduleClassPlan] || 0;
+            window.cloudState.teachersList.forEach(t => {
+                let req = window.cloudState.teacherRequirements[t]?.[selectedScheduleClassPlan] || 0;
                 for(let i=0; i<req; i++) reqList.push(t);
             });
 
@@ -517,26 +484,25 @@ const analytics = getAnalytics(app);
             });
 
             if(failed) { alert("Hata: Öğretmen programlarında çakışma oluştu, dağıtım tamamlanamadı!"); return; }
-            cloudState.scheduleDatabase = temp;
+            window.cloudState.scheduleDatabase = temp;
             saveToCloudDatabase(); alert("Başarılı: Çakışmasız yeni program bulut sunucusuna yüklendi.");
             window.openModule('dersler');
         };
 
-        function renderMatrixView(s) {
+        window.renderMatrixView = function(s) {
             const container = document.getElementById('mC'); if(!container) return; const days = ["Pzt","Sal","Çar","Per","Cum"];
             let h = `<div class="matrix-wrapper"><table class="matrix-table"><thead><tr><th>Saat</th>${days.map(d=>`<th>${d}</th>`).join('')}</tr></thead><tbody>`;
             for(let hr=1; hr<=8; hr++) {
                 h += `<tr><td style="font-weight:bold;">${hr}. Ders</td>`;
                 days.map(d => {
-                    let cur = cloudState.scheduleDatabase[s]?.[d]?.[hr] || "-";
+                    let cur = window.cloudState.scheduleDatabase[s]?.[d]?.[hr] || "-";
                     h += `<td>${cur !== "-" ? `<div class="matrix-cell-box">${cur.substring(cur.indexOf("(")+1, cur.indexOf(")"))}<small>${cur.split(' ')[0]}</small></div>` : `<span>-</span>`}</td>`;
                 });
                 h += `</tr>`;
             }
             container.innerHTML = h + "</tbody></table></div>";
-        }
+        };
 
-        // Chatbot Mantığı
         window.toggleChat = function() {
             const w = document.getElementById('chatbotWidget'); w.classList.toggle('collapsed');
         };
@@ -546,15 +512,15 @@ const analytics = getAnalytics(app);
             inp.value = ""; body.scrollTop = body.scrollHeight;
             setTimeout(() => {
                 let answer = "Bulut sisteminde bu bilgiye ulaşamadım, müdürlüğe danışabilirsiniz.";
-                for(let kb of cloudState.chatbotKB) { if(msg.includes(kb.soru.toLowerCase())) { answer = kb.cevap; break; } }
+                for(let kb of window.cloudState.chatbotKB) { if(msg.includes(kb.soru.toLowerCase())) { answer = kb.cevap; break; } }
                 body.innerHTML += `<div class="bot-msg">${answer}</div>`; body.scrollTop = body.scrollHeight;
             }, 400);
         };
         window.addKBLocal = function() {
             const s = document.getElementById('cbSoru').value.trim(); const c = document.getElementById('cbCevap').value.trim(); if(!s || !c) return;
-            cloudState.chatbotKB.push({soru:s, cevap:c}); saveToCloudDatabase();
+            window.cloudState.chatbotKB.push({soru:s, cevap:c}); saveToCloudDatabase();
         };
-        window.deleteKBLocal = function(idx) { cloudState.chatbotKB.splice(idx,1); saveToCloudDatabase(); };
+        window.deleteKBLocal = function(idx) { window.cloudState.chatbotKB.splice(idx,1); saveToCloudDatabase(); };
     </script>
 </body>
 </html>
