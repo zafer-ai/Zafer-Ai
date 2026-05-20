@@ -69,12 +69,15 @@
         .matrix-table td { padding: 10px 6px; border: 1px solid var(--border-color); }
         .matrix-cell-box { background: #FFF5F5; border: 1px solid #FFCDCD; padding: 8px 4px; border-radius: 10px; font-weight: 700; color: var(--primary-dark); display: flex; flex-direction: column; }
 
-        .teacher-select-row { background: #FFF; border: 1px solid var(--border-color); padding: 14px 20px; border-radius: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: 700; color: #334155; }
-        .teacher-select-row:hover, .teacher-select-row.active { border-color: var(--primary-color); background: #FFF5F5; color: var(--primary-color); }
-        .hour-setter-row { display: flex; justify-content: space-between; align-items: center; background: white; border: 1px solid var(--border-color); padding: 12px 16px; border-radius: 12px; margin-bottom: 8px; }
-        .hour-controls { display: flex; align-items: center; gap: 12px; }
-        .hour-badge { background: #F1F5F9; font-weight: 800; padding: 6px 14px; border-radius: 8px; font-size: 0.9rem; min-width: 65px; text-align: center; border: 1px solid #CBD5E1; color: #334155; }
-        .h-btn { background: #FFF; border: 1px solid #CBD5E1; width: 32px; height: 32px; border-radius: 8px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        /* YENİ EDITÖR GRAFİKLERİ */
+        .crud-item-row { background: #FFF; border: 1px solid var(--border-color); padding: 12px 16px; border-radius: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .crud-info { display: flex; flex-direction: column; gap: 2px; }
+        .crud-name { font-weight: 700; color: #1E293B; font-size: 0.95rem; }
+        .crud-sub { font-size: 0.75rem; color: #64748B; font-weight: 600; }
+        .crud-actions { display: flex; gap: 10px; }
+        .crud-icon-btn { background: none; border: none; cursor: pointer; font-size: 1rem; transition: color 0.2s; }
+        .crud-icon-btn.edit { color: #3498DB; }
+        .crud-icon-btn.delete { color: #E74C3C; }
 
         .msg-container { max-height: 250px; overflow-y: auto; background: #F8FAFC; border: 1px solid var(--border-color); padding: 15px; border-radius: 14px; display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
         .msg-bubble { background: #FFF; padding: 10px 14px; border-radius: 12px; font-size: 0.85rem; max-width: 80%; border-left: 4px solid var(--primary-color); }
@@ -172,11 +175,10 @@
             scheduleDatabase: {}
         };
 
-        // TAM ENTEGRASYON KORUMA DÖNGÜSÜ
         function initRequirements() {
+            if(!localState.teacherRequirements) localState.teacherRequirements = {};
             localState.teachersList.forEach(t => { 
                 if(!localState.teacherRequirements[t]) {
-                    // Her yeni eklenen hocaya otomatik 4'er saat başlangıç ders yükü veriyoruz ki motor algılasın
                     localState.teacherRequirements[t] = {"8/A":4,"8/B":4,"8/C":4,"8/D":4,"8/E":4};
                 } 
             });
@@ -194,7 +196,7 @@
 
         // --- BULUT BAĞLANTI AYARLARI ---
         const firebaseConfig = {
-            databaseURL: "https://zaferkampus-default-rtdb.firebaseio.com/" // Kendi Firebase URL'nizi buraya girmeyi unutmayın hocam!
+            databaseURL: "https://zaferkampus-default-rtdb.firebaseio.com/" // Sizin Firebase URL'niz
         };
         
         if(!firebaseConfig.databaseURL.includes("default-rtdb")) {
@@ -284,20 +286,37 @@
                         </div>`).join('');
                 }
             }
+            
+            // --- YENİLENMİŞ TAM DİNAMİK SINIF / HOCA YÖNETİM MERKEZİ ---
             else if(currentOpenModuleId === 'siniflar') {
-                title.innerText = "Bulut Yapılandırma Merkezi";
+                title.innerText = "Yönetim & Kadro Yapılandırma";
                 content.innerHTML = `
-                    <div class="feature-box" style="background:#FFFDE7;">
+                    <div class="feature-box" style="background:#E8F5E9; border-left-color:#2E7D32;">
+                        <h4 style="color:#2E7D32;"><i class="fa-solid fa-user-plus"></i> Yeni Öğretmen Tanımlama</h4>
+                        <div style="display:flex; gap:10px; margin-bottom:10px;">
+                            <input type="text" id="nT" placeholder="Öğretmen Adı Soyadı" style="margin:0;">
+                            <input type="text" id="nB" placeholder="Branş (Örn: Matematik)" style="margin:0;">
+                        </div>
+                        <label style="font-weight:700; font-size:0.8rem; color:#475569;">Haftalık Sınıf Ders Yükü Saati (Varsayılan):</label>
+                        <input type="number" id="nHour" value="4" min="1" max="10" style="width:100px; margin-bottom:12px;">
+                        <button class="action-btn" style="background:#2E7D32;" onclick="addNewTeacherToCloudDynamic()">Kadroyu Buluta Ekle</button>
+                    </div>
+
+                    <div class="feature-box" style="background:#FFF;">
+                        <h4><i class="fa-solid fa-users-gear"></i> Mevcut Kadro Düzenleme / Çıkarma</h4>
+                        <p style="font-size:0.8rem; color:#64748B; margin-bottom:12px;">Kayıtlı hocaların isim, branş düzenlemelerini yapabilir veya kadrodan silebilirsiniz:</p>
+                        <div id="teachersCrudListArea"></div>
+                    </div>
+
+                    <div class="feature-box" style="background:#FFFDE7; border-left-color:#F59F00;">
                         <h4>Zafer AI Bulut Hafızası</h4>
                         <textarea id="kbTarihce">${localState.chatbotKnowledge.tarihce}</textarea>
                         <button class="action-btn" style="background:#F59F00;" onclick="localState.chatbotKnowledge.tarihce=document.getElementById('kbTarihce').value; pushStateToCloud(); alert('Bulut hafızası güncellendi!');">Buluta Gönder</button>
-                    </div>
-                    <div class="feature-box">
-                        <h4>Sisteme Yeni Öğretmen / Branş Tanımla</h4>
-                        <input type="text" id="nT" placeholder="Hoca Adı"><input type="text" id="nB" placeholder="Branş">
-                        <button class="action-btn" onclick="addNewTeacherToCloud()">Bulut Kadrosuna Ekle</button>
                     </div>`;
+                
+                renderTeachersCrudList();
             }
+            
             else if(currentOpenModuleId === 'view_schedules') {
                 title.innerText = "Haftalık Sınıf Ders Programı";
                 content.innerHTML = `<div class="modern-class-grid">${Object.keys(localState.schoolData).map(x=>`<div class="modern-class-card ${selectedAdminClassView===x?'active':''}" onclick="selectedAdminClassView='${x}'; refreshCurrentActiveModule();">${x}</div>`).join('')}</div><div id="mC"></div>`;
@@ -310,7 +329,7 @@
                         <h4>Akıllı Çakışmasız Dağıtım Listesi</h4>
                         <p style="font-size:0.85rem; color:#64748B; margin-bottom:12px;">Sistemde yüklü olan hocaların listesi ve otomatik atanan ders yükleri:</p>
                         <div style="max-height:160px; overflow-y:auto; background:#FFF; padding:10px; border-radius:12px; border:1px solid #E2E8F0; margin-bottom:15px;">
-                            ${localState.teachersList.map(t=>`<div style="padding:6px; font-weight:bold; font-size:0.9rem; color:#334155;"><i class="fa-solid fa-user-check" style="color:var(--primary-color);"></i> ${t} - Atandı</div>`).join('')}
+                            ${localState.teachersList.map(t=>`<div style="padding:6px; font-weight:bold; font-size:0.9rem; color:#334155;"><i class="fa-solid fa-user-check" style="color:var(--primary-color);"></i> ${t} - Dağıtıma Hazır</div>`).join('')}
                         </div>
                         <button class="action-btn" style="background:#2ECC71;" onclick="triggerCloudAutoScheduleAI()">Akıllı Programı Tetikle ve Dağıt</button>
                     </div>`;
@@ -341,18 +360,105 @@
             }
         }
 
-        function updateCloudStatus(s, index, status) { localState.attendanceDatabase[s][index].durum = status; pushStateToCloud(); refreshCurrentActiveModule(); }
-        
-        function addNewTeacherToCloud() {
-            const n = document.getElementById('nT').value.trim(); const b = document.getElementById('nB').value.trim(); if(!n || !b) return;
-            const fullTeacherName = `${n} Hoca (${b})`;
-            localState.teachersList.push(fullTeacherName);
-            localState.teacherRequirements[fullTeacherName] = {"8/A":4,"8/B":4,"8/C":4,"8/D":4,"8/E":4};
-            pushStateToCloud(); 
-            alert("Hoca bulut kadrosuna eklendi ve haftalık ders yükü otomatik bağlandı."); 
-            openModule('siniflar');
+        // --- DINAMIK ÖĞRETMEN YÖNETİM PANELİ MOTORLARI (CRUD) ---
+        function renderTeachersCrudList() {
+            const area = document.getElementById('teachersCrudListArea'); if(!area) return;
+            if(localState.teachersList.length === 0) { area.innerHTML = "<p style='color:#64748B; font-style:italic;'>Kadroda kayıtlı hoca bulunamadı.</p>"; return; }
+            
+            area.innerHTML = localState.teachersList.map((t, index) => {
+                let hocaAdi = t.split(' ')[0] + " " + (t.split(' ')[1] || "");
+                let brans = t.substring(t.indexOf("(")+1, t.indexOf(")"));
+                return `
+                    <div class="crud-item-row">
+                        <div class="crud-info">
+                            <span class="crud-name"><i class="fa-solid fa-chalkboard-user" style="color:var(--primary-color); margin-right:6px;"></i> ${hocaAdi}</span>
+                            <span class="crud-sub">Branş: ${brans}</span>
+                        </div>
+                        <div class="crud-actions">
+                            <button class="crud-icon-btn edit" onclick="editTeacherDynamic(${index}, '${t}')" title="Düzenle"><i class="fa-solid fa-user-pen"></i></button>
+                            <button class="crud-icon-btn delete" onclick="deleteTeacherDynamic(${index}, '${t}')" title="Sil"><i class="fa-solid fa-user-minus"></i></button>
+                        </div>
+                    </div>`;
+            }).join('');
         }
-        
+
+        function addNewTeacherToCloudDynamic() {
+            const n = document.getElementById('nT').value.trim(); 
+            const b = document.getElementById('nB').value.trim(); 
+            const hr = parseInt(document.getElementById('nHour').value) || 4;
+            if(!n || !b) { alert("Lütfen Hoca Adı ve Branş alanlarını doldurunuz."); return; }
+            
+            const fullTeacherName = `${n} Hoca (${b})`;
+            if(localState.teachersList.includes(fullTeacherName)) { alert("Bu isimde bir hoca zaten kadroda kayıtlı."); return; }
+            
+            localState.teachersList.push(fullTeacherName);
+            localState.teacherRequirements[fullTeacherName] = {"8/A":hr,"8/B":hr,"8/C":hr,"8/D":hr,"8/E":hr};
+            
+            pushStateToCloud();
+            alert(`${n} kadroya başarıyla eklendi!`);
+            document.getElementById('nT').value = "";
+            document.getElementById('nB').value = "";
+            refreshCurrentActiveModule();
+        }
+
+        function editTeacherDynamic(index, oldFullName) {
+            let oldName = oldFullName.split(' Hoca')[0];
+            let oldBranch = oldFullName.substring(oldFullName.indexOf("(")+1, oldFullName.indexOf(")"));
+            
+            let newName = prompt("Öğretmenin Yeni Adı Soyadı:", oldName);
+            if(!newName) return;
+            let newBranch = prompt("Öğretmenin Yeni Branşı:", oldBranch);
+            if(!newBranch) return;
+
+            let newFullName = `${newName.trim()} Hoca (${newBranch.trim()})`;
+            
+            // Veri yapılarındaki eski isim anahtarlarını yenisiyle değiştirme tamponu
+            if(localState.teacherRequirements[oldFullName]) {
+                localState.teacherRequirements[newFullName] = localState.teacherRequirements[oldFullName];
+                delete localState.teacherRequirements[oldFullName];
+            }
+            
+            localState.teachersList[index] = newFullName;
+            
+            // Eğer ders programında bu hoca varsa ismini güncelle
+            Object.keys(localState.scheduleDatabase).forEach(s => {
+                ["Pzt","Sal","Çar","Per","Cum"].forEach(d => {
+                    for(let h=1; h<=8; h++) {
+                        if(localState.scheduleDatabase[s][d][h] === oldFullName) {
+                            localState.scheduleDatabase[s][d][h] = newFullName;
+                        }
+                    }
+                });
+            });
+
+            pushStateToCloud();
+            alert("Öğretmen bilgileri canlı bulutta güncellendi!");
+            refreshCurrentActiveModule();
+        }
+
+        function deleteTeacherDynamic(index, fullName) {
+            if(!confirm(`${fullName} isimli öğretmeni kadrodan ve tüm ders programlarından kalıcı olarak silmek istediğinize emin misiniz?`)) return;
+            
+            localState.teachersList.splice(index, 1);
+            if(localState.teacherRequirements[fullName]) delete localState.teacherRequirements[fullName];
+            
+            // Program matrisinden hocanın derslerini temizleme temizliği
+            Object.keys(localState.scheduleDatabase).forEach(s => {
+                ["Pzt","Sal","Çar","Per","Cum"].forEach(d => {
+                    for(let h=1; h<=8; h++) {
+                        if(localState.scheduleDatabase[s][d][h] === fullName) {
+                            localState.scheduleDatabase[s][d][h] = "-";
+                        }
+                    }
+                });
+            });
+
+            pushStateToCloud();
+            alert("Öğretmen kadrodan başarıyla düşürüldü.");
+            refreshCurrentActiveModule();
+        }
+
+        function updateCloudStatus(s, index, status) { localState.attendanceDatabase[s][index].durum = status; pushStateToCloud(); refreshCurrentActiveModule(); }
         function addAgendaToCloud() { const b = document.getElementById('evB').value.trim(); const t = document.getElementById('evT').value; if(!b || !t) return; localState.agendaEvents.push({ tip:"Sınav", baslik:b, tarih:t }); pushStateToCloud(); refreshCurrentActiveModule(); }
         function sendMessageToCloud() { const m = document.getElementById('mTxt').value.trim(); if(!m) return; localState.globalMessages.push({ gonderen:currentUserName, alici:"Herkes", metin:m }); pushStateToCloud(); refreshCurrentActiveModule(); }
         
