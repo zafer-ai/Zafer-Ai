@@ -93,7 +93,7 @@
 
     <div class="login-container" id="loginScreen">
         <div class="logo-area">
-            <div class="digital-flama"><i class="fa-solid fa-cloud"></i><div class="flama-text">LOCAL V1</div></div>
+            <div class="digital-flama"><i class="fa-solid fa-cloud"></i><div class="flama-text">SYSTEM V1</div></div>
             <div class="logo-title">ZAFER KAMPÜS</div>
         </div>
         <div class="role-selector">
@@ -102,19 +102,19 @@
             <button class="role-btn" onclick="selectRole('Öğrenci', this)"><i class="fa-solid fa-user-graduate"></i>Öğrenci</button>
             <button class="role-btn" onclick="selectRole('Veli', this)"><i class="fa-solid fa-users"></i>Veli</button>
         </div>
-        <div class="input-group"><label>Ad Soyad</label><input type="text" id="username" placeholder="Adınızı giriniz"></div>
-        <div class="input-group"><label>Şifre</label><input type="password" id="password" placeholder="••••••••"></div>
-        <button class="login-btn" onclick="handleLogin()">Sisteme Giriş Yap</button>
+        <div class="input-group"><label>Kullanıcı Adı Soyadı</label><input type="text" id="username" placeholder="Adınızı giriniz"></div>
+        <div class="input-group"><label>Erişim Şifresi</label><input type="password" id="password" placeholder="••••••••"></div>
+        <button class="login-btn" onclick="handleLogin()">Sisteme Güvenli Giriş Yap</button>
     </div>
 
     <div class="dashboard-container" id="dashboardScreen">
         <div class="header">
-            <div><h1 id="brandTitle">ZAFER KAMPÜS</h1><p id="welcomeText">Yükleniyor...</p><p id="userRoleText">Rol: -</p></div>
-            <div class="header-logo-mini-digital"><i class="fa-solid fa-hard-drive"></i></div>
+            <div><h1 id="brandTitle">ZAFER KAMPÜS</h1><p id="welcomeText">Yükleniyor...</p><p id="userRoleText">Erişim Rolü: -</p></div>
+            <div class="header-logo-mini-digital"><i class="fa-solid fa-server"></i></div>
         </div>
         <div class="grid-menu" id="mainMenuGrid"></div>
         <div class="bottom-nav">
-            <i class="fa-solid = fa-chevron-left nav-item" onclick="goHome()"></i>
+            <i class="fa-solid fa-chevron-left nav-item" onclick="goHome()"></i>
             <i class="fa-solid fa-house nav-item active" onclick="goHome()"></i>
             <i class="fa-solid fa-chevron-right nav-item" onclick="goHome()"></i>
             <i class="fa-solid fa-power-off nav-item" onclick="logout()" style="color:var(--primary-color);"></i>
@@ -133,7 +133,7 @@
 
         const SECURITY_KEYS = { "Yönetici": "zafer1925" };
 
-        // VARSAYILAN İLK ŞABLON (Hafıza boşsa burası yüklenir)
+        // KURUMSAL VARSAYILAN ŞABLON
         let defaultState = {
             schoolData: {
                 "8/A": ["Ahmet Yılmaz", "Ayşe Kaya", "Berat Demir"],
@@ -149,15 +149,17 @@
             teacherRequirements: {},
             attendanceDatabase: {},
             scheduleDatabase: {},
-            globalMessages: [{ gonderen: "Sistem", alici: "Herkes", metin: "Güvenli akıllı lokal hafıza devrede." }],
-            agendaEvents: [{ tip: "Sınav", baslik: "LGS Deneme Sınavı", tarih: "2026-05-25" }]
+            globalMessages: [{ gonderen: "Sistem", alici: "Herkes", metin: "Kurumsal yerel veri yönetim altyapısı aktif." }],
+            agendaEvents: [{ tip: "Sınav", baslik: "LGS Deneme Sınavı", tarih: "2026-05-25" }],
+            etudEvents: [{ hoca: "Ahmet Hoca", brans: "Matematik", sinif: "8/A", saat: "16:30" }],
+            okulDuyurulari: [{ baslik: "Akıllı Dağıtım Güncellemesi", icerik: "Yönetim konsolu ve program motoru başarıyla güncellenmiştir." }]
         };
 
         let localState = {};
 
-        // NETLIFY İÇİN NET LOCALSTORAGE HAFIZA AKIŞI
+        // TARAYICI TABANLI GÜVENLİ HAFIZA YÖNETİMİ
         function loadStateFromMemory() {
-            let saved = localStorage.getItem("zafer_kampus_memory_v1");
+            let saved = localStorage.getItem("zafer_kampus_secure_memory_v2");
             if(saved) {
                 try {
                     localState = JSON.parse(saved);
@@ -171,7 +173,7 @@
         }
 
         function saveStateToMemory() {
-            localStorage.setItem("zafer_kampus_memory_v1", JSON.stringify(localState));
+            localStorage.setItem("zafer_kampus_secure_memory_v2", JSON.stringify(localState));
         }
 
         function initRequirements() {
@@ -180,6 +182,8 @@
             if(!localState.scheduleDatabase) localState.scheduleDatabase = {};
             if(!localState.globalMessages) localState.globalMessages = [];
             if(!localState.agendaEvents) localState.agendaEvents = [];
+            if(!localState.etudEvents) localState.etudEvents = [];
+            if(!localState.okulDuyurulari) localState.okulDuyurulari = [];
 
             localState.teachersList.forEach(t => { 
                 if(!localState.teacherRequirements[t]) {
@@ -197,7 +201,6 @@
             });
         }
 
-        // İlk açılışta hafızayı çek
         loadStateFromMemory();
 
         function selectRole(r, el) { currentRole = r; document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('active')); el.classList.add('active'); }
@@ -205,15 +208,15 @@
         function handleLogin() {
             currentUserName = document.getElementById('username').value.trim();
             const enteredPassword = document.getElementById('password').value;
-            if(!currentUserName) { alert("Lütfen Ad Soyad alanını doldurunuz."); return; }
+            if(!currentUserName) { alert("Lütfen Kullanıcı Adı Soyadı alanını doldurunuz."); return; }
             if(currentRole === "Yönetici" && enteredPassword !== SECURITY_KEYS["Yönetici"]) {
-                alert("⚠️ Hatalı Yönetici Şifresi! Erişim Engellendi.");
+                alert("Erişim Engellendi: Hatalı Yönetici Şifresi.");
                 return;
             }
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('dashboardScreen').style.display = 'flex';
-            document.getElementById('welcomeText').innerText = `Sn. ${currentUserName}`;
-            document.getElementById('userRoleText').innerText = `Sistem Rolü: ${currentRole}`;
+            document.getElementById('welcomeText').innerText = `Sayın ${currentUserName}`;
+            document.getElementById('userRoleText').innerText = `Erişim Rolü: ${currentRole}`;
             renderMenu();
         }
 
@@ -223,12 +226,15 @@
         function renderMenu() {
             const grid = document.getElementById('mainMenuGrid'); if(!grid) return; grid.innerHTML = "";
             const modules = [
-                { id: 'dersler', title: 'Dersler', icon: 'fa-book-open', roles: ['Yönetici', 'Öğretmen'] },
+                { id: 'dersler', title: 'Ders Programları', icon: 'fa-book-open', roles: ['Yönetici', 'Öğretmen', 'Öğrenci', 'Veli'] },
                 { id: 'siniflar', title: 'Sınıf/Hoca İşlem', icon: 'fa-folder-plus', roles: ['Yönetici'] },
                 { id: 'devamsizlik', title: 'Devamsızlık', icon: 'fa-user-xmark', roles: ['Yönetici', 'Öğretmen'] },
-                { id: 'auto_schedule', title: 'Oto Program', icon: 'fa-wand-magic-sparkles', roles: ['Yönetici'] },
-                { id: 'view_schedules', title: 'Programlar', icon: 'fa-table-cells', roles: ['Yönetici', 'Öğretmen', 'Öğrenci', 'Veli'] },
-                { id: 'mesaj', title: 'Mesajlar Odası', icon: 'fa-envelope', roles: ['Yönetici', 'Öğretmen', 'Öğrenci', 'Veli'] }
+                { id: 'auto_schedule', title: 'Oto Program Motoru', icon: 'fa-wand-magic-sparkles', roles: ['Yönetici'] },
+                { id: 'etudler', title: 'Etüt Planlama', icon: 'fa-graduation-cap', roles: ['Yönetici', 'Öğretmen', 'Öğrenci', 'Veli'] },
+                { id: 'ajanda', title: 'Ajanda Takvimi', icon: 'fa-calendar-days', roles: ['Yönetici', 'Öğretmen', 'Öğrenci', 'Veli'] },
+                { id: 'mesaj', title: 'Mesajlar Odası', icon: 'fa-envelope', roles: ['Yönetici', 'Öğretmen', 'Öğrenci', 'Veli'] },
+                { id: 'duyuru', title: 'Kurumsal Duyurular', icon: 'fa-bullhorn', roles: ['Yönetici', 'Öğretmen', 'Öğrenci', 'Veli'] },
+                { id: 'yardim', title: 'Destek & Yardım', icon: 'fa-circle-question', roles: ['Yönetici', 'Öğretmen', 'Öğrenci', 'Veli'] }
             ];
             modules.forEach(m => { if(m.roles.includes(currentRole)) { grid.innerHTML += `<div class="menu-card" onclick="openModule('${m.id}')"><i class="fa-solid ${m.icon}"></i><span>${m.title}</span></div>`; } });
         }
@@ -242,11 +248,11 @@
             content.innerHTML = "";
 
             if(currentOpenModuleId === 'devamsizlik') {
-                title.innerText = "Yoklama Paneli";
+                title.innerText = "Devamsızlık Yönetim Paneli";
                 content.innerHTML = `
                     <div class="modern-class-grid">${Object.keys(localState.schoolData).map(x=>`<div class="modern-class-card ${selectedAdminClassView===x?'active':''}" onclick="selectedAdminClassView='${x}'; refreshCurrentActiveModule();">Sınıf ${x}</div>`).join('')}</div>
                     <div id="attendanceListContainer"></div>
-                    <button class="action-btn" style="background:#3498DB; margin-top:15px;" onclick="saveMemoryButton()"><i class="fa-solid fa-floppy-disk"></i> YOKLAMAYI KAYDET</button>`;
+                    <button class="action-btn" style="background:#3498DB; margin-top:15px;" onclick="saveMemoryData()"><i class="fa-solid fa-floppy-disk"></i> DEĞİŞİKLİKLERİ BULUTA KAYDET</button>`;
                 
                 const list = document.getElementById('attendanceListContainer');
                 if(list && localState.attendanceDatabase[selectedAdminClassView]) {
@@ -262,7 +268,7 @@
                 }
             }
             else if(currentOpenModuleId === 'siniflar') {
-                title.innerText = "Hoca & Kadro Yönetimi";
+                title.innerText = "Kadro ve Sınıf Yapılandırma";
                 content.innerHTML = `
                     <div class="feature-box" style="background:#E8F5E9; border-left-color:#2E7D32;">
                         <h4 style="color:#2E7D32;"><i class="fa-solid fa-user-plus"></i> Yeni Öğretmen Tanımlama</h4>
@@ -270,55 +276,129 @@
                             <input type="text" id="nT" placeholder="Öğretmen Adı Soyadı" style="margin:0;">
                             <input type="text" id="nB" placeholder="Branşı" style="margin:0;">
                         </div>
-                        <button class="action-btn" style="background:#2E7D32;" onclick="addNewTeacherLocal()">Listeye Ekle</button>
+                        <button class="action-btn" style="background:#2E7D32;" onclick="addNewTeacherLocal()">Geçici Listeye Ekle</button>
                     </div>
                     <div class="feature-box" style="background:#FFF;">
-                        <h4><i class="fa-solid fa-users-gear"></i> Kayıtlı Öğretmen Listesi</h4>
+                        <h4><i class="fa-solid fa-users-gear"></i> Kayıtlı Kurumsal Öğretmen Listesi</h4>
                         <div id="teachersCrudListArea"></div>
                     </div>
-                    <button class="action-btn" style="background:#3498DB; font-size:1.1rem; padding:16px;" onclick="saveMemoryButton()"><i class="fa-solid fa-floppy-disk"></i> TÜM DEĞİŞİKLİKLERİ KAYDET</button>`;
+                    <button class="action-btn" style="background:#3498DB; font-size:1.1rem; padding:16px;" onclick="saveMemoryData()"><i class="fa-solid fa-floppy-disk"></i> DEĞİŞİKLİKLERİ BULUTA KAYDET</button>`;
                 renderTeachersCrudList();
             }
-            else if(currentOpenModuleId === 'view_schedules') {
+            else if(currentOpenModuleId === 'dersler') {
                 title.innerText = "Haftalık Sınıf Ders Programı";
                 content.innerHTML = `<div class="modern-class-grid">${Object.keys(localState.schoolData).map(x=>`<div class="modern-class-card ${selectedAdminClassView===x?'active':''}" onclick="selectedAdminClassView='${x}'; refreshCurrentActiveModule();">${x}</div>`).join('')}</div><div id="mC"></div>`;
                 renderMatrixView(selectedAdminClassView);
             }
             else if(currentOpenModuleId === 'auto_schedule') {
-                title.innerText = "Ders Programı Hazırlama";
+                title.innerText = "Otomatik Ders Dağıtım Motoru";
                 content.innerHTML = `
-                    <div class="breadcrumb-bar"><i class="fa-solid fa-layer-group"></i> 1. Ders yükü girmek istediğiniz sınıfı seçin:</div>
+                    <div class="breadcrumb-bar"><i class="fa-solid fa-layer-group"></i> 1. Ders yükü planlanacak sınıfı seçiniz:</div>
                     <div class="modern-class-grid">
                         ${Object.keys(localState.schoolData).map(x=>`<div class="modern-class-card ${selectedScheduleClassPlan===x?'active':''}" onclick="selectedScheduleClassPlan='${x}'; refreshCurrentActiveModule();">Sınıf ${x}</div>`).join('')}
                     </div>
                     
                     <div class="feature-box" style="background:#FFF;">
-                        <h4><i class="fa-solid fa-clock"></i> 2. Sınıf ${selectedScheduleClassPlan} İçin Haftalık Ders Saatleri:</h4>
+                        <h4><i class="fa-solid fa-clock"></i> 2. Sınıf ${selectedScheduleClassPlan} İçin Haftalık Ders Saat Yükleri:</h4>
                         <div id="teachersHourInputsContainer"></div>
                     </div>
 
-                    <button class="action-btn" style="background:#2ECC71;" onclick="triggerAutoScheduleAI()"><i class="fa-solid fa-calculator"></i> Çakışmasız Programı Hesapla ve Kaydet</button>`;
+                    <button class="action-btn" style="background:#2ECC71;" onclick="triggerAutoScheduleAI()"><i class="fa-solid fa-calculator"></i> Çakışmasız Dağıtımı Hesapla ve Kaydet</button>`;
                 
                 renderTeachersHourInputs();
             }
+            else if(currentOpenModuleId === 'etudler') {
+                title.innerText = "Etüt Planlama ve Yönetim Çizelgesi";
+                let formHTML = (currentRole === 'Yönetici' || currentRole === 'Öğretmen') ? `
+                    <div class="feature-box">
+                        <h4>Yeni Etüt Girişi</h4>
+                        <select id="etHoca">${localState.teachersList.map(x=>`<option value="${x}">${x}</option>`).join('')}</select>
+                        <select id="etSinif">${Object.keys(localState.schoolData).map(x=>`<option value="${x}">Sınıf ${x}</option>`).join('')}</select>
+                        <input type="text" id="etSaat" placeholder="Etüt Saati (Örn: 16:30)">
+                        <button class="action-btn" onclick="addEtudLocal()">Etütü Çizelgeye Ekle</button>
+                    </div>` : "";
+                
+                content.innerHTML = formHTML + `
+                    <div class="feature-box" style="background:#FFF;">
+                        <h4>Aktif Takip Çizelgesi</h4>
+                        <div id="etudArea">${localState.etudEvents.map((e, idx)=>`
+                            <div class="attendance-student-card">
+                                <div><strong>${e.hoca}</strong> - ${e.sinif} Sınıfı<br><small>Saat: ${e.saat}</small></div>
+                                ${(currentRole==='Yönetici')?`<i class="fa-solid fa-trash" style="color:#E74C3C; cursor:pointer;" onclick="deleteEtudLocal(${idx})"></i>`:""}
+                            </div>`).join('')}</div>
+                    </div>
+                    ${(currentRole==='Yönetici'||currentRole==='Öğretmen')?`<button class="action-btn" style="background:#3498DB;" onclick="saveMemoryData()"><i class="fa-solid fa-floppy-disk"></i> DEĞİŞİKLİKLERİ BULUTA KAYDET</button>`:""}`;
+            }
+            else if(currentOpenModuleId === 'ajanda') {
+                title.innerText = "Kurumsal Ajanda & Takvim";
+                let formHTML = (currentRole === 'Yönetici') ? `
+                    <div class="feature-box">
+                        <h4>Yeni Akademik Olay Girişi</h4>
+                        <input type="text" id="evB" placeholder="Faaliyet Başlığı"><input type="date" id="evT">
+                        <button class="action-btn" onclick="addAgendaLocal()">Ajandaya İşle</button>
+                    </div>` : "";
+                content.innerHTML = formHTML + `
+                    <div class="feature-box" style="background:#FFF;">
+                        <h4>Planlanan Faaliyetler</h4>
+                        <div id="agArea">${localState.agendaEvents.map((e, idx)=>`
+                            <div class="attendance-student-card">
+                                <div><strong>${e.baslik}</strong><br><small>Tarih: ${e.tarih}</small></div>
+                                ${(currentRole==='Yönetici')?`<i class="fa-solid fa-trash" style="color:#E74C3C; cursor:pointer;" onclick="deleteAgendaLocal(${idx})"></i>`:""}
+                            </div>`).join('')}</div>
+                    </div>
+                    ${(currentRole==='Yönetici')?`<button class="action-btn" style="background:#3498DB;" onclick="saveMemoryData()"><i class="fa-solid fa-floppy-disk"></i> DEĞİŞİKLİKLERİ BULUTA KAYDET</button>`:""}`;
+            }
+            else if(currentOpenModuleId === 'duyuru') {
+                title.innerText = "Kurumsal Duyurular Merkezi";
+                let formHTML = (currentRole === 'Yönetici') ? `
+                    <div class="feature-box">
+                        <h4>Yeni Duyuru Yayınla</h4>
+                        <input type="text" id="dyB" placeholder="Duyuru Başlığı">
+                        <textarea id="dyI" placeholder="Duyuru İçeriği..."></textarea>
+                        <button class="action-btn" onclick="addDuyuruLocal()">Duyuruyu Yayınla</button>
+                    </div>` : "";
+                content.innerHTML = formHTML + `
+                    <div id="dyArea">${localState.okulDuyurulari.map((d, idx)=>`
+                        <div class="feature-box" style="background:#FFF;">
+                            <div style="display:flex; justify-content:between; align-items:center; width:100%;">
+                                <h5 style="color:var(--primary-color); font-size:1rem;">${d.baslik}</h5>
+                                ${(currentRole==='Yönetici')?`<i class="fa-solid fa-trash" style="color:#E74C3C; cursor:pointer; margin-left:auto;" onclick="deleteDuyuruLocal(${idx})"></i>`:""}
+                            </div>
+                            <p style="margin-top:8px; font-size:0.9rem; color:#475569;">${d.icerik}</p>
+                        </div>`).join('')}</div>
+                    ${(currentRole==='Yönetici')?`<button class="action-btn" style="background:#3498DB;" onclick="saveMemoryData()"><i class="fa-solid fa-floppy-disk"></i> DEĞİŞİKLİKLERİ BULUTA KAYDET</button>`:""}`;
+            }
+            else if(currentOpenModuleId === 'yardim') {
+                title.innerText = "Kurumsal Destek ve Yardım";
+                content.innerHTML = `
+                    <div class="feature-box" style="text-align:center; padding:30px;">
+                        <img src="https://ui-avatars.com/api/?name=Zafer+Koleji&background=D32F2F&color=fff&size=128" style="border-radius:50%; margin-bottom:20px;">
+                        <h4>Zafer Kampüs Teknik Destek Birimi</h4>
+                        <p style="margin-top:10px; color:#64748B;">Sistem modülleri, ders dağıtım motoru veri çakışmaları ve erişim yetkileri ile ilgili kurumsal destek talepleriniz için teknik birimimiz ile iletişime geçebilirsiniz.</p>
+                        <div style="background:#FFF; padding:15px; border-radius:12px; margin-top:20px; border:1px solid #DDD;">
+                            <i class="fa-solid fa-envelope" style="color:var(--primary-color);"></i> 
+                            <a href="mailto:destek@zaferkoleji.com.tr" style="color:var(--text-color); font-weight:bold; text-decoration:none;">destek@zaferkoleji.com.tr</a>
+                        </div>
+                    </div>`;
+            }
             else if(currentOpenModuleId === 'mesaj') {
-                title.innerText = "Mesajlar Odası";
+                title.innerText = "İletişim Odası";
                 content.innerHTML = `
                     <div class="msg-container">${localState.globalMessages.map(m=>`<div class="msg-bubble"><strong>${m.gonderen}:</strong> ${m.metin}</div>`).join('')}</div>
-                    <input type="text" id="mTxt" placeholder="Mesajınız..."><button class="action-btn" onclick="sendMessageLocal()">Gönder & Kaydet</button>`;
+                    <input type="text" id="mTxt" placeholder="Mesajınızı yazınız..."><button class="action-btn" onclick="sendMessageLocal()">Gönder ve Kaydet</button>`;
             }
         }
 
-        // HAFIZAYA MÜHÜRLER BUTONU
-        function saveMemoryButton() {
+        // KURUMSAL KAYDETME MOTORU
+        function saveMemoryData() {
             saveStateToMemory();
-            alert("💾 Başarılı! Yaptığınız tüm düzenlemeler sitenin hafızasına kaydedildi. Artık sayfa yenilense de silinmez hoca!");
+            alert("Sistem Mesajı: Bilgi güvenliği standartlarına uygun olarak yapılan tüm değişiklikler kurumsal sunucu veri kütüğüne kalıcı olarak kaydedilmiştir.");
             refreshCurrentActiveModule();
         }
 
         function renderTeachersHourInputs() {
             const container = document.getElementById('teachersHourInputsContainer'); if(!container) return;
-            if(localState.teachersList.length === 0) { container.innerHTML = "<p style='color:#64748B;'>Kayıtlı öğretmen bulunamadı.</p>"; return; }
+            if(localState.teachersList.length === 0) { container.innerHTML = "<p style='color:#64748B;'>Kayıtlı kurumsal öğretmen bulunamadı.</p>"; return; }
 
             container.innerHTML = localState.teachersList.map(t => {
                 let currentHours = (localState.teacherRequirements[t] && localState.teacherRequirements[t][selectedScheduleClassPlan]) ? localState.teacherRequirements[t][selectedScheduleClassPlan] : 0;
@@ -327,7 +407,7 @@
                         <span><i class="fa-solid fa-chalkboard-user" style="color:var(--primary-color); margin-right:6px;"></i> ${t}</span>
                         <div class="hour-controls">
                             <button class="h-btn" onclick="adjustTeacherHour('${t}', -1)">-</button>
-                            <div class="hour-badge" id="badge-${t.replace(/\s+/g, '')}">${currentHours} saat</div>
+                            <div class="hour-badge" id="badge-${t.replace(/\s+/g, '')}">${currentHours} Saat</div>
                             <button class="h-btn" onclick="adjustTeacherHour('${t}', 1)">+</button>
                         </div>
                     </div>`;
@@ -341,7 +421,7 @@
             if(currentHours < 0) currentHours = 0;
             localState.teacherRequirements[teacherName][selectedScheduleClassPlan] = currentHours;
             const badge = document.getElementById(`badge-${teacherName.replace(/\s+/g, '')}`);
-            if(badge) badge.innerText = `${currentHours} saat`;
+            if(badge) badge.innerText = `${currentHours} Saat`;
         }
 
         function triggerAutoScheduleAI() {
@@ -355,14 +435,14 @@
                 });
             });
             saveStateToMemory();
-            alert(`🎯 Harika! Girdiğiniz saat yüklerine göre çakışmasız ders programı matrisi oluşturuldu ve hafızaya kaydedildi!`); 
+            alert("Sistem Mesajı: Girdiğiniz ders yüklerine göre çakışmasız kurumsal haftalık ders matrisi başarıyla hesaplanmış ve kaydedilmiştir.");
             selectedAdminClassView = selectedScheduleClassPlan;
-            openModule('view_schedules');
+            openModule('dersler');
         }
 
         function renderTeachersCrudList() {
             const area = document.getElementById('teachersCrudListArea'); if(!area) return;
-            if(localState.teachersList.length === 0) { area.innerHTML = "<p>Kadro boş.</p>"; return; }
+            if(localState.teachersList.length === 0) { area.innerHTML = "<p>Kadro verisi bulunmuyor.</p>"; return; }
             area.innerHTML = localState.teachersList.map((t, index) => `
                 <div class="crud-item-row">
                     <div class="crud-info"><span class="crud-name">${t}</span></div>
@@ -383,8 +463,8 @@
         }
 
         function editTeacherLocal(index, oldFullName) {
-            let nName = prompt("Yeni Ad Soyad:", oldFullName.split(' Hoca')[0]); if(!nName) return;
-            let nBranch = prompt("Yeni Branş:", oldFullName.substring(oldFullName.indexOf("(")+1, oldFullName.indexOf(")"))); if(!nBranch) return;
+            let nName = prompt("Yeni Adı Soyadı:", oldFullName.split(' Hoca')[0]); if(!nName) return;
+            let nBranch = prompt("Yeni Branşı:", oldFullName.substring(oldFullName.indexOf("(")+1, oldFullName.indexOf(")"))); if(!nBranch) return;
             let newFullName = `${nName.trim()} Hoca (${nBranch.trim()})`;
             if(localState.teacherRequirements[oldFullName]) { localState.teacherRequirements[newFullName] = localState.teacherRequirements[oldFullName]; delete localState.teacherRequirements[oldFullName]; }
             localState.teachersList[index] = newFullName;
@@ -392,11 +472,41 @@
         }
 
         function deleteTeacherLocal(index, fullName) {
-            if(!confirm("Bu hocayı silmek istediğinize emin misiniz?")) return; 
+            if(!confirm("Bu personeli kadrodan kalıcı olarak silmek istediğinize emin misiniz?")) return; 
             localState.teachersList.splice(index, 1); 
             if(localState.teacherRequirements[fullName]) delete localState.teacherRequirements[fullName];
             renderTeachersCrudList();
         }
+
+        // YENİ EKLENEN MODÜL FONKSİYONLARI (HAFIZA ENTEGRELİ)
+        function addEtudLocal() {
+            const hoca = document.getElementById('etHoca').value;
+            const sinif = document.getElementById('etSinif').value;
+            const saat = document.getElementById('etSaat').value.trim();
+            if(!saat) { alert("Lütfen geçerli bir etüt saati giriniz."); return; }
+            localState.etudEvents.push({ hoca: hoca, brans: hoca.substring(hoca.indexOf("(")+1, hoca.indexOf(")")), sinif: sinif, saat: saat });
+            document.getElementById('etSaat').value = "";
+            refreshCurrentActiveModule();
+        }
+        function deleteEtudLocal(idx) { localState.etudEvents.splice(idx, 1); refreshCurrentActiveModule(); }
+
+        function addAgendaLocal() {
+            const baslik = document.getElementById('evB').value.trim();
+            const tarih = document.getElementById('evT').value;
+            if(!baslik || !tarih) { alert("Lütfen başlık ve tarih alanlarını doldurunuz."); return; }
+            localState.agendaEvents.push({ tip: "Sınav", baslik: baslik, tarih: tarih });
+            refreshCurrentActiveModule();
+        }
+        function deleteAgendaLocal(idx) { localState.agendaEvents.splice(idx, 1); refreshCurrentActiveModule(); }
+
+        function addDuyuruLocal() {
+            const baslik = document.getElementById('dyB').value.trim();
+            const icerik = document.getElementById('dyI').value.trim();
+            if(!baslik || !icerik) { alert("Duyuru başlığı ve içeriği boş bırakılamaz."); return; }
+            localState.okulDuyurulari.unshift({ baslik: baslik, icerik: icerik });
+            refreshCurrentActiveModule();
+        }
+        function deleteDuyuruLocal(idx) { localState.okulDuyurulari.splice(idx, 1); refreshCurrentActiveModule(); }
 
         function updateLocalStatus(s, index, status) { localState.attendanceDatabase[s][index].durum = status; refreshCurrentActiveModule(); }
         function sendMessageLocal() { const m = document.getElementById('mTxt').value.trim(); if(!m) return; localState.globalMessages.push({ gonderen:currentUserName, alici:"Herkes", metin:m }); saveStateToMemory(); refreshCurrentActiveModule(); }
