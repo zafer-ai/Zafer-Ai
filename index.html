@@ -133,7 +133,6 @@
 
         const SECURITY_KEYS = { "Yönetici": "zafer1925" };
 
-        // KURUMSAL VARSAYILAN ŞABLON
         let defaultState = {
             schoolData: {
                 "8/A": ["Ahmet Yılmaz", "Ayşe Kaya", "Berat Demir"],
@@ -157,9 +156,9 @@
 
         let localState = {};
 
-        // TARAYICI TABANLI GÜVENLİ HAFIZA YÖNETİMİ
         function loadStateFromMemory() {
-            let saved = localStorage.getItem("zafer_kampus_secure_memory_v2");
+            // BURASI ESKİ HAFIZA ANAHTARINA GERİ ÇEKİLDİ (VERİLERİ KURTARMAK İÇİN)
+            let saved = localStorage.getItem("zafer_kampus_memory_v1");
             if(saved) {
                 try {
                     localState = JSON.parse(saved);
@@ -173,7 +172,7 @@
         }
 
         function saveStateToMemory() {
-            localStorage.setItem("zafer_kampus_secure_memory_v2", JSON.stringify(localState));
+            localStorage.setItem("zafer_kampus_memory_v1", JSON.stringify(localState));
         }
 
         function initRequirements() {
@@ -385,11 +384,10 @@
                 title.innerText = "İletişim Odası";
                 content.innerHTML = `
                     <div class="msg-container">${localState.globalMessages.map(m=>`<div class="msg-bubble"><strong>${m.gonderen}:</strong> ${m.metin}</div>`).join('')}</div>
-                    <input type="text" id="mTxt" placeholder="Mesajınızı yazınız..."><button class="action-btn" onclick="sendMessageLocal()">Gönder ve Kaydet</button>`;
+                    <input type="text" id="mTxt" placeholder="Mesajınızınız..."><button class="action-btn" onclick="sendMessageLocal()">Gönder ve Kaydet</button>`;
             }
         }
 
-        // KURUMSAL KAYDETME MOTORU
         function saveMemoryData() {
             saveStateToMemory();
             alert("Sistem Mesajı: Bilgi güvenliği standartlarına uygun olarak yapılan tüm değişiklikler kurumsal sunucu veri kütüğüne kalıcı olarak kaydedilmiştir.");
@@ -478,7 +476,6 @@
             renderTeachersCrudList();
         }
 
-        // YENİ EKLENEN MODÜL FONKSİYONLARI (HAFIZA ENTEGRELİ)
         function addEtudLocal() {
             const hoca = document.getElementById('etHoca').value;
             const sinif = document.getElementById('etSinif').value;
