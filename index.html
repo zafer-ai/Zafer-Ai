@@ -3,8 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zafer Kampüs - K12 Yönetim Sistemi</title>
+    <title>Zafer Kampüs - K12 Bulut Yönetim Sistemi</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
     <style>
         :root {
             --primary-color: #D32F2F;
@@ -21,47 +25,353 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-color); display: flex; justify-content: center; align-items: center; min-height: 100vh; position: relative; padding: 20px; }
 
-        /* --- MODERN GİRİŞ TASARIMI --- */
         .login-container { background: var(--card-bg); padding: 3rem; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); width: 100%; max-width: 480px; text-align: center; border-top: 6px solid var(--primary-color); }
-        .logo-area { margin-bottom: 2rem; }
         .digital-flama { display: inline-flex; align-items: center; gap: 8px; background: #FFF5F5; padding: 8px 16px; border-radius: 20px; color: var(--primary-color); font-weight: 800; font-size: 0.9rem; margin-bottom: 10px; }
         .logo-title { font-size: 1.8rem; font-weight: 900; color: #1E293B; letter-spacing: -0.5px; }
         .role-selector { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 2rem; }
         .role-btn { background: #F8FAFC; border: 1px solid var(--border-color); padding: 12px 5px; border-radius: 12px; cursor: pointer; font-size: 0.85rem; font-weight: 600; color: #64748B; transition: all 0.2s; }
         .role-btn i { display: block; font-size: 1.4rem; margin-bottom: 6px; }
         .role-btn.active { background: #FFF5F5; border-color: var(--primary-color); color: var(--primary-color); box-shadow: 0 4px 12px rgba(211,47,47,0.15); }
-        .input-group { margin-bottom: 1.5rem; text-align: left; }
-        .input-group label { display: block; margin-bottom: 6px; font-size: 0.9rem; font-weight: 700; color: #475569; }
-        .input-group input { width: 100%; padding: 14px; border: 1px solid #CBD5E1; border-radius: 12px; outline: none; font-size: 1rem; transition: all 0.2s; }
-        .input-group input:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(211,47,47,0.1); }
-        .login-btn { width: 100%; padding: 16px; background: var(--primary-color); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: background 0.2s; }
-        .login-btn:hover { background: var(--primary-dark); }
-
-        /* --- DASHBOARD --- */
+        
         .dashboard-container { display: none; width: 100%; max-width: 600px; background: var(--bg-color); min-height: 90vh; flex-direction: column; border-radius: 16px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.05); }
-        .header { background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); color: white; padding: 2rem; display: flex; align-items: center; justify-content: space-between; position: relative; }
-        .header h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: 0.5px; }
-        .header p { font-size: 0.95rem; opacity: 0.9; margin-top: 4px; }
-        .header-logo-mini-digital { width: 60px; height: 60px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--primary-color); font-size: 1.6rem; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); color: white; padding: 2rem; display: flex; align-items: center; justify-content: space-between; }
+        .header h1 { font-size: 1.6rem; font-weight: 800; }
 
         .grid-menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 2rem; background: #FFF; }
-        .menu-card { background: #FFF; border: 1px solid var(--border-color); border-radius: 14px; padding: 20px 10px; text-align: center; cursor: pointer; transition: all 0.25s; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 110px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .menu-card { background: #FFF; border: 1px solid var(--border-color); border-radius: 14px; padding: 20px 10px; text-align: center; cursor: pointer; transition: all 0.25s; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 110px; }
         .menu-card:hover { transform: translateY(-4px); border-color: var(--primary-color); box-shadow: 0 8px 20px rgba(211,47,47,0.08); }
         .menu-card i { font-size: 1.8rem; color: var(--primary-color); margin-bottom: 10px; }
         .menu-card span { font-size: 0.85rem; font-weight: 700; color: #334155; }
 
-        /* --- MODÜL DETAY PANALİ --- */
         .detail-container { display: none; width: 100%; max-width: 650px; background: white; min-height: 90vh; flex-direction: column; padding: 2rem; border-radius: 16px; box-shadow: 0 15px 35px rgba(0,0,0,0.05); }
         .detail-header { display: flex; align-items: center; margin-bottom: 2rem; border-bottom: 2px solid var(--primary-color); padding-bottom: 15px; }
         .detail-header h2 { font-size: 1.5rem; color: #1E293B; margin-left: 15px; font-weight: 800; }
-        .feature-box { background: #F8FAFC; padding: 20px; border-radius: 14px; border-left: 5px solid var(--primary-color); margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
-        .feature-box h4 { font-size: 1.05rem; font-weight: 800; margin-bottom: 10px; color: #1E293B; }
-        
-        /* BÜYÜTÜLMÜŞ VE YUMUŞATILMIŞ SINIF SEÇİM KARTLARI GRİDİ (YENİ) */
+        .feature-box { background: #F8FAFC; padding: 20px; border-radius: 14px; border-left: 5px solid var(--primary-color); margin-bottom: 20px; }
+
         .modern-class-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 20px; }
-        .modern-class-card { background: #FFF; border: 2px solid #E2E8F0; padding: 18px; border-radius: 14px; text-align: center; font-size: 1.1rem; font-weight: 800; color: #475569; cursor: pointer; transition: all 0.25s; box-shadow: 0 4px 6px rgba(0,0,0,0.02); display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .modern-class-card:hover { border-color: var(--primary-color); background: #FFF5F5; color: var(--primary-color); transform: translateY(-2px); box-shadow: 0 6px 15px rgba(211,47,47,0.08); }
-        .modern-class-card.active { background: #FFEBEE; border-color: var(--primary-color); color: var(--primary-color); box-shadow: 0 4px 12px rgba(211,47,47,0.15); }
+        .modern-class-card { background: #FFF; border: 2px solid #E2E8F0; padding: 18px; border-radius: 14px; text-align: center; font-size: 1.1rem; font-weight: 800; color: #475569; cursor: pointer; transition: all 0.25s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .modern-class-card:hover, .modern-class-card.active { border-color: var(--primary-color); background: #FFF5F5; color: var(--primary-color); }
+
+        .attendance-student-card { background: white; border: 1px solid var(--border-color); padding: 16px; border-radius: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+        .status-options { display: flex; gap: 8px; }
+        .status-btn { border: 1px solid #CBD5E1; background: white; padding: 8px 16px; border-radius: 10px; font-size: 0.8rem; font-weight: 800; cursor: pointer; color: #64748B; }
+        
+        .status-btn.geldi-active { background: var(--status-geldi); color: white; border-color: var(--status-geldi); }
+        .status-btn.gelmedi-active { background: var(--status-gelmedi); color: white; border-color: var(--status-gelmedi); }
+        .status-btn.izinli-active { background: var(--status-izinli); color: white; border-color: var(--status-izinli); }
+
+        select, textarea, input { width: 100%; padding: 12px 16px; border: 1px solid #CBD5E1; border-radius: 12px; font-size: 0.95rem; outline: none; font-weight: 600; margin-bottom: 12px; }
+        .action-btn { width: 100%; padding: 14px; border: none; border-radius: 12px; color: white; font-weight: 700; cursor: pointer; background: var(--primary-color); display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+        .matrix-wrapper { overflow-x: auto; margin-top: 15px; background: #FFF; border-radius: 14px; padding: 5px; }
+        .matrix-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 0.8rem; }
+        .matrix-table th { background: var(--primary-color); color: white; padding: 12px 8px; border: 1px solid var(--primary-dark); }
+        .matrix-table td { padding: 10px 6px; border: 1px solid var(--border-color); }
+        .matrix-cell-box { background: #FFF5F5; border: 1px solid #FFCDCD; padding: 8px 4px; border-radius: 10px; font-weight: 700; color: var(--primary-dark); display: flex; flex-direction: column; }
+
+        .msg-container { max-height: 250px; overflow-y: auto; background: #F8FAFC; border: 1px solid var(--border-color); padding: 15px; border-radius: 14px; display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
+        .msg-bubble { background: #FFF; padding: 10px 14px; border-radius: 12px; font-size: 0.85rem; max-width: 80%; border-left: 4px solid var(--primary-color); }
+
+        .chatbot-toggle-btn { position: fixed; bottom: 25px; right: 25px; background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); color: white; width: 65px; height: 65px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; cursor: pointer; z-index: 9999; border: 2px solid #FFF; }
+        .chatbot-window { display: none; position: fixed; bottom: 100px; right: 25px; width: 350px; height: 460px; background: white; border-radius: 16px; border-top: 6px solid var(--primary-color); flex-direction: column; z-index: 9999; overflow: hidden; }
+        .chatbot-body { flex: 1; padding: 15px; overflow-y: auto; background: #F1F5F9; display: flex; flex-direction: column; gap: 10px; }
+        .bot-msg { background: #FFF; padding: 10px 14px; border-radius: 10px; font-size: 0.85rem; border-left: 4px solid var(--primary-color); align-self: flex-start; }
+        .user-msg { background: #FFEBEE; padding: 10px 14px; border-radius: 10px; font-size: 0.85rem; align-self: flex-end; }
+
+        .bottom-nav { margin-top: auto; background: white; display: flex; justify-content: space-around; padding: 16px; border-top: 1px solid var(--border-color); position: sticky; bottom: 0; }
+        .nav-item { color: #94A3B8; font-size: 1.5rem; cursor: pointer; }
+        .nav-item.active { color: var(--primary-color); }
+    </style>
+</head>
+<body>
+
+    <div class="chatbot-toggle-btn" onclick="toggleCampusBot()"><i class="fa-solid fa-robot"></i></div>
+    <div class="chatbot-window" id="campusBotWindow">
+        <div style="background:#F8FAFC; padding:15px; border-bottom:1px solid var(--border-color); font-weight:800; color:var(--primary-dark); display:flex; justify-content:space-between; align-items:center;">
+            <span><i class="fa-solid fa-brain"></i> Zafer AI Bulut Asistanı</span>
+            <i class="fa-solid fa-xmark" style="cursor:pointer; color:#64748B;" onclick="toggleCampusBot()"></i>
+        </div>
+        <div class="chatbot-body" id="botChatMessagesArea">
+            <div class="bot-msg">Merhaba Hocam! Zafer AI canlı bulut asistanıyım. Tüm kütük durumlarını gerçek zamanlı analiz edebilirim!</div>
+        </div>
+        <div style="padding:12px; display:flex; gap:8px; border-top:1px solid var(--border-color); background:#FFF;">
+            <input type="text" id="botChatInputText" placeholder="Mesajınız..." style="margin:0;" onkeypress="if(event.key==='Enter') sendMsgToCampusBot()">
+            <button onclick="sendMsgToCampusBot()" style="background:var(--primary-color); color:#FFF; border:none; width:45px; border-radius:12px; cursor:pointer;"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <div class="login-container" id="loginScreen">
+        <div class="logo-area">
+            <div class="digital-flama"><i class="fa-solid fa-cloud"></i><div class="flama-text">CLOUD V1</div></div>
+            <div class="logo-title">ZAFER KAMPÜS</div>
+        </div>
+        <div class="role-selector">
+            <button class="role-btn active" onclick="selectRole('Yönetici', this)"><i class="fa-solid fa-user-tie"></i>Yönetici</button>
+            <button class="role-btn" onclick="selectRole('Öğretmen', this)"><i class="fa-solid fa-chalkboard-teacher"></i>Öğretmen</button>
+            <button class="role-btn" onclick="selectRole('Öğrenci', this)"><i class="fa-solid fa-user-graduate"></i>Öğrenci</button>
+            <button class="role-btn" onclick="selectRole('Veli', this)"><i class="fa-solid fa-users"></i>Veli</button>
+        </div>
+        <div class="input-group"><label>Ad Soyad</label><input type="text" id="username" placeholder="Adınızı giriniz"></div>
+        <div class="input-group"><label>Şifre</label><input type="password" id="password" placeholder="••••••••"></div>
+        <button class="login-btn" onclick="handleLogin()">Sisteme Giriş Yap</button>
+    </div>
+
+    <div class="dashboard-container" id="dashboardScreen">
+        <div class="header">
+            <div><h1 id="brandTitle">ZAFER KAMPÜS</h1><p id="welcomeText">Yükleniyor...</p><p id="userRoleText">Rol: -</p></div>
+            <div class="header-logo-mini-digital"><i class="fa-solid fa-cloud"></i></div>
+        </div>
+        <div class="grid-menu" id="mainMenuGrid"></div>
+        <div class="bottom-nav">
+            <i class="fa-solid fa-chevron-left nav-item" onclick="goHome()"></i>
+            <i class="fa-solid fa-house nav-item active" onclick="goHome()"></i>
+            <i class="fa-solid fa-chevron-right nav-item" onclick="goHome()"></i>
+            <i class="fa-solid fa-power-off nav-item" onclick="logout()" style="color:var(--primary-color);"></i>
+        </div>
+    </div>
+
+    <div class="detail-container" id="detailScreen">
+        <div class="detail-header"><i class="fa-solid fa-arrow-left nav-item back-icon" onclick="goHome()"></i><h2 id="detailTitle">Yükleniyor...</h2></div>
+        <div id="detailContent"></div>
+    </div>
+
+    <script>
+        // --- BULUT VERİ YAPILANDIRMASI VE YEREL ŞABLON ---
+        let currentRole = "Yönetici"; let currentUserName = "";
+        let selectedAdminClassView = "8/A";
+
+        // KÜRESEL GÜVENLİK AYARI
+        const SECURITY_KEYS = {
+            "Yönetici": "zafer1925" // Kurumsal Yönetici Şifreniz (Burayı değiştirebilirsiniz hoca!)
+        };
+
+        let localState = {
+            schoolData: {
+                "8/A": ["Ahmet Yılmaz", "Ayşe Kaya", "Berat Demir"],
+                "8/B": ["Deniz Aktaş", "Emre Can", "Fatma Şahin"],
+                "8/C": ["Hakan Çelik", "İrem Yıldız", "Kaan Aydın"],
+                "8/D": ["Can Solmaz", "Merve Coşkun", "Oğuzhan Demir"],
+                "8/E": ["Selin Öztürk", "Eren Yılmaz", "Büşra Kurt"]
+            },
+            teachersList: [
+                "Mehmet Hoca (Türkçe)", "Ahmet Hoca (Matematik)", "Zeynep Hoca (Fizik)", 
+                "Eda Hoca (İngilizce)", "Murat Hoca (Din Kültürü)", "Bülent Hoca (Beden Eğitimi)"
+            ],
+            chatbotKnowledge: { tarihce: "Zafer Koleji 7 yıllık kurumsal tecrübeye sahiptir." },
+            agendaEvents: [{ tip: "Sınav", baslik: "LGS Deneme Sınavı", tarih: "2026-05-25" }],
+            globalMessages: [{ gonderen: "Sistem", alici: "Herkes", metin: "Bulut veritabanı aktif." }],
+            teacherRequirements: {},
+            attendanceDatabase: {},
+            scheduleDatabase: {}
+        };
+
+        localState.teachersList.forEach(t => { localState.teacherRequirements[t] = {"8/A":0,"8/B":0,"8/C":0,"8/D":0,"8/E":0}; });
+        Object.keys(localState.schoolData).forEach(s => {
+            localState.attendanceDatabase[s] = localState.schoolData[s].map(st => ({ ogrenci: st, durum: "geldi" }));
+            localState.scheduleDatabase[s] = {};
+            ["Pzt","Sal","Çar","Per","Cum"].forEach(d => { localState.scheduleDatabase[s][d] = {}; for(let h=1; h<=8; h++) localState.scheduleDatabase[s][d][h]="-"; });
+        });
+
+        // --- BULUT BAĞLANTI AYARLARI ---
+        const firebaseConfig = {
+            databaseURL: "https://zaferkampus-default-rtdb.firebaseio.com/" // Kendi Firebase URL'nizi buraya tekrar girin hoca!
+        };
+        
+        if(!firebaseConfig.databaseURL.includes("default-rtdb")) {
+            firebase.initializeApp(firebaseConfig);
+            const db = firebase.database().ref("zafer_kampus_v1");
+            db.on("value", (snapshot) => {
+                const cloudData = snapshot.val();
+                if(cloudData) {
+                    localState = cloudData;
+                    if(!localState.attendanceDatabase) localState.attendanceDatabase = {};
+                    if(!localState.scheduleDatabase) localState.scheduleDatabase = {};
+                    if(!localState.globalMessages) localState.globalMessages = [];
+                    if(!localState.agendaEvents) localState.agendaEvents = [];
+                    refreshCurrentActiveModule();
+                }
+            });
+        }
+
+        function pushStateToCloud() {
+            if(!firebaseConfig.databaseURL.includes("default-rtdb")) {
+                firebase.database().ref("zafer_kampus_v1").set(localState);
+            }
+        }
+
+        // --- AKILLI DOĞRULAMA VE GİRİŞ KONTROLÜ ---
+        function selectRole(r, el) { currentRole = r; document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('active')); el.classList.add('active'); }
+        
+        function handleLogin() {
+            currentUserName = document.getElementById('username').value.trim();
+            const enteredPassword = document.getElementById('password').value;
+
+            if(!currentUserName) { alert("Lütfen Ad Soyad alanını doldurunuz."); return; }
+
+            // KORUMA KALKANI: Yönetici rolü seçildiyse şifreyi milimetrik kontrol et
+            if(currentRole === "Yönetici") {
+                if(enteredPassword !== SECURITY_KEYS["Yönetici"]) {
+                    alert("⚠️ Hatalı Yönetici Şifresi! Erişim Engellendi.");
+                    return;
+                }
+            }
+
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('dashboardScreen').style.display = 'flex';
+            document.getElementById('welcomeText').innerText = `Sn. ${currentUserName}`;
+            document.getElementById('userRoleText').innerText = `Sistem Rolü: ${currentRole}`;
+            renderMenu();
+        }
+
+        function goHome() { document.getElementById('detailScreen').style.display = 'none'; document.getElementById('dashboardScreen').style.display = 'flex'; renderMenu(); }
+        function logout() { location.reload(); }
+
+        function renderMenu() {
+            const grid = document.getElementById('mainMenuGrid'); if(!grid) return; grid.innerHTML = "";
+            const modules = [
+                { id: 'dersler', title: 'Dersler', icon: 'fa-book-open', roles: ['Yönetici', 'Öğretmen'] },
+                { id: 'siniflar', title: 'Sınıf/Hoca İşlem', icon: 'fa-folder-plus', roles: ['Yönetici'] },
+                { id: 'devamsizlik', title: 'Devamsızlık', icon: 'fa-user-xmark', roles: ['Yönetici', 'Öğretmen'] },
+                { id: 'auto_schedule', title: 'Oto Program', icon: 'fa-wand-magic-sparkles', roles: ['Yönetici'] },
+                { id: 'view_schedules', title: 'Programlar', icon: 'fa-table-cells', roles: ['Yönetici', 'Öğretmen', 'Öğrenci', 'Veli'] },
+                { id: 'ajanda', title: 'Ajanda Takvimi', icon: 'fa-calendar-days', roles: ['Yönetici', 'Öğretmen', 'Öğrenci', 'Veli'] },
+                { id: 'mesaj', title: 'Mesajlar Odası', icon: 'fa-envelope', roles: ['Yönetici', 'Öğretmen', 'Öğrenci', 'Veli'] },
+                { id: 'duyuru', title: 'Duyurular', icon: 'fa-bullhorn', roles: ['Yönetici', 'Öğretmen', 'Öğrenci', 'Veli'] },
+                { id: 'yardim', title: 'Yardım', icon: 'fa-circle-question', roles: ['Yönetici', 'Öğretmen', 'Öğrenci', 'Veli'] }
+            ];
+            modules.forEach(m => { if(m.roles.includes(currentRole)) { grid.innerHTML += `<div class="menu-card" onclick="openModule('${m.id}')"><i class="fa-solid ${m.icon}"></i><span>${m.title}</span></div>`; } });
+        }
+
+        let currentOpenModuleId = "";
+        function openModule(id) { currentOpenModuleId = id; document.getElementById('dashboardScreen').style.display = 'none'; document.getElementById('detailScreen').style.display = 'flex'; refreshCurrentActiveModule(); }
+
+        function refreshCurrentActiveModule() {
+            const content = document.getElementById('detailContent'); const title = document.getElementById('detailTitle');
+            if(!content || !document.getElementById('detailScreen').style.display || document.getElementById('detailScreen').style.display==='none') return;
+            content.innerHTML = "";
+
+            if(currentOpenModuleId === 'devamsizlik') {
+                title.innerText = "Canlı Bulut Yoklama Havuzu";
+                content.innerHTML = `
+                    <div class="modern-class-grid">${Object.keys(localState.schoolData).map(x=>`<div class="modern-class-card ${selectedAdminClassView===x?'active':''}" onclick="selectedAdminClassView='${x}'; refreshCurrentActiveModule();">Sınıf ${x}</div>`).join('')}</div>
+                    <div id="attendanceListContainer"></div>`;
+                
+                const list = document.getElementById('attendanceListContainer');
+                if(list && localState.attendanceDatabase[selectedAdminClassView]) {
+                    list.innerHTML = localState.attendanceDatabase[selectedAdminClassView].map((r, i) => `
+                        <div class="attendance-student-card">
+                            <span class="student-name">${r.ogrenci}</span>
+                            <div class="status-options">
+                                <button class="status-btn ${r.durum==='geldi'?'geldi-active':''}" onclick="updateCloudStatus('${selectedAdminClassView}', ${i}, 'geldi')">GELDİ</button>
+                                <button class="status-btn ${r.durum==='gelmedi'?'gelmedi-active':''}" onclick="updateCloudStatus('${selectedAdminClassView}', ${i}, 'gelmedi')">GELMEDİ</button>
+                                <button class="status-btn ${r.durum==='izinli'?'izinli-active':''}" onclick="updateCloudStatus('${selectedAdminClassView}', ${i}, 'izinli')">İZİNLİ</button>
+                            </div>
+                        </div>`).join('');
+                }
+            }
+            else if(currentOpenModuleId === 'siniflar') {
+                title.innerText = "Bulut Yapılandırma Merkezi";
+                content.innerHTML = `
+                    <div class="feature-box" style="background:#FFFDE7;">
+                        <h4>Zafer AI Bulut Hafızası</h4>
+                        <textarea id="kbTarihce">${localState.chatbotKnowledge.tarihce}</textarea>
+                        <button class="action-btn" style="background:#F59F00;" onclick="localState.chatbotKnowledge.tarihce=document.getElementById('kbTarihce').value; pushStateToCloud(); alert('Bulut hafızası güncellendi!');">Buluta Gönder</button>
+                    </div>
+                    <div class="feature-box">
+                        <h4>Sisteme Yeni Öğretmen / Branş Tanımla</h4>
+                        <input type="text" id="nT" placeholder="Hoca Adı"><input type="text" id="nB" placeholder="Branş">
+                        <button class="action-btn" onclick="addNewTeacherToCloud()">Bulut Kadrosuna Ekle</button>
+                    </div>`;
+            }
+            else if(currentOpenModuleId === 'view_schedules') {
+                title.innerText = "Haftalık Sınıf Ders Programı";
+                content.innerHTML = `<div class="modern-class-grid">${Object.keys(localState.schoolData).map(x=>`<div class="modern-class-card ${selectedAdminClassView===x?'active':''}" onclick="selectedAdminClassView='${x}'; refreshCurrentActiveModule();">${x}</div>`).join('')}</div><div id="mC"></div>`;
+                renderMatrixView(selectedAdminClassView);
+            }
+            else if(currentOpenModuleId === 'ajanda') {
+                title.innerText = "Okul Ajanda & Takvim";
+                let formHTML = (currentRole === 'Yönetici') ? `
+                    <div class="feature-box">
+                        <h4>Yeni Olay / Sınav Planla</h4>
+                        <input type="text" id="evB" placeholder="Başlık"><input type="date" id="evT">
+                        <button class="action-btn" onclick="addAgendaToCloud()">Ajandaya İşle</button>
+                    </div>` : "";
+                content.innerHTML = formHTML + `<div id="agArea">${localState.agendaEvents.map(e=>`<div class="attendance-student-card"><div><strong>${e.baslik}</strong><br><small>${e.tarih}</small></div></div>`).join('')}</div>`;
+            }
+            else if(currentOpenModuleId === 'mesaj') {
+                title.innerText = "Ortak Bulut İletişim Odası";
+                content.innerHTML = `
+                    <div class="msg-container">${localState.globalMessages.map(m=>`<div class="msg-bubble"><strong>${m.gonderen}:</strong> ${m.metin}</div>`).join('')}</div>
+                    <input type="text" id="mTxt" placeholder="Mesajınız..."><button class="action-btn" onclick="sendMessageToCloud()">Gönder</button>`;
+            }
+            else if(currentOpenModuleId === 'duyuru') {
+                title.innerText = "Okul Duyurular Odası";
+                content.innerHTML = `<div class="feature-box" style="text-align:center; padding:40px;"><i class="fa-solid fa-star" style="font-size:3rem; color:#FBC02D; margin-bottom:20px;"></i><h3 style="color:var(--primary-color);">ZAFER AI GÜNCELLEMESİ</h3><p style="font-size:1.2rem; font-weight:bold; margin-top:10px;">Zai ile çok daha fazlası gelecek.</p></div>`;
+            }
+            else if(currentOpenModuleId === 'yardim') {
+                title.innerText = "Destek ve Yardım";
+                content.innerHTML = `<div class="feature-box" style="text-align:center; padding:30px;"><img src="https://ui-avatars.com/api/?name=Enes+Basaran&background=D32F2F&color=fff&size=128" style="border-radius:50%; margin-bottom:20px;"><h4>Din Öğretmeni Enes Başaran</h4><p>Sistem ve Din Kültürü dersi ile ilgili tüm sorularınız için iletişime geçin.</p><div style="background:#FFF; padding:15px; border-radius:12px; margin-top:20px; border:1px solid #DDD;"><i class="fa-solid fa-envelope" style="color:var(--primary-color);"></i> <a href="mailto:enes.basaran@zaferkoleji.com.tr" style="color:var(--text-color); font-weight:bold; text-decoration:none;">enes.basaran@zaferkoleji.com.tr</a></div></div>`;
+            }
+            else if(currentOpenModuleId === 'auto_schedule') {
+                title.innerText = "Otomatik Ders Programı Motoru";
+                content.innerHTML = `<div class="feature-box"><h4>Akıllı Çakışmasız Dağıtım Motoru</h4><button class="action-btn" style="background:#2ECC71;" onclick="triggerCloudAutoScheduleAI()">Akıllı Programı Tetikle</button></div>`;
+            }
+        }
+
+        // --- BULUT EMİR FONKSİYONLARI ---
+        function updateCloudStatus(s, index, status) { localState.attendanceDatabase[s][index].durum = status; pushStateToCloud(); refreshCurrentActiveModule(); }
+        function addNewTeacherToCloud() {
+            const n = document.getElementById('nT').value.trim(); const b = document.getElementById('nB').value.trim(); if(!n || !b) return;
+            localState.teachersList.push(`${n} Hoca (${b})`);
+            if(!localState.teacherRequirements[`${n} Hoca (${b})`]) localState.teacherRequirements[`${n} Hoca (${b})`] = {"8/A":0,"8/B":0,"8/C":0,"8/D":0,"8/E":0};
+            pushStateToCloud(); alert("Hoca bulut kadrosuna eklendi."); openModule('siniflar');
+        }
+        function addAgendaToCloud() { const b = document.getElementById('evB').value.trim(); const t = document.getElementById('evT').value; if(!b || !t) return; localState.agendaEvents.push({ tip:"Sınav", baslik:b, date:t }); pushStateToCloud(); refreshCurrentActiveModule(); }
+        function sendMessageToCloud() { const m = document.getElementById('mTxt').value.trim(); if(!m) return; localState.globalMessages.push({ gonderen:currentUserName, alici:"Herkes", metin:m }); pushStateToCloud(); refreshCurrentActiveModule(); }
+        
+        function triggerCloudAutoScheduleAI() {
+            const days = ["Pzt","Sal","Çar","Per","Cum"];
+            Object.keys(localState.schoolData).forEach(s => {
+                let idx = 0; localState.teachersList.forEach(t => {
+                    let req = localState.teacherRequirements[t] ? localState.teacherRequirements[t][s] : 0;
+                    for(let i=0; i<req; i++) { if(idx<40) { let d=days[Math.floor(idx/8)]; let hr=(idx%8)+1; localState.scheduleDatabase[s][d][hr]=t; idx++; } }
+                });
+            });
+            pushStateToCloud(); alert("Bulut tabanlı çakışmasız ders matrisi hesaplandı."); openModule('view_schedules');
+        }
+
+        function renderMatrixView(s) {
+            const container = document.getElementById('mC'); if(!container) return; const days = ["Pzt","Sal","Çar","Per","Cum"];
+            let h = `<div class="matrix-wrapper"><table class="matrix-table"><thead><tr><th style="background:#1E293B;">Saat</th>${days.map(d=>`<th>${d}</th>`).join('')}</tr></thead><tbody>`;
+            for(let hr=1; hr<=8; hr++) {
+                h += `<tr><td style="background:#F8FAFC; font-weight:bold;">${hr}. Ders</td>`;
+                days.map(d => {
+                    let cur = localState.scheduleDatabase[s] && localState.scheduleDatabase[s][d] ? localState.scheduleDatabase[s][d][hr] : "-";
+                    h += `<td>${cur !== "-" ? `<div class="matrix-cell-box">${cur.substring(cur.indexOf("(")+1, cur.indexOf(")"))}<small>${cur.split(' ')[0]}</small></div>` : `<span style="color:#CBD5E1;">-</span>`}</td>`;
+                });
+                h += `</tr>`;
+            }
+            container.innerHTML = h + "</tbody></table></div>";
+        }
+
+        function toggleCampusBot() { const w = document.getElementById('campusBotWindow'); w.style.display = (w.style.display==='flex')?'none':'flex'; }
+        function sendMsgToCampusBot() {
+            const i = document.getElementById('botChatInputText'); const t = i.value; if(!t) return;
+            const a = document.getElementById('botChatMessagesArea'); a.innerHTML += `<div class="user-msg">${t}</div>`; i.value="";
+            setTimeout(()=> {
+                let r = "Bulut veri kütüğünde eşleşme bulunamadı."; let l = t.toLowerCase();
+                if(l.includes("tarihçe")) r = localState.chatbotKnowledge.tarihce;
+                if(l.includes("geldi mi") || l.includes("durum") || l.includes("izinli")) {
+                    Object.keys(localState.attendanceDatabase).forEach(s=>{
+                        localState.attendanceDatabase[s].forEach(x=>{ if(l.includes(x.ogrenci.toLowerCase().split(' ')[0])) r = `<strong>Bulut Analizi:</strong> ${x.ogrenci} anlık durumu: <strong>${x.durum.toUpperCase()}</strong>`; });
+                    });
+                }
+                a.innerHTML += `<div class="bot-msg">${r}</div>`; a.scrollTop = a.scrollHeight;
+            }, 400);
+        }
+    </script>
+</body>
+</html>        .modern-class-card.active { background: #FFEBEE; border-color: var(--primary-color); color: var(--primary-color); box-shadow: 0 4px 12px rgba(211,47,47,0.15); }
 
         /* YUMUŞATILMIŞ DEVAMSIZLIK ÖĞRENCİ KARTLARI VE 3'LÜ DURUM BUTONLARI (YENİ) */
         .attendance-student-card { background: white; border: 1px solid var(--border-color); padding: 16px; border-radius: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
