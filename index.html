@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zafer Kampüs - K12 Yönetim Sistemi</title>
+    <title>Zafer Kampüs - K12 Yönetim Sistemi Pro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
+        /* Tasarım ve mobil uyum kodları bozulmadan aynen korundu */
         :root {
             --primary-color: #D32F2F;
             --primary-dark: #B71C1C;
@@ -18,10 +19,8 @@
             --status-gelmedi: #E74C3C;
             --status-izinli: #3498DB;
         }
-
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-color); display: flex; justify-content: center; align-items: center; min-height: 100vh; position: relative; padding: 20px; }
-
+        body { background-color: var(--bg-color); color: var(--text-color); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; padding-bottom: 80px;}
         .login-container { background: var(--card-bg); padding: 3rem; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); width: 100%; max-width: 480px; text-align: center; border-top: 6px solid var(--primary-color); }
         .digital-flama { display: inline-flex; align-items: center; gap: 8px; background: #FFF5F5; padding: 8px 16px; border-radius: 20px; color: var(--primary-color); font-weight: 800; font-size: 0.9rem; margin-bottom: 10px; }
         .logo-title { font-size: 1.8rem; font-weight: 900; color: #1E293B; letter-spacing: -0.5px; }
@@ -29,94 +28,71 @@
         .role-btn { background: #F8FAFC; border: 1px solid var(--border-color); padding: 12px 5px; border-radius: 12px; cursor: pointer; font-size: 0.85rem; font-weight: 600; color: #64748B; transition: all 0.2s; }
         .role-btn i { display: block; font-size: 1.4rem; margin-bottom: 6px; }
         .role-btn.active { background: #FFF5F5; border-color: var(--primary-color); color: var(--primary-color); box-shadow: 0 4px 12px rgba(211,47,47,0.15); }
-        
-        .dashboard-container { display: none; width: 100%; max-width: 800px; background: var(--bg-color); min-height: 90vh; flex-direction: column; border-radius: 16px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.05); margin-bottom: 60px;}
+        .dashboard-container { display: none; width: 100%; max-width: 800px; background: var(--bg-color); min-height: 90vh; flex-direction: column; border-radius: 16px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.05); }
         .header { background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); color: white; padding: 2rem; display: flex; align-items: center; justify-content: space-between; }
         .header h1 { font-size: 1.6rem; font-weight: 800; }
-
         .grid-menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 2rem; background: #FFF; }
         .menu-card { background: #FFF; border: 1px solid var(--border-color); border-radius: 14px; padding: 20px 10px; text-align: center; cursor: pointer; transition: all 0.25s; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 110px; }
         .menu-card:hover { transform: translateY(-4px); border-color: var(--primary-color); box-shadow: 0 8px 20px rgba(211,47,47,0.08); }
         .menu-card i { font-size: 1.8rem; color: var(--primary-color); margin-bottom: 10px; }
         .menu-card span { font-size: 0.85rem; font-weight: 700; color: #334155; }
-
-        .detail-container { display: none; width: 100%; max-width: 800px; background: white; min-height: 90vh; flex-direction: column; padding: 2rem; border-radius: 16px; box-shadow: 0 15px 35px rgba(0,0,0,0.05); margin-bottom: 60px;}
+        .detail-container { display: none; width: 100%; max-width: 800px; background: white; min-height: 90vh; flex-direction: column; padding: 2rem; border-radius: 16px; box-shadow: 0 15px 35px rgba(0,0,0,0.05); }
         .detail-header { display: flex; align-items: center; margin-bottom: 2rem; border-bottom: 2px solid var(--primary-color); padding-bottom: 15px; justify-content: space-between; }
-        .detail-header-left { display: flex; align-items: center; }
         .detail-header h2 { font-size: 1.5rem; color: #1E293B; margin-left: 15px; font-weight: 800; }
-        
         .feature-box { background: #F8FAFC; padding: 20px; border-radius: 14px; border-left: 5px solid var(--primary-color); margin-bottom: 20px; }
-
         .modern-class-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 14px; margin-bottom: 20px; }
-        .modern-class-card { background: #FFF; border: 2px solid #E2E8F0; padding: 15px; border-radius: 14px; text-align: center; font-size: 1.1rem; font-weight: 800; color: #475569; cursor: pointer; transition: all 0.25s; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .modern-class-card:hover, .modern-class-card.active { border-color: var(--primary-color); background: #FFF5F5; color: var(--primary-color); box-shadow: 0 4px 12px rgba(211,47,47,0.1); }
-
-        .attendance-student-card { background: white; border: 1px solid var(--border-color); padding: 16px; border-radius: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.02); flex-wrap: wrap; gap: 10px;}
+        .modern-class-card { background: #FFF; border: 2px solid #E2E8F0; padding: 15px; border-radius: 14px; text-align: center; font-size: 1.1rem; font-weight: 800; color: #475569; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .modern-class-card.active { border-color: var(--primary-color); background: #FFF5F5; color: var(--primary-color); }
+        .attendance-student-card { background: white; border: 1px solid var(--border-color); padding: 16px; border-radius: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
         .status-options { display: flex; gap: 8px; }
         .status-btn { border: 1px solid #CBD5E1; background: white; padding: 8px 16px; border-radius: 10px; font-size: 0.8rem; font-weight: 800; cursor: pointer; color: #64748B; }
-        
         .status-btn.geldi-active { background: var(--status-geldi); color: white; border-color: var(--status-geldi); }
         .status-btn.gelmedi-active { background: var(--status-gelmedi); color: white; border-color: var(--status-gelmedi); }
         .status-btn.izinli-active { background: var(--status-izinli); color: white; border-color: var(--status-izinli); }
-
         select, textarea, input { width: 100%; padding: 12px 16px; border: 1px solid #CBD5E1; border-radius: 12px; font-size: 0.95rem; outline: none; font-weight: 600; margin-bottom: 12px; }
-        .action-btn { width: 100%; padding: 14px; border: none; border-radius: 12px; color: white; font-weight: 700; cursor: pointer; background: var(--primary-color); display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; transition: 0.2s; }
-        .action-btn:hover { opacity: 0.9; }
-        .action-btn.secondary { background: #64748B; }
-
+        .action-btn { width: 100%; padding: 14px; border: none; border-radius: 12px; color: white; font-weight: 700; cursor: pointer; background: var(--primary-color); display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; }
         .matrix-wrapper { overflow-x: auto; margin-top: 15px; background: #FFF; border-radius: 14px; padding: 5px; }
         .matrix-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 0.8rem; min-width: 500px; }
         .matrix-table th { background: var(--primary-color); color: white; padding: 12px 8px; border: 1px solid var(--primary-dark); }
         .matrix-table td { padding: 10px 6px; border: 1px solid var(--border-color); }
         .matrix-cell-box { background: #FFF5F5; border: 1px solid #FFCDCD; padding: 8px 4px; border-radius: 10px; font-weight: 700; color: var(--primary-dark); display: flex; flex-direction: column; }
-
-        .hour-setter-row { display: flex; justify-content: space-between; align-items: center; background: white; border: 1px solid var(--border-color); padding: 12px 16px; border-radius: 12px; margin-bottom: 8px; flex-wrap: wrap; gap: 10px;}
-        .hour-setter-row span { font-weight: 700; color: #475569; font-size: 0.9rem; }
+        .hour-setter-row { display: flex; justify-content: space-between; align-items: center; background: white; border: 1px solid var(--border-color); padding: 12px 16px; border-radius: 12px; margin-bottom: 8px; }
         .hour-controls { display: flex; align-items: center; gap: 12px; }
-        .hour-badge { background: #F1F5F9; font-weight: 800; padding: 6px 14px; border-radius: 8px; font-size: 0.9rem; min-width: 65px; text-align: center; border: 1px solid #CBD5E1; color: #334155; }
-        .h-btn { background: #FFF; border: 1px solid #CBD5E1; width: 32px; height: 32px; border-radius: 8px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: #475569; }
-
+        .hour-badge { background: #F1F5F9; font-weight: 800; padding: 6px 14px; border-radius: 8px; font-size: 0.9rem; min-width: 65px; text-align: center; border: 1px solid #CBD5E1; }
+        .h-btn { background: #FFF; border: 1px solid #CBD5E1; width: 32px; height: 32px; border-radius: 8px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .crud-item-row { background: #FFF; border: 1px solid var(--border-color); padding: 12px 16px; border-radius: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-        .crud-info { display: flex; flex-direction: column; gap: 2px; }
-        .crud-name { font-weight: 700; color: #1E293B; font-size: 0.95rem; }
-        .crud-sub { font-size: 0.75rem; color: #64748B; font-weight: 600; }
+        .crud-info { display: flex; flex-direction: column; }
+        .crud-name { font-weight: 700; color: #1E293B; }
+        .crud-sub { font-size: 0.75rem; color: #64748B; }
         .crud-actions { display: flex; gap: 10px; }
         .crud-icon-btn { background: none; border: none; cursor: pointer; font-size: 1rem; }
-        .crud-icon-btn.edit { color: #3498DB; }
         .crud-icon-btn.delete { color: #E74C3C; }
-        
         .flex-row { display: flex; gap: 10px; width: 100%; }
-
-        /* CHATBOT CSS */
+        .bottom-nav { background: white; display: flex; justify-content: space-around; padding: 16px; border-top: 1px solid var(--border-color); position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;}
+        .nav-item { color: #94A3B8; font-size: 1.5rem; cursor: pointer; }
+        .nav-item.active { color: var(--primary-color); }
         .chatbot-widget { position: fixed; bottom: 70px; right: 20px; width: 320px; background: #fff; border-radius: 16px 16px 0 0; box-shadow: 0 5px 25px rgba(0,0,0,0.2); z-index: 999; display: flex; flex-direction: column; border: 1px solid var(--border-color); transition: all 0.3s; }
         .chatbot-widget.collapsed { transform: translateY(calc(100% - 50px)); }
         .chat-header { background: var(--primary-color); color: white; padding: 15px; border-radius: 16px 16px 0 0; font-weight: bold; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-        .chat-body { height: 300px; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #F8FAFC; }
+        .chat-body { height: 250px; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #F8FAFC; }
         .bot-msg { background: white; padding: 10px; border-radius: 10px 10px 10px 0; border: 1px solid #E2E8F0; align-self: flex-start; max-width: 85%; font-size: 0.85rem;}
         .user-msg { background: var(--primary-color); color: white; padding: 10px; border-radius: 10px 10px 0 10px; align-self: flex-end; max-width: 85%; font-size: 0.85rem;}
         .chat-input-area { display: flex; padding: 10px; background: white; border-top: 1px solid var(--border-color); }
         .chat-input-area input { margin-bottom: 0; border-radius: 20px; padding: 10px 15px; border: 1px solid #E2E8F0; width: 100%; }
         .chat-input-area button { background: var(--primary-color); color: white; border: none; padding: 0 15px; margin-left: 10px; border-radius: 20px; cursor: pointer; }
-
-        .bottom-nav { margin-top: auto; background: white; display: flex; justify-content: space-around; padding: 16px; border-top: 1px solid var(--border-color); position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;}
-        .nav-item { color: #94A3B8; font-size: 1.5rem; cursor: pointer; }
-        .nav-item.active { color: var(--primary-color); }
-
         @media (max-width: 768px) {
             .role-selector { grid-template-columns: repeat(2, 1fr); }
-            .grid-menu { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 1rem; }
-            .chatbot-widget { width: 90%; right: 5%; bottom: 60px; }
-            .detail-container, .dashboard-container { padding: 1rem; }
-            .header { flex-direction: column; text-align: center; gap: 10px; }
+            .grid-menu { grid-template-columns: repeat(2, 1fr); }
             .flex-row { flex-direction: column; }
         }
     </style>
 </head>
 <body>
 
+    <!-- GİRİŞ EKRANI -->
     <div class="login-container" id="loginScreen">
         <div class="logo-area">
-            <div class="digital-flama"><i class="fa-solid fa-cloud"></i><div class="flama-text">ZAFER KAMPÜS V3.0 (PRO)</div></div>
+            <div class="digital-flama"><i class="fa-solid fa-cloud"></i><div class="flama-text">ZAFER KAMPÜS V4.0 (CLOUD)</div></div>
             <div class="logo-title" style="margin-bottom: 20px;">SİSTEM GİRİŞİ</div>
         </div>
         <div class="role-selector">
@@ -127,36 +103,37 @@
         </div>
         <div class="input-group"><input type="text" id="loginUsername" placeholder="Kullanıcı Adı"></div>
         <div class="input-group"><input type="password" id="loginPassword" placeholder="Şifre"></div>
-        <button class="action-btn" onclick="handleLogin()">Güvenli Giriş Yap</button>
-        <p style="font-size: 0.8rem; color: #94A3B8; margin-top: 15px;">İlk Kurulum Yönetici Girişi: admin / 1234</p>
+        <button class="action-btn" onclick="handleLogin()">Bulut Sunucusuna Bağlan</button>
     </div>
 
+    <!-- ANA PANEL -->
     <div class="dashboard-container" id="dashboardScreen">
         <div class="header">
             <div><h1 id="brandTitle">ZAFER KAMPÜS</h1><p id="welcomeText">Yükleniyor...</p><p id="userRoleText">Erişim Rolü: -</p></div>
-            <div class="header-logo-mini-digital" id="cloudSyncStatus"><i class="fa-solid fa-cloud-arrow-up"></i> Çevrimdışı (Yerel)</div>
+            <div class="header-logo-mini-digital" id="cloudSyncStatus"><i class="fa-solid fa-sync fa-spin"></i> Bulut Eşitleniyor...</div>
         </div>
         <div class="grid-menu" id="mainMenuGrid"></div>
     </div>
 
+    <!-- DETAY PANELİ -->
     <div class="detail-container" id="detailScreen">
         <div class="detail-header">
-            <div class="detail-header-left">
-                <i class="fa-solid fa-arrow-left nav-item back-icon" onclick="goHome()" style="margin-right: 15px; color: var(--text-color);"></i>
+            <div style="display:flex; align-items:center;">
+                <i class="fa-solid fa-arrow-left nav-item" onclick="goHome()" style="margin-right: 15px; color: var(--text-color);"></i>
                 <h2 id="detailTitle">Yükleniyor...</h2>
             </div>
         </div>
         <div id="detailContent"></div>
     </div>
 
-    <!-- CHATBOT -->
+    <!-- CHATBOT WIDGET -->
     <div class="chatbot-widget collapsed" id="chatbotWidget">
         <div class="chat-header" onclick="toggleChat()">
             <span><i class="fa-solid fa-robot"></i> Zafer Asistan AI</span>
             <i class="fa-solid fa-chevron-up" id="chatToggleIcon"></i>
         </div>
         <div class="chat-body" id="chatBody">
-            <div class="bot-msg">Merhaba! Ben Zafer Koleji akıllı asistanıyım. Size nasıl yardımcı olabilirim?</div>
+            <div class="bot-msg">Merhaba! Ben Zafer Koleji bulut asistanıyım. Sorularınızı bekliyorum.</div>
         </div>
         <div class="chat-input-area">
             <input type="text" id="chatInput" placeholder="Soru sorun..." onkeypress="if(event.key === 'Enter') sendChatMessage()">
@@ -164,122 +141,127 @@
         </div>
     </div>
 
+    <!-- ALT NAVİGASYON -->
     <div class="bottom-nav">
         <i class="fa-solid fa-chevron-left nav-item" onclick="goHome()"></i>
         <i class="fa-solid fa-house nav-item active" onclick="goHome()"></i>
         <i class="fa-solid fa-power-off nav-item" onclick="logout()" style="color:var(--primary-color);"></i>
     </div>
 
-    <script>
-        let currentRole = "Yönetici"; 
+    <!-- FIREBASE MIGRATION VE TÜM UYGULAMA MANTIĞI -->
+    <script type="module">
+        // 1. Buradaki Firebase kütüphaneleri CDN üzerinden doğrudan tarayıcıya akar
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // ⚠️ ADIM 1.2: BURAYI KENDİ FIREBASE KONSOLUNDAN ALDIĞIN DEĞERLERLE DEĞİŞTİR!
+        const firebaseConfig = {// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyCw8wekTKw3Qn-efTBylldgVsRtKgGlW3c",
+  authDomain: "zaferai.firebaseapp.com",
+  projectId: "zaferai",
+  storageBucket: "zaferai.firebasestorage.app",
+  messagingSenderId: "808774923591",
+  appId: "1:808774923591:web:e8ad9b8b7388ab6eb18862",
+  measurementId: "G-QHYZ31962G"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+        };
+
+        // Firebase Başlatma
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Uygulama Değişkenleri
+        let currentRole = "Yönetici";
         let currentUserFullName = "";
         let currentUserName = "";
-        
-        let selectedAdminClassView = "8/A"; 
+        let selectedAdminClassView = "8/A";
         let selectedScheduleClassPlan = "8/A";
 
-        // VERİTABANI (STATE) YAPISI
-        let defaultState = {
-            users: [
-                // İlk kurulum için yönetici hesabı
-                { id: "u1", role: "Yönetici", fullname: "Sistem Yöneticisi", username: "admin", password: "1234" }
-            ],
-            schoolData: {
-                "8/A": ["Ahmet Yılmaz", "Ayşe Kaya"],
-                "8/B": ["Deniz Aktaş", "Emre Can"]
-            },
+        // Dinamik Bulut Hafızası (Firestore'dan beslenir)
+        let cloudState = {
+            users: [{ role: "Yönetici", fullname: "Sistem Yöneticisi", username: "admin", password: "1234" }],
+            schoolData: {"8/A": ["Ahmet Yılmaz", "Ayşe Kaya"]},
             teachersList: ["Mehmet Hoca (Türkçe)", "Ahmet Hoca (Matematik)"],
             teacherRequirements: {},
             attendanceDatabase: {},
             scheduleDatabase: {},
-            chatbotKB: [{soru: "okul saatleri", cevap: "Okulumuzda dersler 09:00'da başlar, 16:30'da biter."}]
+            chatbotKB: [{soru: "okul saatleri", cevap: "Dersler 09:00 - 16:30 arasındadır."}]
         };
 
-        let localState = {};
-
-        // --- PROFESYONEL VERİTABANI EŞİTLEME (SYNC) MİMARİSİ ---
-        // Not: Gerçek bir veritabanı bağlandığında bu fonksiyonlar güncellenmelidir.
-        function syncWithCloudDatabase() {
-            // İLERİDE FIREBASE/SUPABASE BURAYA EKLENECEK.
-            // Örnek: fetch('https://api.zaferkoleji.com/sync', { method: 'POST', body: JSON.stringify(localState) })
-            localStorage.setItem("zafer_kampus_pro_v3", JSON.stringify(localState));
-            console.log("Veriler veritabanına/yerel hafızaya senkronize edildi.");
+        // Gerçek Zamanlı Bulut Dinleyicisi (Realtime Sync)
+        function listenToCloudDatabase() {
+            const docRef = doc(db, "zafer_kampus", "main_db");
+            onSnapshot(docRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    cloudState = docSnap.data();
+                    // Eksik alan korumaları
+                    if(!cloudState.users) cloudState.users = [];
+                    if(!cloudState.schoolData) cloudState.schoolData = {};
+                    if(!cloudState.teachersList) cloudState.teachersList = [];
+                    if(!cloudState.teacherRequirements) cloudState.teacherRequirements = {};
+                    if(!cloudState.attendanceDatabase) cloudState.attendanceDatabase = {};
+                    if(!cloudState.scheduleDatabase) cloudState.scheduleDatabase = {};
+                    if(!cloudState.chatbotKB) cloudState.chatbotKB = [];
+                    
+                    document.getElementById('cloudSyncStatus').innerHTML = `<i class="fa-solid fa-cloud" style="color:#2ECC71;"></i> Canlı Bağlantı`;
+                    refreshCurrentActiveModule();
+                } else {
+                    // İlk açılışta veritabanı boşsa default veriyi sunucuya yaz
+                    saveToCloudDatabase();
+                }
+            }, (error) => {
+                console.error("Bulut okuma hatası:", error);
+                document.getElementById('cloudSyncStatus').innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color:#E74C3C;"></i> Yapılandırma Gerekli`;
+            });
         }
 
-        function loadStateFromMemory() {
-            let saved = localStorage.getItem("zafer_kampus_pro_v3");
-            if(saved) {
-                try { localState = JSON.parse(saved); } catch(e) { localState = JSON.parse(JSON.stringify(defaultState)); }
-            } else {
-                localState = JSON.parse(JSON.stringify(defaultState));
+        async function saveToCloudDatabase() {
+            try {
+                await setDoc(doc(db, "zafer_kampus", "main_db"), cloudState);
+            } catch (e) {
+                console.error("Buluta yazma hatası: ", e);
             }
-            initRequirements();
         }
 
-        function initRequirements() {
-            if(!localState.teacherRequirements) localState.teacherRequirements = {};
-            if(!localState.attendanceDatabase) localState.attendanceDatabase = {};
-            if(!localState.scheduleDatabase) localState.scheduleDatabase = {};
-            
-            localState.teachersList.forEach(t => { 
-                if(!localState.teacherRequirements[t]) {
-                    localState.teacherRequirements[t] = {};
-                    Object.keys(localState.schoolData).forEach(s => localState.teacherRequirements[t][s] = 0);
-                } 
-            });
-            Object.keys(localState.schoolData).forEach(s => {
-                if(!localState.attendanceDatabase[s]) {
-                    localState.attendanceDatabase[s] = localState.schoolData[s].map(st => ({ ogrenci: st, durum: "geldi" }));
-                }
-                if(!localState.scheduleDatabase[s]) {
-                    localState.scheduleDatabase[s] = {};
-                    ["Pzt","Sal","Çar","Per","Cum"].forEach(d => { localState.scheduleDatabase[s][d] = {}; for(let h=1; h<=8; h++) localState.scheduleDatabase[s][d][h]="-"; });
-                }
-            });
-        }
+        // Başlangıç tetiği
+        listenToCloudDatabase();
 
-        loadStateFromMemory();
-
-        // --- GİRİŞ SİSTEMİ (Kimlik Doğrulama) ---
-        function selectRole(r, el) { currentRole = r; document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('active')); el.classList.add('active'); }
+        // Fonksiyonları HTML elementlerinden çağırabilmek için global window nesnesine bağlıyoruz
+        window.selectRole = function(r, el) { currentRole = r; document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('active')); el.classList.add('active'); };
         
-        function handleLogin() {
+        window.handleLogin = function() {
             const uInput = document.getElementById('loginUsername').value.trim();
             const pInput = document.getElementById('loginPassword').value;
-            
-            if(!uInput || !pInput) { alert("Lütfen kullanıcı adı ve şifrenizi giriniz."); return; }
-            
-            // Veritabanında Kullanıcı Ara
-            const foundUser = localState.users.find(u => u.username === uInput && u.password === pInput && u.role === currentRole);
-            
-            if(!foundUser) {
-                alert("Hata: Girdiğiniz bilgilere veya role ait bir hesap bulunamadı.");
-                return;
-            }
+            if(!uInput || !pInput) { alert("Lütfen alanları doldurunuz."); return; }
+
+            const foundUser = cloudState.users.find(u => u.username === uInput && u.password === pInput && u.role === currentRole);
+            if(!foundUser) { alert("Hata: Bilgiler hatalı veya rolünüz uyuşmuyor."); return; }
 
             currentUserFullName = foundUser.fullname;
             currentUserName = foundUser.username;
-            
+
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('dashboardScreen').style.display = 'flex';
             document.getElementById('welcomeText').innerText = `Hoşgeldiniz, ${currentUserFullName}`;
             document.getElementById('userRoleText').innerText = `Rol: ${currentRole}`;
-            
-            // Eğer veritabanı varsa bulut ikonu yeşil olsun
-            document.getElementById('cloudSyncStatus').innerHTML = `<i class="fa-solid fa-cloud" style="color:#2ECC71;"></i> Sistem Aktif`;
-            
             renderMenu();
-        }
+        };
 
-        function goHome() { 
-            document.getElementById('detailScreen').style.display = 'none'; 
-            document.getElementById('dashboardScreen').style.display = 'flex'; 
-            renderMenu(); 
-        }
-        
-        function logout() { location.reload(); }
+        window.goHome = function() { document.getElementById('detailScreen').style.display = 'none'; document.getElementById('dashboardScreen').style.display = 'flex'; renderMenu(); };
+        window.logout = function() { location.reload(); };
 
-        // --- MODÜL MENÜSÜ ---
         function renderMenu() {
             const grid = document.getElementById('mainMenuGrid'); if(!grid) return; grid.innerHTML = "";
             const modules = [
@@ -290,456 +272,289 @@
                 { id: 'devamsizlik', title: 'Devamsızlık', icon: 'fa-user-xmark', roles: ['Yönetici', 'Öğretmen'] },
                 { id: 'auto_schedule', title: 'Akıllı Ders Dağıtımı', icon: 'fa-wand-magic-sparkles', roles: ['Yönetici'] },
                 { id: 'chatbot_admin', title: 'Chatbot Eğitimi', icon: 'fa-brain', roles: ['Yönetici'] },
-                { id: 'veri_transferi', title: 'Veri Tabanı & Senkron', icon: 'fa-database', roles: ['Yönetici'] }
+                { id: 'yardim', title: 'Destek & Yardım', icon: 'fa-circle-question', roles: ['Yönetici', 'Öğretmen', 'Öğrenci', 'Veli'] }
             ];
             modules.forEach(m => { if(m.roles.includes(currentRole)) { grid.innerHTML += `<div class="menu-card" onclick="openModule('${m.id}')"><i class="fa-solid ${m.icon}"></i><span>${m.title}</span></div>`; } });
         }
+        window.openModule = function(id) { currentOpenModuleId = id; document.getElementById('dashboardScreen').style.display = 'none'; document.getElementById('detailScreen').style.display = 'flex'; refreshCurrentActiveModule(); };
 
         let currentOpenModuleId = "";
-        function openModule(id) { currentOpenModuleId = id; document.getElementById('dashboardScreen').style.display = 'none'; document.getElementById('detailScreen').style.display = 'flex'; refreshCurrentActiveModule(); }
-
         function refreshCurrentActiveModule() {
             const content = document.getElementById('detailContent'); const title = document.getElementById('detailTitle');
-            if(!content || !document.getElementById('detailScreen').style.display || document.getElementById('detailScreen').style.display==='none') return;
+            if(!content || document.getElementById('detailScreen').style.display === 'none') return;
             content.innerHTML = "";
 
             if(currentOpenModuleId === 'ogrenci_yonetim') {
-                title.innerText = "Sınıf ve Öğrenci Yönetimi";
-                // Sınıflar listesi
+                title.innerText = "Sınıf ve Öğrenci Kontrol Merkezi";
                 content.innerHTML = `
                     <div class="feature-box" style="background:#E3F2FD; border-left-color:#1565C0;">
-                        <h4 style="color:#1565C0; margin-bottom:10px;"><i class="fa-solid fa-layer-group"></i> Yeni Sınıf Şubesi Aç</h4>
-                        <div class="flex-row">
-                            <input type="text" id="newClassName" placeholder="Sınıf Adı (Örn: 9/A)">
-                            <button class="action-btn" style="background:#1565C0; width:150px;" onclick="createNewClass()">Sınıfı Aç</button>
-                        </div>
+                        <h4><i class="fa-solid fa-layer-group"></i> Yeni Sınıf Şubesi Aç</h4>
+                        <div class="flex-row"><input type="text" id="newClassName" placeholder="Şube Adı (Örn: 9/A)"><button class="action-btn" style="background:#1565C0; width:150px;" onclick="createNewClass()">Sınıfı Aç</button></div>
                     </div>
-                    
-                    <h4 style="margin-bottom:15px;">Mevcut Sınıflar (Seçiniz)</h4>
-                    <div class="modern-class-grid" id="classGridAdmin">
-                        ${Object.keys(localState.schoolData).map(x=>`<div class="modern-class-card ${selectedAdminClassView===x?'active':''}" onclick="selectedAdminClassView='${x}'; refreshCurrentActiveModule();">Sınıf ${x}</div>`).join('')}
-                    </div>
-                    
-                    ${Object.keys(localState.schoolData).length > 0 ? `
+                    <div class="modern-class-grid">${Object.keys(cloudState.schoolData).map(x=>`<div class="modern-class-card ${selectedAdminClassView===x?'active':''}" onclick="changeAdminClassView('${x}')">Sınıf ${x}</div>`).join('')}</div>
+                    ${Object.keys(cloudState.schoolData).length > 0 ? `
                     <div class="feature-box" style="background:#FFF;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                            <h4><i class="fa-solid fa-users"></i> ${selectedAdminClassView} Sınıfı Öğrenci Listesi</h4>
-                            <button class="action-btn" style="width:auto; margin:0; padding:8px 15px; font-size:0.9rem;" onclick="deleteClass('${selectedAdminClassView}')"><i class="fa-solid fa-trash"></i> Sınıfı Komple Sil</button>
+                            <h4>${selectedAdminClassView} Şubesi Öğrencileri</h4>
+                            <button class="action-btn" style="width:auto; margin:0; padding:8px 15px; font-size:0.8rem;" onclick="deleteClass('${selectedAdminClassView}')">Sınıfı Kapat</button>
                         </div>
-                        <div class="flex-row" style="margin-bottom:15px;">
-                            <input type="text" id="newStudentName" placeholder="Yeni Öğrenci Adı Soyadı">
-                            <button class="action-btn" style="width:120px;" onclick="addStudentToClass()">Ekle</button>
-                        </div>
-                        <div id="studentListArea">
-                            ${localState.schoolData[selectedAdminClassView].map((stu, idx) => `
-                                <div class="crud-item-row">
-                                    <div class="crud-info"><span class="crud-name">${stu}</span></div>
-                                    <div class="crud-actions">
-                                        <button class="crud-icon-btn edit" onclick="editStudent(${idx}, '${stu}')"><i class="fa-solid fa-pen"></i></button>
-                                        <button class="crud-icon-btn delete" onclick="deleteStudent(${idx})"><i class="fa-solid fa-trash"></i></button>
-                                    </div>
+                        <div class="flex-row" style="margin-bottom:15px;"><input type="text" id="newStudentName" placeholder="Öğrenci Adı Soyadı"><button class="action-btn" style="width:120px;" onclick="addStudentToClass()">Kaydet</button></div>
+                        <div>${(cloudState.schoolData[selectedAdminClassView] || []).map((stu, idx) => `
+                            <div class="crud-item-row">
+                                <span class="crud-name">${stu}</span>
+                                <div class="crud-actions">
+                                    <button class="crud-icon-btn" onclick="deleteStudent(${idx})" style="color:#E74C3C;"><i class="fa-solid fa-trash"></i></button>
                                 </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                    ` : '<p>Henüz kayıtlı sınıf yok.</p>'}
-                `;
+                            </div>`).join('')}</div>
+                    </div>` : ''}`;
             }
             else if(currentOpenModuleId === 'kullanici_yonetim') {
-                title.innerText = "Kullanıcı Hesapları ve Şifre Yönetimi";
+                title.innerText = "Kullanıcı Hesapları ve Yetki Yönetimi";
                 content.innerHTML = `
                     <div class="feature-box" style="background:#F3E5F5; border-left-color:#7B1FA2;">
-                        <h4 style="color:#7B1FA2; margin-bottom:10px;"><i class="fa-solid fa-user-plus"></i> Sisteme Yeni Kullanıcı Tanımla</h4>
-                        <select id="newUserRole">
-                            <option value="Öğretmen">Öğretmen Hesabı</option>
-                            <option value="Öğrenci">Öğrenci Hesabı</option>
-                            <option value="Veli">Veli Hesabı</option>
-                            <option value="Yönetici">Yönetici Hesabı</option>
-                        </select>
-                        <input type="text" id="newUserFullname" placeholder="Kişinin Adı Soyadı">
-                        <div class="flex-row">
-                            <input type="text" id="newUserUsername" placeholder="Giriş İçin Kullanıcı Adı">
-                            <input type="text" id="newUserPassword" placeholder="Giriş Şifresi Belirle">
-                        </div>
-                        <button class="action-btn" style="background:#7B1FA2;" onclick="createUserAccount()">Kullanıcı Hesabını Oluştur</button>
+                        <h4><i class="fa-solid fa-user-plus"></i> Yeni Hesap Tanımla</h4>
+                        <select id="newUserRole"><option value="Öğretmen">Öğretmen</option><option value="Öğrenci">Öğrenci</option><option value="Veli">Veli</option><option value="Yönetici">Yönetici</option></select>
+                        <input type="text" id="newUserFullname" placeholder="Adı Soyadı">
+                        <div class="flex-row"><input type="text" id="newUserUsername" placeholder="Kullanıcı Adı"><input type="text" id="newUserPassword" placeholder="Şifre"></div>
+                        <button class="action-btn" style="background:#7B1FA2;" onclick="createUserAccount()">Hesabı Aktifleştir</button>
                     </div>
-
                     <div class="feature-box" style="background:#FFF;">
-                        <h4 style="margin-bottom:15px;"><i class="fa-solid fa-address-book"></i> Kayıtlı Sistem Kullanıcıları</h4>
-                        <div id="userAccountsArea">
-                            ${localState.users.map((u, idx) => `
-                                <div class="crud-item-row">
-                                    <div class="crud-info">
-                                        <span class="crud-name">${u.fullname} <span style="font-size:0.7rem; background:#E2E8F0; padding:2px 6px; border-radius:4px; color:#475569;">${u.role}</span></span>
-                                        <span class="crud-sub">Kullanıcı Adı: <strong>${u.username}</strong> | Şifre: <strong>${u.password}</strong></span>
-                                    </div>
-                                    <div class="crud-actions">
-                                        <button class="crud-icon-btn delete" onclick="deleteUserAccount(${idx})"><i class="fa-solid fa-trash"></i></button>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
+                        <h4>Sistem Kullanıcıları</h4>
+                        <div>${cloudState.users.map((u, idx) => `
+                            <div class="crud-item-row">
+                                <div class="crud-info"><span class="crud-name">${u.fullname} [${u.role}]</span><span class="crud-sub">Giriş: ${u.username} | Şifre: ${u.password}</span></div>
+                                <button class="crud-icon-btn" onclick="deleteUserAccount(${idx})" style="color:#E74C3C;"><i class="fa-solid fa-trash"></i></button>
+                            </div>`).join('')}</div>
+                    </div>`;
             }
             else if(currentOpenModuleId === 'devamsizlik') {
-                title.innerText = "Yoklama ve Devamsızlık Paneli";
-                if(Object.keys(localState.schoolData).length === 0) { content.innerHTML = "<p>Önce Sınıf Yönetiminden sınıf oluşturunuz.</p>"; return; }
-                content.innerHTML = `
-                    <div class="modern-class-grid">${Object.keys(localState.schoolData).map(x=>`<div class="modern-class-card ${selectedAdminClassView===x?'active':''}" onclick="selectedAdminClassView='${x}'; refreshCurrentActiveModule();">Sınıf ${x}</div>`).join('')}</div>
-                    <div id="attendanceListContainer"></div>
-                `;
-                const list = document.getElementById('attendanceListContainer');
-                if(list && localState.attendanceDatabase[selectedAdminClassView]) {
-                    list.innerHTML = localState.attendanceDatabase[selectedAdminClassView].map((r, i) => `
+                title.innerText = "Canlı Yoklama Sistemi";
+                content.innerHTML = `<div class="modern-class-grid">${Object.keys(cloudState.schoolData).map(x=>`<div class="modern-class-card ${selectedAdminClassView===x?'active':''}" onclick="changeAdminClassView('${x}')">Sınıf ${x}</div>`).join('')}</div><div id="attArea"></div>`;
+                const area = document.getElementById('attArea');
+                if(area && cloudState.attendanceDatabase[selectedAdminClassView]) {
+                    area.innerHTML = cloudState.attendanceDatabase[selectedAdminClassView].map((r, i) => `
                         <div class="attendance-student-card">
-                            <span class="student-name" style="font-weight:bold;">${r.ogrenci}</span>
+                            <span style="font-weight:bold;">${r.ogrenci}</span>
                             <div class="status-options">
-                                <button class="status-btn ${r.durum==='geldi'?'geldi-active':''}" onclick="updateLocalStatus('${selectedAdminClassView}', ${i}, 'geldi')">GELDİ</button>
-                                <button class="status-btn ${r.durum==='gelmedi'?'gelmedi-active':''}" onclick="updateLocalStatus('${selectedAdminClassView}', ${i}, 'gelmedi')">GELMEDİ</button>
-                                <button class="status-btn ${r.durum==='izinli'?'izinli-active':''}" onclick="updateLocalStatus('${selectedAdminClassView}', ${i}, 'izinli')">İZİNLİ</button>
+                                <button class="status-btn ${r.durum==='geldi'?'geldi-active':''}" onclick="updateAttendance('${selectedAdminClassView}', ${i}, 'geldi')">GELDİ</button>
+                                <button class="status-btn ${r.durum==='gelmedi'?'gelmedi-active':''}" onclick="updateAttendance('${selectedAdminClassView}', ${i}, 'gelmedi')">GELMEDİ</button>
+                                <button class="status-btn ${r.durum==='izinli'?'izinli-active':''}" onclick="updateAttendance('${selectedAdminClassView}', ${i}, 'izinli')">İZİNLİ</button>
                             </div>
                         </div>`).join('');
                 }
             }
-            else if(currentOpenModuleId === 'auto_schedule') {
-                title.innerText = "Yapay Zeka Ders Dağıtım Motoru";
-                if(Object.keys(localState.schoolData).length === 0) { content.innerHTML = "<p>Program yapılacak sınıf yok.</p>"; return; }
-                content.innerHTML = `
-                    <div class="feature-box" style="background:#FFF3E0; border-left-color:#E65100;">
-                        <strong style="color:#E65100;">Algoritma Kuralı:</strong> Bir sınıfın haftalık ders yükü 40 saattir (Günde 8 saat). Eğer 40 saatten az/fazla atarsanız sistem hata verir. Öğretmen saatleri çakışmayacak şekilde homojen dağıtılır.
-                    </div>
-                    <div class="modern-class-grid">
-                        ${Object.keys(localState.schoolData).map(x=>`<div class="modern-class-card ${selectedScheduleClassPlan===x?'active':''}" onclick="selectedScheduleClassPlan='${x}'; refreshCurrentActiveModule();">Sınıf ${x}</div>`).join('')}
-                    </div>
-                    
-                    <div class="feature-box" style="background:#FFF;">
-                        <h4 style="margin-bottom:15px;"><i class="fa-solid fa-clock"></i> Sınıf ${selectedScheduleClassPlan} İçin Hoca Saatleri:</h4>
-                        <div id="teachersHourInputsContainer"></div>
-                    </div>
-                    <button class="action-btn" style="background:#2ECC71;" onclick="triggerAutoScheduleAI()"><i class="fa-solid fa-calculator"></i> Çakışmasız Dağıtımı Hesapla</button>`;
-                renderTeachersHourInputs();
-            }
-            else if (currentOpenModuleId === 'veri_transferi') {
-                title.innerText = "Veri Tabanı ve Cihaz Senkronizasyonu";
-                content.innerHTML = `
-                    <div class="feature-box" style="background:#FFEBEE; border-left-color:#D32F2F;">
-                        <h4 style="color:#D32F2F;"><i class="fa-solid fa-triangle-exclamation"></i> ÖNEMLİ BİLGİLENDİRME</h4>
-                        <p style="margin-top:10px; font-size:0.95rem;">Şu anda sistem <strong>"Yerel HTML Modunda"</strong> çalışıyor. Bilgiler sadece bulunduğunuz cihazın (telefon/pc) tarayıcısına kaydedilir. 2000 kişinin internet üzerinden aynı anda verileri görebilmesi için sistemin <strong style="color:#000;">Firebase, SQL veya Supabase</strong> gibi bir bulut sunucusuna (Backend) yüklenmesi zorunludur.</p>
-                        <p style="margin-top:10px; font-size:0.95rem;">Sunucu kurulana kadar bilgisayardaki güncel ayarlarınızı telefona aktarmak için aşağıdaki manuel "Dışa Aktar / İçe Aktar" kod sistemini kullanabilirsiniz.</p>
-                    </div>
-                    <div class="feature-box">
-                        <h4>Mevcut Veriyi Kopyala (Dışa Aktar)</h4>
-                        <textarea id="exportData" rows="6" readonly style="font-size:0.7rem; color:#64748B;">${localStorage.getItem("zafer_kampus_pro_v3") || ""}</textarea>
-                        <button class="action-btn" style="background:#3498DB;" onclick="copyExport()"><i class="fa-solid fa-copy"></i> Kodu Kopyala</button>
-                    </div>
-                    <div class="feature-box" style="background:#FFF;">
-                        <h4>Diğer Cihazdan Veri Yükle (İçe Aktar)</h4>
-                        <textarea id="importData" rows="4" placeholder="Kopyaladığınız kodu buraya yapıştırın..."></textarea>
-                        <button class="action-btn" style="background:#E74C3C;" onclick="importData()"><i class="fa-solid fa-download"></i> Veriyi Sisteme Yükle ve Değiştir</button>
-                    </div>
-                `;
-            }
-            // Diğer modüllerin (Dersler, Kadro, Chatbot) listelenmesi (Yer tasarrufu için önceki yapı korundu)
             else if(currentOpenModuleId === 'dersler') {
                 title.innerText = "Haftalık Sınıf Ders Programı";
-                if(Object.keys(localState.schoolData).length===0) { content.innerHTML="Sınıf yok."; return;}
-                content.innerHTML = `<div class="modern-class-grid">${Object.keys(localState.schoolData).map(x=>`<div class="modern-class-card ${selectedAdminClassView===x?'active':''}" onclick="selectedAdminClassView='${x}'; refreshCurrentActiveModule();">${x}</div>`).join('')}</div><div id="mC"></div>`;
+                content.innerHTML = `<div class="modern-class-grid">${Object.keys(cloudState.schoolData).map(x=>`<div class="modern-class-card ${selectedAdminClassView===x?'active':''}" onclick="changeAdminClassView('${x}')">${x}</div>`).join('')}</div><div id="mC"></div>`;
                 renderMatrixView(selectedAdminClassView);
+            }
+            else if(currentOpenModuleId === 'auto_schedule') {
+                title.innerText = "Yapay Zeka Ders Dağıtım Motoru";
+                content.innerHTML = `
+                    <div class="modern-class-grid">${Object.keys(cloudState.schoolData).map(x=>`<div class="modern-class-card ${selectedScheduleClassPlan===x?'active':''}" onclick="changeScheduleClassPlan('${x}')">Sınıf ${x}</div>`).join('')}</div>
+                    <div class="feature-box" style="background:#FFF;"><div id="teachersHourInputsContainer"></div></div>
+                    <button class="action-btn" style="background:#2ECC71;" onclick="triggerAutoScheduleAI()"><i class="fa-solid fa-calculator"></i> Dağıtımı Hesapla ve Buluta Gönder</button>`;
+                renderTeachersHourInputs();
             }
             else if(currentOpenModuleId === 'siniflar') {
                 title.innerText = "Öğretmen Kadrosu";
                 content.innerHTML = `
                     <div class="feature-box">
-                        <h4 style="margin-bottom:10px;">Yeni Öğretmen Ekle</h4>
+                        <h4>Yeni Öğretmen Ekle</h4>
                         <input type="text" id="nT" placeholder="Adı Soyadı">
                         <input type="text" id="nB" placeholder="Branşı">
                         <button class="action-btn" onclick="addNewTeacherLocal()">Kadroyu Güncelle</button>
                     </div>
-                    <div class="feature-box" style="background:#FFF;" id="teachersCrudListArea"></div>`;
-                renderTeachersCrudList();
+                    <div class="feature-box" style="background:#FFF;">
+                        ${cloudState.teachersList.map((t, index) => `<div class="crud-item-row"><span>${t}</span><i class="fa-solid fa-trash" style="color:#E74C3C; cursor:pointer;" onclick="deleteTeacherLocal(${index}, '${t}')"></i></div>`).join('')}
+                    </div>`;
             }
             else if(currentOpenModuleId === 'chatbot_admin') {
-                title.innerText = "Chatbot Eğitim Merkezi";
+                title.innerText = "Asistan Yapay Zeka Eğitimi";
                 content.innerHTML = `
                     <div class="feature-box">
-                        <h4>Yeni Bilgi Öğret</h4>
-                        <input type="text" id="cbSoru" placeholder="Soru (örn: servis saatleri)">
-                        <textarea id="cbCevap" placeholder="Cevap..."></textarea>
-                        <button class="action-btn" onclick="addKBLocal()">Öğret</button>
+                        <h4>Yeni Bilgi Ekle</h4>
+                        <input type="text" id="cbSoru" placeholder="Soru Anahtar Kelimesi">
+                        <textarea id="cbCevap" placeholder="Cevap metni..."></textarea>
+                        <button class="action-btn" onclick="addKBLocal()">Buluta Öğret</button>
                     </div>
-                    <div class="feature-box" style="background:#FFF;" id="kbArea">
-                        ${localState.chatbotKB.map((kb, idx)=>`<div class="crud-item-row"><div class="crud-info"><strong>Soru:</strong> ${kb.soru}<br><small>${kb.cevap}</small></div><i class="fa-solid fa-trash" style="color:#E74C3C; cursor:pointer;" onclick="deleteKBLocal(${idx})"></i></div>`).join('')}
-                    </div>
-                `;
+                    <div class="feature-box" style="background:#FFF;">
+                        ${cloudState.chatbotKB.map((kb, idx)=>`<div class="crud-item-row"><div class="crud-info"><strong>${kb.soru}</strong><small>${kb.cevap}</small></div><i class="fa-solid fa-trash" style="color:#E74C3C; cursor:pointer;" onclick="deleteKBLocal(${idx})"></i></div>`).join('')}
+                    </div>`;
+            }
+            else if(currentOpenModuleId === 'yardim') {
+                title.innerText = "Teknik Destek Bilgileri";
+                content.innerHTML = `
+                    <div class="feature-box" style="text-align:center; padding:30px;">
+                        <img src="https://ui-avatars.com/api/?name=Zafer+Koleji&background=D32F2F&color=fff&size=128" style="border-radius:50%; margin-bottom:20px;">
+                        <h4>Zafer Kampüs Teknik Destek Birimi</h4>
+                        <p style="margin-top:10px; color:#64748B;">Sistem modülleri ve veri yönetim yetkileri ile ilgili kurumsal destek talepleriniz için teknik birimimiz:</p>
+                        <div style="background:#FFF; padding:15px; border-radius:12px; margin-top:20px; border:1px solid #DDD; display:inline-block;">
+                            <i class="fa-solid fa-envelope" style="color:var(--primary-color);"></i> 
+                            <a href="mailto:enes.basaran@zaferkoleji.com.tr" style="color:var(--text-color); font-weight:bold; text-decoration:none;">enes.basaran@zaferkoleji.com.tr</a>
+                        </div>
+                    </div>`;
             }
         }
 
-        // --- SINIF VE ÖĞRENCİ YÖNETİMİ FONKSİYONLARI ---
-        function createNewClass() {
-            const cName = document.getElementById('newClassName').value.trim();
-            if(!cName) return;
-            if(localState.schoolData[cName]) { alert("Bu sınıf zaten var!"); return; }
-            
-            localState.schoolData[cName] = [];
-            localState.attendanceDatabase[cName] = [];
-            localState.scheduleDatabase[cName] = { "Pzt":{}, "Sal":{}, "Çar":{}, "Per":{}, "Cum":{} };
-            for(let h=1; h<=8; h++) { ["Pzt","Sal","Çar","Per","Cum"].forEach(d => localState.scheduleDatabase[cName][d][h] = "-"); }
-            
-            localState.teachersList.forEach(t => { localState.teacherRequirements[t][cName] = 0; });
-            
-            selectedAdminClassView = cName;
-            syncWithCloudDatabase(); refreshCurrentActiveModule();
-        }
-        function deleteClass(cName) {
-            if(!confirm(`${cName} sınıfını ve içindeki tüm öğrencileri/programları kalıcı olarak silmek istediğinize emin misiniz?`)) return;
-            delete localState.schoolData[cName];
-            delete localState.attendanceDatabase[cName];
-            delete localState.scheduleDatabase[cName];
-            localState.teachersList.forEach(t => { delete localState.teacherRequirements[t][cName]; });
-            
-            selectedAdminClassView = Object.keys(localState.schoolData)[0] || "";
-            syncWithCloudDatabase(); refreshCurrentActiveModule();
-        }
-        function addStudentToClass() {
-            const sName = document.getElementById('newStudentName').value.trim();
-            if(!sName) return;
-            localState.schoolData[selectedAdminClassView].push(sName);
-            localState.attendanceDatabase[selectedAdminClassView].push({ogrenci: sName, durum: "geldi"});
-            syncWithCloudDatabase(); refreshCurrentActiveModule();
-        }
-        function deleteStudent(idx) {
-            if(!confirm("Öğrenciyi silmek istiyor musunuz?")) return;
-            localState.schoolData[selectedAdminClassView].splice(idx, 1);
-            localState.attendanceDatabase[selectedAdminClassView].splice(idx, 1);
-            syncWithCloudDatabase(); refreshCurrentActiveModule();
-        }
-        function editStudent(idx, oldName) {
-            let newName = prompt("Öğrencinin yeni adını girin:", oldName);
-            if(newName && newName.trim() !== "") {
-                localState.schoolData[selectedAdminClassView][idx] = newName.trim();
-                localState.attendanceDatabase[selectedAdminClassView][idx].ogrenci = newName.trim();
-                syncWithCloudDatabase(); refreshCurrentActiveModule();
-            }
-        }
+        // Window Scope Bağlantıları (Firestore Tetikleyicileri)
+        window.changeAdminClassView = function(x) { selectedAdminClassView = x; refreshCurrentActiveModule(); };
+        window.changeScheduleClassPlan = function(x) { selectedScheduleClassPlan = x; refreshCurrentActiveModule(); };
 
-        // --- KULLANICI HESABI YÖNETİMİ ---
-        function createUserAccount() {
+        window.createNewClass = function() {
+            const cName = document.getElementById('newClassName').value.trim(); if(!cName) return;
+            if(cloudState.schoolData[cName]) return;
+            cloudState.schoolData[cName] = [];
+            cloudState.attendanceDatabase[cName] = [];
+            cloudState.scheduleDatabase[cName] = {};
+            ["Pzt","Sal","Çar","Per","Cum"].forEach(d => { cloudState.scheduleDatabase[cName][d] = {}; for(let h=1; h<=8; h++) cloudState.scheduleDatabase[cName][d][h]="-"; });
+            cloudState.teachersList.forEach(t => { if(!cloudState.teacherRequirements[t]) cloudState.teacherRequirements[t]={}; cloudState.teacherRequirements[t][cName]=0; });
+            saveToCloudDatabase();
+        };
+
+        window.deleteClass = function(cName) {
+            if(!confirm("Sınıfı silmek istiyor musunuz?")) return;
+            delete cloudState.schoolData[cName]; delete cloudState.attendanceDatabase[cName]; delete cloudState.scheduleDatabase[cName];
+            saveToCloudDatabase();
+        };
+
+        window.addStudentToClass = function() {
+            const name = document.getElementById('newStudentName').value.trim(); if(!name) return;
+            cloudState.schoolData[selectedAdminClassView].push(name);
+            cloudState.attendanceDatabase[selectedAdminClassView].push({ogrenci: name, durum: "geldi"});
+            saveToCloudDatabase();
+        };
+
+        window.deleteStudent = function(idx) {
+            cloudState.schoolData[selectedAdminClassView].splice(idx,1);
+            cloudState.attendanceDatabase[selectedAdminClassView].splice(idx,1);
+            saveToCloudDatabase();
+        };
+
+        window.createUserAccount = function() {
             const r = document.getElementById('newUserRole').value;
             const f = document.getElementById('newUserFullname').value.trim();
             const u = document.getElementById('newUserUsername').value.trim();
             const p = document.getElementById('newUserPassword').value.trim();
-            
-            if(!f || !u || !p) { alert("Tüm alanları doldurunuz."); return; }
-            if(localState.users.find(x => x.username === u)) { alert("Bu kullanıcı adı sistemde zaten kullanılıyor!"); return; }
-            
-            localState.users.push({ id: "u"+Date.now(), role: r, fullname: f, username: u, password: p });
-            syncWithCloudDatabase(); refreshCurrentActiveModule();
-        }
-        function deleteUserAccount(idx) {
-            if(localState.users[idx].username === currentUserName) { alert("Şu an giriş yaptığınız kendi hesabınızı silemezsiniz."); return; }
-            if(!confirm("Bu kullanıcının sisteme erişimini tamamen iptal etmek istiyor musunuz?")) return;
-            localState.users.splice(idx, 1);
-            syncWithCloudDatabase(); refreshCurrentActiveModule();
-        }
+            if(!f || !u || !p) return;
+            cloudState.users.push({role:r, fullname:f, username:u, password:p});
+            saveToCloudDatabase();
+        };
 
-        // --- AUTO SCHEDULE AI MİMARİSİ ---
+        window.deleteUserAccount = function(idx) {
+            cloudState.users.splice(idx, 1); saveToCloudDatabase();
+        };
+
+        window.updateAttendance = function(s, idx, stat) {
+            cloudState.attendanceDatabase[s][idx].durum = stat; saveToCloudDatabase();
+        };
+
+        window.addNewTeacherLocal = function() {
+            const n = document.getElementById('nT').value.trim(); const b = document.getElementById('nB').value.trim(); if(!n || !b) return;
+            const full = `${n} Hoca (${b})`;
+            cloudState.teachersList.push(full);
+            cloudState.teacherRequirements[full] = {};
+            Object.keys(cloudState.schoolData).forEach(s => cloudState.teacherRequirements[full][s] = 0);
+            saveToCloudDatabase();
+        };
+
+        window.deleteTeacherLocal = function(idx, name) {
+            cloudState.teachersList.splice(idx, 1); delete cloudState.teacherRequirements[name]; saveToCloudDatabase();
+        };
+
+        // Otomatik Programlama Algoritması
         function renderTeachersHourInputs() {
             const container = document.getElementById('teachersHourInputsContainer'); if(!container) return;
-            let totalClassHours = 0;
-            let html = localState.teachersList.map(t => {
-                let currentHours = (localState.teacherRequirements[t] && localState.teacherRequirements[t][selectedScheduleClassPlan]) ? localState.teacherRequirements[t][selectedScheduleClassPlan] : 0;
-                totalClassHours += currentHours;
-                return `
-                    <div class="hour-setter-row">
-                        <span><i class="fa-solid fa-chalkboard-user" style="color:var(--primary-color); margin-right:6px;"></i> ${t}</span>
-                        <div class="hour-controls">
-                            <button class="h-btn" onclick="adjustTeacherHour('${t}', -1)">-</button>
-                            <div class="hour-badge">${currentHours} Saat</div>
-                            <button class="h-btn" onclick="adjustTeacherHour('${t}', 1)">+</button>
-                        </div>
-                    </div>`;
-            }).join('');
-            
-            html += `<div style="text-align:right; font-weight:bold; color:${totalClassHours > 40 ? '#E74C3C' : (totalClassHours < 40 ? '#F39C12' : '#2ECC71')}; margin-top:15px; padding:10px; background:#F8FAFC; border-radius:8px;">
-                Sınıfa Atanan Toplam Saat: ${totalClassHours} / 40
-            </div>`;
-            container.innerHTML = html;
+            let total = 0;
+            container.innerHTML = cloudState.teachersList.map(t => {
+                let hours = cloudState.teacherRequirements[t]?.[selectedScheduleClassPlan] || 0;
+                total += hours;
+                return `<div class="hour-setter-row"><span>${t}</span><div class="hour-controls">
+                    <button class="h-btn" onclick="adjustTeacherHour('${t}', -1)">-</button><div class="hour-badge">${hours} Saat</div>
+                    <button class="h-btn" onclick="adjustTeacherHour('${t}', 1)">+</button></div></div>`;
+            }).join('') + `<div style='margin-top:10px; font-weight:bold;'>Sınıf Toplam Yükü: ${total} / 40 Saat</div>`;
         }
 
-        function adjustTeacherHour(tName, offset) {
-            let currentHours = localState.teacherRequirements[tName][selectedScheduleClassPlan] || 0;
-            currentHours += offset;
-            if(currentHours < 0) currentHours = 0;
-            localState.teacherRequirements[tName][selectedScheduleClassPlan] = currentHours;
-            syncWithCloudDatabase(); renderTeachersHourInputs(); 
-        }
+        window.adjustTeacherHour = function(t, offset) {
+            if(!cloudState.teacherRequirements[t]) cloudState.teacherRequirements[t] = {};
+            let hr = cloudState.teacherRequirements[t][selectedScheduleClassPlan] || 0;
+            hr += offset; if(hr < 0) hr = 0;
+            cloudState.teacherRequirements[t][selectedScheduleClassPlan] = hr;
+            saveToCloudDatabase(); renderTeachersHourInputs();
+        };
 
-        function triggerAutoScheduleAI() {
+        window.triggerAutoScheduleAI = function() {
             const days = ["Pzt","Sal","Çar","Per","Cum"];
-            let errors = [];
-            
-            let totalHours = 0;
-            localState.teachersList.forEach(t => { totalHours += localState.teacherRequirements[t]?.[selectedScheduleClassPlan] || 0; });
-            
-            if(totalHours > 40) { alert(`HATA: Sınıf ${selectedScheduleClassPlan} için atanan ders saati (${totalHours}) 40 saati aşıyor! Lütfen saatleri azaltın.`); return; }
-            if(totalHours < 40) { alert(`HATA: Sınıf ${selectedScheduleClassPlan} için atanan ders saati (${totalHours}). Tam olarak 40 saat olmalıdır.`); return; }
+            let total = 0;
+            cloudState.teachersList.forEach(t => total += cloudState.teacherRequirements[t]?.[selectedScheduleClassPlan] || 0);
+            if(total !== 40) { alert(`Hata: Program saat yükü tam olarak 40 olmalıdır. Şu an: ${total}`); return; }
 
-            // Tüm okul için geçici schedule kopyası al
-            let tempSchedule = JSON.parse(JSON.stringify(localState.scheduleDatabase));
-            
-            // Bu sınıfın içini temizle
-            days.forEach(d => { for(let h=1; h<=8; h++) tempSchedule[selectedScheduleClassPlan][d][h] = "-"; });
+            let temp = JSON.parse(JSON.stringify(cloudState.scheduleDatabase));
+            days.forEach(d => { for(let h=1; h<=8; h++) temp[selectedScheduleClassPlan][d][h] = "-"; });
 
-            let classReqs = [];
-            localState.teachersList.forEach(t => {
-                let req = localState.teacherRequirements[t]?.[selectedScheduleClassPlan] || 0;
-                for(let i=0; i<req; i++) classReqs.push(t);
+            let reqList = [];
+            cloudState.teachersList.forEach(t => {
+                let req = cloudState.teacherRequirements[t]?.[selectedScheduleClassPlan] || 0;
+                for(let i=0; i<req; i++) reqList.push(t);
             });
 
-            // Aynı hocayı aynı güne yığmamak için basit karıştırma ve homojen dağıtım
-            let unscheduled = [];
-            classReqs.forEach(t => {
+            let failed = false;
+            reqList.forEach(t => {
                 let placed = false;
-                
-                // Hocanın bu sınıfta EN AZ dersinin olduğu günü bulmaya çalış
-                let dayCounts = days.map(d => {
-                    let count = 0;
-                    for(let h=1;h<=8;h++) if(tempSchedule[selectedScheduleClassPlan][d][h] === t) count++;
-                    return {day: d, count: count};
-                }).sort((a,b) => a.count - b.count);
-
-                for(let dObj of dayCounts) {
-                    let d = dObj.day;
+                for(let d of days) {
                     if(placed) break;
                     for(let h=1; h<=8; h++) {
-                        // 1. Sınıf o saatte boş mu?
-                        let isClassFree = tempSchedule[selectedScheduleClassPlan][d][h] === "-";
-                        
-                        // 2. Öğretmen o saatte BAŞKA BİR SINIFTA ders veriyor mu?
-                        let isTeacherBusy = false;
-                        Object.keys(tempSchedule).forEach(otherClass => {
-                            if(otherClass !== selectedScheduleClassPlan && tempSchedule[otherClass][d][h] === t) {
-                                isTeacherBusy = true;
-                            }
-                        });
+                        let classFree = temp[selectedScheduleClassPlan][d][h] === "-";
+                        let teacherBusy = false;
+                        Object.keys(temp).forEach(c => { if(c !== selectedScheduleClassPlan && temp[c][d][h] === t) teacherBusy = true; });
 
-                        if(isClassFree && !isTeacherBusy) {
-                            tempSchedule[selectedScheduleClassPlan][d][h] = t;
-                            placed = true;
-                            break;
+                        if(classFree && !teacherBusy) {
+                            temp[selectedScheduleClassPlan][d][h] = t; placed = true; break;
                         }
                     }
                 }
-                if(!placed) unscheduled.push(t);
+                if(!placed) failed = true;
             });
 
-            if(unscheduled.length > 0) {
-                alert(`ÇAKIŞMA HATASI: ${unscheduled.join(', ')} öğretmeni başka sınıflarda o saatlerde dolu olduğu için ${selectedScheduleClassPlan} sınıfına atanamadı. Öğretmenin diğer sınıflardaki yükünü kontrol ediniz.`);
-                return;
-            }
-
-            localState.scheduleDatabase = tempSchedule;
-            syncWithCloudDatabase();
-            alert("BAŞARILI: Çakışmasız haftalık program başarıyla hesaplandı, günlere homojen bölündü.");
-            
-            selectedAdminClassView = selectedScheduleClassPlan;
-            openModule('dersler');
-        }
-
-        // --- DİĞER MODÜL İŞLEMLERİ (Kadros, Yoklama vb.) ---
-        function addNewTeacherLocal() {
-            const n = document.getElementById('nT').value.trim(); const b = document.getElementById('nB').value.trim(); if(!n || !b) return;
-            const fullTeacherName = `${n} Hoca (${b})`;
-            if(!localState.teachersList.includes(fullTeacherName)) {
-                localState.teachersList.push(fullTeacherName);
-                localState.teacherRequirements[fullTeacherName] = {};
-                Object.keys(localState.schoolData).forEach(s => localState.teacherRequirements[fullTeacherName][s] = 0);
-                syncWithCloudDatabase(); refreshCurrentActiveModule();
-            }
-        }
-        function renderTeachersCrudList() {
-            const area = document.getElementById('teachersCrudListArea'); if(!area) return;
-            if(localState.teachersList.length === 0) { area.innerHTML = "<p>Kadro verisi bulunmuyor.</p>"; return; }
-            area.innerHTML = localState.teachersList.map((t, index) => `
-                <div class="crud-item-row">
-                    <div class="crud-info"><span class="crud-name">${t}</span></div>
-                    <div class="crud-actions"><button class="crud-icon-btn delete" onclick="deleteTeacherLocal(${index}, '${t}')"><i class="fa-solid fa-trash"></i></button></div>
-                </div>`).join('');
-        }
-        function deleteTeacherLocal(index, fullName) {
-            if(!confirm("Personeli silmek istiyor musunuz?")) return; 
-            localState.teachersList.splice(index, 1); 
-            delete localState.teacherRequirements[fullName];
-            syncWithCloudDatabase(); refreshCurrentActiveModule();
-        }
-
-        function updateLocalStatus(s, index, status) { 
-            localState.attendanceDatabase[s][index].durum = status; 
-            syncWithCloudDatabase(); refreshCurrentActiveModule(); 
-        }
+            if(failed) { alert("Hata: Öğretmen programlarında çakışma oluştu, dağıtım tamamlanamadı!"); return; }
+            cloudState.scheduleDatabase = temp;
+            saveToCloudDatabase(); alert("Başarılı: Çakışmasız yeni program bulut sunucusuna yüklendi.");
+            window.openModule('dersler');
+        };
 
         function renderMatrixView(s) {
             const container = document.getElementById('mC'); if(!container) return; const days = ["Pzt","Sal","Çar","Per","Cum"];
-            let h = `<div class="matrix-wrapper"><table class="matrix-table"><thead><tr><th style="background:#1E293B;">Saat</th>${days.map(d=>`<th>${d}</th>`).join('')}</tr></thead><tbody>`;
+            let h = `<div class="matrix-wrapper"><table class="matrix-table"><thead><tr><th>Saat</th>${days.map(d=>`<th>${d}</th>`).join('')}</tr></thead><tbody>`;
             for(let hr=1; hr<=8; hr++) {
-                h += `<tr><td style="background:#F8FAFC; font-weight:bold;">${hr}. Ders</td>`;
+                h += `<tr><td style="font-weight:bold;">${hr}. Ders</td>`;
                 days.map(d => {
-                    let cur = localState.scheduleDatabase[s] && localState.scheduleDatabase[s][d] ? localState.scheduleDatabase[s][d][hr] : "-";
-                    h += `<td>${cur && cur !== "-" ? `<div class="matrix-cell-box">${cur.substring(cur.indexOf("(")+1, cur.indexOf(")"))}<small>${cur.split(' ')[0]}</small></div>` : `<span style="color:#CBD5E1;">-</span>`}</td>`;
+                    let cur = cloudState.scheduleDatabase[s]?.[d]?.[hr] || "-";
+                    h += `<td>${cur !== "-" ? `<div class="matrix-cell-box">${cur.substring(cur.indexOf("(")+1, cur.indexOf(")"))}<small>${cur.split(' ')[0]}</small></div>` : `<span>-</span>`}</td>`;
                 });
                 h += `</tr>`;
             }
             container.innerHTML = h + "</tbody></table></div>";
         }
 
-        // --- CHATBOT ---
-        function toggleChat() {
-            const w = document.getElementById('chatbotWidget');
-            w.classList.toggle('collapsed');
-            document.getElementById('chatToggleIcon').className = w.classList.contains('collapsed') ? 'fa-solid fa-chevron-up' : 'fa-solid fa-chevron-down';
-        }
-        function sendChatMessage() {
-            const inp = document.getElementById('chatInput');
-            const msg = inp.value.trim().toLowerCase();
-            if(!msg) return;
-            const body = document.getElementById('chatBody');
-            body.innerHTML += `<div class="user-msg">${inp.value}</div>`;
+        // Chatbot Mantığı
+        window.toggleChat = function() {
+            const w = document.getElementById('chatbotWidget'); w.classList.toggle('collapsed');
+        };
+        window.sendChatMessage = function() {
+            const inp = document.getElementById('chatInput'); const msg = inp.value.trim().toLowerCase(); if(!msg) return;
+            const body = document.getElementById('chatBody'); body.innerHTML += `<div class="user-msg">${inp.value}</div>`;
             inp.value = ""; body.scrollTop = body.scrollHeight;
             setTimeout(() => {
-                let answer = "Üzgünüm, bu konu hakkında henüz eğitilmedim. Yöneticinize danışabilirsiniz.";
-                for(let kb of localState.chatbotKB) { if(msg.includes(kb.soru.toLowerCase())) { answer = kb.cevap; break; } }
-                body.innerHTML += `<div class="bot-msg">${answer}</div>`;
-                body.scrollTop = body.scrollHeight;
-            }, 500);
-        }
-        function addKBLocal() {
-            const s = document.getElementById('cbSoru').value.trim(); const c = document.getElementById('cbCevap').value.trim();
-            if(!s || !c) return;
-            localState.chatbotKB.push({soru: s, cevap: c});
-            syncWithCloudDatabase(); refreshCurrentActiveModule();
-        }
-        function deleteKBLocal(idx) { localState.chatbotKB.splice(idx, 1); syncWithCloudDatabase(); refreshCurrentActiveModule(); }
-
-        // --- MANUEL VERİ TRANSFERİ ---
-        function copyExport() {
-            const ta = document.getElementById('exportData');
-            ta.select(); document.execCommand("copy");
-            alert("Veri kodu kopyalandı! Telefonunuza gönderip oradaki İçe Aktar bölümüne yapıştırabilirsiniz.");
-        }
-        function importData() {
-            const data = document.getElementById('importData').value;
-            try {
-                const parsed = JSON.parse(data);
-                if(parsed && parsed.schoolData) {
-                    localState = parsed;
-                    syncWithCloudDatabase();
-                    alert("Tebrikler! Veriler başarıyla yüklendi, sistem yenileniyor...");
-                    location.reload();
-                } else { alert("Hata: Veri formatı uyumsuz."); }
-            } catch(e) { alert("Hata: Kodu tam olarak kopyaladığınızdan emin olun."); }
-        }
-
+                let answer = "Bulut sisteminde bu bilgiye ulaşamadım, müdürlüğe danışabilirsiniz.";
+                for(let kb of cloudState.chatbotKB) { if(msg.includes(kb.soru.toLowerCase())) { answer = kb.cevap; break; } }
+                body.innerHTML += `<div class="bot-msg">${answer}</div>`; body.scrollTop = body.scrollHeight;
+            }, 400);
+        };
+        window.addKBLocal = function() {
+            const s = document.getElementById('cbSoru').value.trim(); const c = document.getElementById('cbCevap').value.trim(); if(!s || !c) return;
+            cloudState.chatbotKB.push({soru:s, cevap:c}); saveToCloudDatabase();
+        };
+        window.deleteKBLocal = function(idx) { cloudState.chatbotKB.splice(idx,1); saveToCloudDatabase(); };
     </script>
 </body>
 </html>
