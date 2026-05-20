@@ -83,7 +83,7 @@
 
     <div class="login-container" id="loginScreen">
         <div class="logo-area">
-            <div class="digital-flama"><i class="fa-solid fa-cloud"></i><div class="flama-text">ZAFER KAMPÜS V4.0 (CLOUD)</div></div>
+            <div class="digital-flama"><i class="fa-solid fa-cloud"></i><div class="flama-text">ZAFER KAMPÜS V5.0 (SAFE CLOUD)</div></div>
             <div class="logo-title" style="margin-bottom: 20px;">SİSTEM GİRİŞİ</div>
         </div>
         <div class="role-selector">
@@ -140,7 +140,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Sen in bilgilerini bizzat buraya gömdüm
+        // BURAYA KENDİ BİLGİLERİNİ YAPIŞTIR
         const firebaseConfig = {
             apiKey: "AIzaSyCw8wekTKw3Qn-efTBylldgVsRtKgGlW3c",
             authDomain: "zaferai.firebaseapp.com",
@@ -160,10 +160,11 @@
         let selectedAdminClassView = "8/A";
         let selectedScheduleClassPlan = "8/A";
 
+        // Varsayılan Veri Çerçevesi
         window.cloudState = {
             users: [{ role: "Yönetici", fullname: "Sistem Yöneticisi", username: "admin", password: "1234" }],
-            schoolData: {"8/A": ["Ahmet Yılmaz", "Ayşe Kaya"]},
-            teachersList: ["Mehmet Hoca (Türkçe)", "Ahmet Hoca (Matematik)"],
+            schoolData: {"8/A": []},
+            teachersList: [],
             teacherRequirements: {},
             attendanceDatabase: {},
             scheduleDatabase: {},
@@ -186,20 +187,35 @@
                 if(!window.cloudState.chatbotKB) window.cloudState.chatbotKB = [];
                 
                 document.getElementById('cloudSyncStatus').innerHTML = `<i class="fa-solid fa-cloud" style="color:#2ECC71;"></i> Canlı Bağlantı (Aktif)`;
+                
+                // VERİLER BAŞARIYLA GELDİĞİNDE YEREL YEDEK AL (Zırh)
+                localStorage.setItem("zafer_kampus_yedek", JSON.stringify(window.cloudState));
+
                 window.refreshCurrentActiveModule();
             } else {
                 saveToCloudDatabase(); // İlk defa açılıyorsa buluta varsayılan veriyi yaz
             }
         }, (error) => {
             console.error("Firebase Hatası:", error);
-            document.getElementById('cloudSyncStatus').innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color:#E74C3C;"></i> Bulut Hatası`;
+            document.getElementById('cloudSyncStatus').innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color:#E74C3C;"></i> Bulut Hatası - Yedeğe Geçildi`;
+            
+            // FİREBASE ÇÖKERSE YEREL YEDEĞİ DEVREYE SOK
+            const yedekVeri = localStorage.getItem("zafer_kampus_yedek");
+            if(yedekVeri) {
+                window.cloudState = JSON.parse(yedekVeri);
+                window.refreshCurrentActiveModule();
+            }
         });
 
         async function saveToCloudDatabase() {
+            // FIREBASE'E GÖNDERMEDEN ÖNCE CİHAZA ZORUNLU YEDEK AL
+            localStorage.setItem("zafer_kampus_yedek", JSON.stringify(window.cloudState));
+            
             try {
                 await setDoc(docRef, window.cloudState);
             } catch (e) {
                 console.error("Buluta yazma hatası: ", e);
+                alert("Veri buluta aktarılamadı (Veritabanı kapalı), ancak cihazınıza yerel olarak yedeklendi. Veri kaybolmadı.");
             }
         }
 
@@ -457,7 +473,13 @@
             if(total !== 40) { alert(`Hata: Program saat yükü tam olarak 40 olmalıdır. Şu an: ${total}`); return; }
 
             let temp = JSON.parse(JSON.stringify(window.cloudState.scheduleDatabase));
-            days.forEach(d => { for(let h=1; h<=8; h++) temp[selectedScheduleClassPlan][d][h] = "-"; });
+            
+            // Güvenlik Düzeltmesi (reading 'Pzt' hatası için)
+            if(!temp[selectedScheduleClassPlan]) temp[selectedScheduleClassPlan] = {};
+            days.forEach(d => { 
+                if(!temp[selectedScheduleClassPlan][d]) temp[selectedScheduleClassPlan][d] = {};
+                for(let h=1; h<=8; h++) temp[selectedScheduleClassPlan][d][h] = "-"; 
+            });
 
             let reqList = [];
             window.cloudState.teachersList.forEach(t => {
@@ -485,7 +507,7 @@
 
             if(failed) { alert("Hata: Öğretmen programlarında çakışma oluştu, dağıtım tamamlanamadı!"); return; }
             window.cloudState.scheduleDatabase = temp;
-            saveToCloudDatabase(); alert("Başarılı: Çakışmasız yeni program bulut sunucusuna yüklendi.");
+            saveToCloudDatabase(); alert("Başarılı: Çakışmasız yeni program oluşturuldu ve kaydedildi.");
             window.openModule('dersler');
         };
 
@@ -511,7 +533,7 @@
             const body = document.getElementById('chatBody'); body.innerHTML += `<div class="user-msg">${inp.value}</div>`;
             inp.value = ""; body.scrollTop = body.scrollHeight;
             setTimeout(() => {
-                let answer = "Bulut sisteminde bu bilgiye ulaşamadım, müdürlüğe danışabilirsiniz.";
+                let answer = "Bu bilgiye ulaşamadım, müdürlüğe danışabilirsiniz.";
                 for(let kb of window.cloudState.chatbotKB) { if(msg.includes(kb.soru.toLowerCase())) { answer = kb.cevap; break; } }
                 body.innerHTML += `<div class="bot-msg">${answer}</div>`; body.scrollTop = body.scrollHeight;
             }, 400);
