@@ -43,7 +43,7 @@
         .action-btn { width: 100%; padding: 14px; border: none; border-radius: 12px; color: white; font-weight: 700; cursor: pointer; background: var(--primary-color); display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; transition: 0.2s;}
         .action-btn:hover { opacity: 0.9; }
         .crud-item-row { background: #FFF; border: 1px solid var(--border-color); padding: 12px 16px; border-radius: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-        .crud-icon-btn { background: none; border: none; cursor: pointer; font-size: 1rem; color: #E74C3C; }
+        .crud-icon-btn { background: none; border: none; cursor: pointer; font-size: 1rem; color: #E74C3C; padding: 5px 10px;}
         .flex-row { display: flex; gap: 10px; width: 100%; }
         
         /* Sınıf Listesi Yeni Accordion Görünümü */
@@ -86,16 +86,15 @@
         .status-btn.gelmedi-active { background: var(--status-gelmedi); color: white; border-color: var(--status-gelmedi); }
         .status-btn.izinli-active { background: var(--status-izinli); color: white; border-color: var(--status-izinli); }
         
-        /* Chatbot */
-        .chatbot-widget { position: fixed; bottom: 70px; right: 20px; width: 320px; background: #fff; border-radius: 16px 16px 0 0; box-shadow: 0 5px 25px rgba(0,0,0,0.2); z-index: 999; display: flex; flex-direction: column; border: 1px solid var(--border-color); transition: all 0.3s; }
-        .chatbot-widget.collapsed { transform: translateY(calc(100% - 50px)); }
-        .chat-header { background: var(--primary-color); color: white; padding: 15px; border-radius: 16px 16px 0 0; font-weight: bold; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-        .chat-body { height: 250px; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #F8FAFC; }
-        .bot-msg { background: white; padding: 10px; border-radius: 10px 10px 10px 0; border: 1px solid #E2E8F0; align-self: flex-start; max-width: 85%; font-size: 0.85rem;}
-        .user-msg { background: var(--primary-color); color: white; padding: 10px; border-radius: 10px 10px 0 10px; align-self: flex-end; max-width: 85%; font-size: 0.85rem;}
-        .chat-input-area { display: flex; padding: 10px; background: white; border-top: 1px solid var(--border-color); }
-        .chat-input-area input { margin-bottom: 0; border-radius: 20px; padding: 10px 15px; border: 1px solid #E2E8F0; width: 100%; }
-        .chat-input-area button { background: var(--primary-color); color: white; border: none; padding: 0 15px; margin-left: 10px; border-radius: 20px; cursor: pointer; }
+        /* YENİ: ZAFER AI (GEMINI TARZI) MODÜLÜ */
+        .ai-chat-wrapper { display: flex; flex-direction: column; height: 65vh; background: #F8FAFC; border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; margin-bottom: 20px;}
+        .ai-chat-history { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        .ai-bot-msg { background: white; padding: 15px; border-radius: 0 16px 16px 16px; border: 1px solid #E2E8F0; align-self: flex-start; max-width: 85%; font-size: 0.95rem; color: #334155; line-height: 1.5; box-shadow: 0 2px 5px rgba(0,0,0,0.02);}
+        .ai-user-msg { background: var(--primary-color); color: white; padding: 15px; border-radius: 16px 0 16px 16px; align-self: flex-end; max-width: 85%; font-size: 0.95rem; box-shadow: 0 2px 5px rgba(211,47,47,0.2);}
+        .ai-input-area { display: flex; padding: 15px; background: white; border-top: 1px solid var(--border-color); gap: 10px; align-items: center;}
+        .ai-input-area input { margin-bottom: 0; border-radius: 30px; padding: 15px 20px; border: 1px solid #CBD5E1; width: 100%; font-size: 1rem;}
+        .ai-input-area button { background: var(--primary-color); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; display: flex; justify-content: center; align-items: center; transition: 0.2s;}
+        .ai-input-area button:hover { transform: scale(1.05); }
 
         /* Alt Navigasyon ve Ekstra */
         .bottom-nav { background: white; display: flex; justify-content: space-around; padding: 16px; border-top: 1px solid var(--border-color); position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;}
@@ -115,7 +114,7 @@
     <!-- GİRİŞ EKRANI -->
     <div class="login-container" id="loginScreen">
         <div class="logo-area">
-            <div class="digital-flama"><i class="fa-solid fa-cloud"></i><div class="flama-text">ZAFER KAMPÜS V7.0 (FULL CLOUD)</div></div>
+            <div class="digital-flama"><i class="fa-solid fa-cloud"></i><div class="flama-text">ZAFER KAMPÜS V8.0 (AI DESTEKLİ)</div></div>
             <div class="logo-title" style="margin-bottom: 20px;">SİSTEM GİRİŞİ</div>
         </div>
         <div class="role-selector">
@@ -152,21 +151,6 @@
         <div id="detailContent"></div>
     </div>
 
-    <!-- CHATBOT ARAYÜZÜ -->
-    <div class="chatbot-widget collapsed" id="chatbotWidget">
-        <div class="chat-header" onclick="window.toggleChat()">
-            <span><i class="fa-solid fa-robot"></i> Zafer Asistan AI</span>
-            <i class="fa-solid fa-chevron-up" id="chatToggleIcon"></i>
-        </div>
-        <div class="chat-body" id="chatBody">
-            <div class="bot-msg">Merhaba! Ben Zafer Koleji bulut asistanıyım. Size nasıl yardımcı olabilirim?</div>
-        </div>
-        <div class="chat-input-area">
-            <input type="text" id="chatInput" placeholder="Soru sorun..." onkeypress="if(event.key === 'Enter') window.sendChatMessage()">
-            <button onclick="window.sendChatMessage()"><i class="fa-solid fa-paper-plane"></i></button>
-        </div>
-    </div>
-
     <!-- ALT NAVİGASYON -->
     <div class="bottom-nav">
         <i class="fa-solid fa-chevron-left nav-item" onclick="window.goHome()"></i>
@@ -199,6 +183,7 @@
         let currentUserName = "";
         let selectedAdminClassView = "8/A";
         let selectedScheduleClassPlan = "8/A";
+        let openClassAccordion = null; // Açık olan sınıfı hatırla
 
         // Sistemin Default Veri Yapısı
         window.cloudState = {
@@ -211,7 +196,7 @@
             chatbotKB: [{soru: "okul saatleri", cevap: "Dersler 09:00 - 16:30 arasındadır."}]
         };
 
-        // Firebase Dinleyicisi & Offline Kurtarma
+        // Firebase Dinleyicisi
         onSnapshot(docRef, (docSnap) => {
             if (docSnap.exists()) {
                 window.cloudState = docSnap.data();
@@ -247,7 +232,7 @@
                 await setDoc(docRef, window.cloudState);
             } catch (e) {
                 console.error("Buluta yazma hatası: ", e);
-                alert("🔴 DİKKAT: Değişiklik BULUTA KAYDEDİLEMEDİ! Firebase veritabanı kuralları (Rules) kilitli olabilir. Sayfayı yenilerseniz verileriniz silinir.");
+                alert("🔴 DİKKAT: Değişiklik BULUTA KAYDEDİLEMEDİ! Firebase veritabanı kuralları kilitli.");
             }
         }
 
@@ -285,12 +270,11 @@
             const modules = [
                 { id: 'dersler', title: 'Ders Programları', icon: 'fa-book-open', roles: ['Yönetici', 'Öğretmen', 'Öğrenci', 'Veli'] },
                 { id: 'ogrenci_yonetim', title: 'Sınıf & Öğrenci Yönetimi', icon: 'fa-users-rectangle', roles: ['Yönetici'] },
-                { id: 'kullanici_yonetim', title: 'Hesap & Şifre Yönetimi', icon: 'fa-id-card-clip', roles: ['Yönetici'] },
-                { id: 'siniflar', title: 'Öğretmen Kadrosu', icon: 'fa-chalkboard-user', roles: ['Yönetici'] },
                 { id: 'devamsizlik', title: 'Yoklama Paneli', icon: 'fa-user-xmark', roles: ['Yönetici', 'Öğretmen'] },
+                { id: 'zafer_ai', title: 'Zafer AI Asistan', icon: 'fa-robot', roles: ['Yönetici', 'Öğretmen', 'Öğrenci', 'Veli'] },
                 { id: 'auto_schedule', title: 'Akıllı Ders Dağıtımı', icon: 'fa-wand-magic-sparkles', roles: ['Yönetici'] },
-                { id: 'chatbot_admin', title: 'Chatbot Eğitimi', icon: 'fa-brain', roles: ['Yönetici'] },
-                { id: 'yardim', title: 'Destek & Yardım', icon: 'fa-circle-question', roles: ['Yönetici', 'Öğretmen', 'Öğrenci', 'Veli'] }
+                { id: 'kullanici_yonetim', title: 'Hesap & Şifre Yönetimi', icon: 'fa-id-card-clip', roles: ['Yönetici'] },
+                { id: 'siniflar', title: 'Öğretmen Kadrosu', icon: 'fa-chalkboard-user', roles: ['Yönetici'] }
             ];
             modules.forEach(m => { if(m.roles.includes(currentRole)) { grid.innerHTML += `<div class="menu-card" onclick="window.openModule('${m.id}')"><i class="fa-solid ${m.icon}"></i><span>${m.title}</span></div>`; } });
         }
@@ -299,11 +283,14 @@
         window.openModule = function(id) { window.currentOpenModuleId = id; document.getElementById('dashboardScreen').style.display = 'none'; document.getElementById('detailScreen').style.display = 'flex'; window.refreshCurrentActiveModule(); };
 
         // --- ACCORDION UI AÇ KAPA ---
-        window.toggleZCard = function(cName) {
+        window.toggleZCard = function(safeCName, originalCName) {
+            window.openClassAccordion = window.openClassAccordion === originalCName ? null : originalCName;
             const bodies = document.querySelectorAll('.zafer-list-body');
             const headers = document.querySelectorAll('.zafer-list-header');
-            let targetBody = document.getElementById('zbody-' + cName);
-            let targetHeader = document.getElementById('zhead-' + cName);
+            
+            let targetBody = document.getElementById('zbody-' + safeCName);
+            let targetHeader = document.getElementById('zhead-' + safeCName);
+            
             if(targetBody.classList.contains('open')) {
                 targetBody.classList.remove('open'); targetHeader.classList.remove('active');
             } else {
@@ -312,8 +299,8 @@
             }
         };
 
-        window.showStudentEditArea = function(cName) {
-            const area = document.getElementById('student-edit-area-' + cName);
+        window.showStudentEditArea = function(safeCName) {
+            const area = document.getElementById('student-edit-area-' + safeCName);
             area.style.display = area.style.display === 'none' ? 'block' : 'none';
         };
 
@@ -324,15 +311,20 @@
             content.innerHTML = "";
 
             if(window.currentOpenModuleId === 'ogrenci_yonetim') {
+                if(currentRole !== 'Yönetici') { content.innerHTML = "<p>Yetkisiz erişim.</p>"; return; }
                 title.innerText = "Sınıf ve Öğrenci Kontrol Merkezi";
+                
                 let classesHTML = Object.keys(window.cloudState.schoolData).map((cName, idx) => {
                     let studentCount = window.cloudState.schoolData[cName].length;
+                    let safeCName = cName.replace(/\//g, '_').replace(/ /g, '_'); // TELEFON HATASINI ÇÖZEN KISIM
+                    let isOpen = window.openClassAccordion === cName;
+
                     return `
                     <div class="zafer-list-card">
-                        <div class="zafer-list-header" id="zhead-${cName}" onclick="window.toggleZCard('${cName}')">
+                        <div class="zafer-list-header ${isOpen ? 'active' : ''}" id="zhead-${safeCName}" onclick="window.toggleZCard('${safeCName}', '${cName}')">
                             <span>${idx+1}. Sınıf Yönetimi: ${cName} Şubesi</span><i class="fa-solid fa-caret-down"></i>
                         </div>
-                        <div class="zafer-list-body" id="zbody-${cName}">
+                        <div class="zafer-list-body ${isOpen ? 'open' : ''}" id="zbody-${safeCName}">
                             <div class="z-progress-label">Not Girişi</div>
                             <div class="z-progress-bg"><div class="z-progress-fill blue" style="width: 85%;">85%</div></div>
                             <div class="z-progress-label">Not Onayı</div>
@@ -341,15 +333,15 @@
                             <div class="z-progress-bg"><div class="z-progress-fill orange" style="width: 15%;">15%</div></div>
 
                             <div class="z-action-links">
-                                <a onclick="window.showStudentEditArea('${cName}')"><i class="fa-solid fa-user-graduate"></i> Öğrencileri Listele / Ekle <span class="z-badge">${studentCount}</span></a>
+                                <a onclick="window.showStudentEditArea('${safeCName}')"><i class="fa-solid fa-user-graduate"></i> Öğrencileri Listele / Ekle <span class="z-badge">${studentCount}</span></a>
                                 <a onclick="window.changeAdminClassView('${cName}'); window.openModule('devamsizlik')"><i class="fa-solid fa-check-square"></i> Devamsızlık Gir</a>
                                 <a onclick="window.deleteClass('${cName}')" style="color:#E74C3C;"><i class="fa-solid fa-trash"></i> Sınıfı Komple Sil</a>
                             </div>
 
-                            <div id="student-edit-area-${cName}" style="display:none; margin-top:20px; border-top:1px solid #eee; padding-top:15px;">
+                            <div id="student-edit-area-${safeCName}" style="display:${isOpen ? 'block' : 'none'}; margin-top:20px; border-top:1px solid #eee; padding-top:15px;">
                                 <div class="flex-row" style="margin-bottom:10px;">
-                                    <input type="text" id="newStudentName-${cName}" placeholder="Yeni Öğrenci Ekle">
-                                    <button class="action-btn" style="width:100px; margin-bottom:0;" onclick="window.addStudentToClass('${cName}')">Ekle</button>
+                                    <input type="text" id="newStudentName-${safeCName}" placeholder="Yeni Öğrenci Ekle">
+                                    <button class="action-btn" style="width:100px; margin-bottom:0;" onclick="window.addStudentToClass('${cName}', '${safeCName}')">Ekle</button>
                                 </div>
                                 <div>
                                     ${window.cloudState.schoolData[cName].map((stu, sIdx) => `
@@ -370,6 +362,34 @@
                         <button class="action-btn" style="width:180px; margin-bottom:0;" onclick="window.createNewClass()">Sınıf Aç</button>
                     </div>
                     ${classesHTML || '<p style="text-align:center; color:#94A3B8;">Henüz kayıtlı sınıf bulunmamaktadır.</p>'}
+                `;
+            }
+            // YENİ: ZAFER AI TAM EKRAN MODÜLÜ
+            else if(window.currentOpenModuleId === 'zafer_ai') {
+                title.innerText = "Zafer AI Asistan";
+                let adminTrainingUI = currentRole === 'Yönetici' ? `
+                    <div class="feature-box" style="margin-top:20px;">
+                        <h4><i class="fa-solid fa-brain"></i> AI Eğitim Paneli (Sadece Yönetici)</h4>
+                        <input type="text" id="cbSoru" placeholder="Soru Anahtar Kelimesi">
+                        <textarea id="cbCevap" placeholder="Zafer AI'ın vereceği cevap metni..."></textarea>
+                        <button class="action-btn" style="background:#2ECC71;" onclick="window.addKBLocal()"><i class="fa-solid fa-upload"></i> Yeni Bilgi Öğret</button>
+                        <div style="margin-top:15px;">
+                            ${window.cloudState.chatbotKB.map((kb, idx)=>`<div class="crud-item-row" style="background:white;"><div class="crud-info"><strong>${kb.soru}</strong><small>${kb.cevap}</small></div><i class="fa-solid fa-trash" style="color:#E74C3C; cursor:pointer;" onclick="window.deleteKBLocal(${idx})"></i></div>`).join('')}
+                        </div>
+                    </div>
+                ` : '';
+
+                content.innerHTML = `
+                    <div class="ai-chat-wrapper">
+                        <div class="ai-chat-history" id="aiChatHistory">
+                            <div class="ai-bot-msg">Merhaba ${currentUserFullName}! Ben Zafer AI. Okul, ders programları veya genel kurallar hakkında bana soru sorabilirsin. Sana nasıl yardımcı olabilirim?</div>
+                        </div>
+                        <div class="ai-input-area">
+                            <input type="text" id="aiChatInput" placeholder="Zafer AI'a mesaj gönder..." onkeypress="if(event.key === 'Enter') window.sendAIChatMessage()">
+                            <button onclick="window.sendAIChatMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                    ${adminTrainingUI}
                 `;
             }
             else if(window.currentOpenModuleId === 'kullanici_yonetim') {
@@ -433,35 +453,9 @@
                         ${window.cloudState.teachersList.map((t, index) => `<div class="crud-item-row"><span>${t}</span><i class="fa-solid fa-trash" style="color:#E74C3C; cursor:pointer;" onclick="window.deleteTeacherLocal(${index}, '${t}')"></i></div>`).join('')}
                     </div>`;
             }
-            else if(window.currentOpenModuleId === 'chatbot_admin') {
-                title.innerText = "Asistan Yapay Zeka Eğitimi";
-                content.innerHTML = `
-                    <div class="feature-box">
-                        <h4>Yeni Bilgi Ekle</h4>
-                        <input type="text" id="cbSoru" placeholder="Soru Anahtar Kelimesi">
-                        <textarea id="cbCevap" placeholder="Cevap metni..."></textarea>
-                        <button class="action-btn" onclick="window.addKBLocal()">Buluta Öğret</button>
-                    </div>
-                    <div class="feature-box" style="background:#FFF;">
-                        ${window.cloudState.chatbotKB.map((kb, idx)=>`<div class="crud-item-row"><div class="crud-info"><strong>${kb.soru}</strong><small>${kb.cevap}</small></div><i class="fa-solid fa-trash" style="color:#E74C3C; cursor:pointer;" onclick="window.deleteKBLocal(${idx})"></i></div>`).join('')}
-                    </div>`;
-            }
-            else if(window.currentOpenModuleId === 'yardim') {
-                title.innerText = "Teknik Destek Bilgileri";
-                content.innerHTML = `
-                    <div class="feature-box" style="text-align:center; padding:30px;">
-                        <img src="https://ui-avatars.com/api/?name=Zafer+Koleji&background=D32F2F&color=fff&size=128" style="border-radius:50%; margin-bottom:20px;">
-                        <h4>Zafer Kampüs Teknik Destek Birimi</h4>
-                        <p style="margin-top:10px; color:#64748B;">Sistem modülleri ve veri yönetim yetkileri ile ilgili kurumsal destek talepleriniz için teknik birimimiz:</p>
-                        <div style="background:#FFF; padding:15px; border-radius:12px; margin-top:20px; border:1px solid #DDD; display:inline-block;">
-                            <i class="fa-solid fa-envelope" style="color:var(--primary-color);"></i> 
-                            <a href="mailto:enes.basaran@zaferkoleji.com.tr" style="color:var(--text-color); font-weight:bold; text-decoration:none;">enes.basaran@zaferkoleji.com.tr</a>
-                        </div>
-                    </div>`;
-            }
         };
 
-        // --- FONKSİYONLARIN İŞLEYİŞ MANTIKLARI ---
+        // --- VERİ EKLEME/SİLME İŞLEMLERİ ---
         window.changeAdminClassView = function(x) { selectedAdminClassView = x; window.refreshCurrentActiveModule(); };
         window.changeScheduleClassPlan = function(x) { selectedScheduleClassPlan = x; window.refreshCurrentActiveModule(); };
 
@@ -474,24 +468,38 @@
             ["Pzt","Sal","Çar","Per","Cum"].forEach(d => { window.cloudState.scheduleDatabase[cName][d] = {}; for(let h=1; h<=8; h++) window.cloudState.scheduleDatabase[cName][d][h]="-"; });
             window.cloudState.teachersList.forEach(t => { if(!window.cloudState.teacherRequirements[t]) window.cloudState.teacherRequirements[t]={}; window.cloudState.teacherRequirements[t][cName]=0; });
             saveToCloudDatabase();
+            window.refreshCurrentActiveModule();
         };
 
         window.deleteClass = function(cName) {
             if(!confirm(`${cName} sınıfını silmek istediğinize emin misiniz?`)) return;
             delete window.cloudState.schoolData[cName]; delete window.cloudState.attendanceDatabase[cName]; delete window.cloudState.scheduleDatabase[cName];
             saveToCloudDatabase();
+            window.refreshCurrentActiveModule();
         };
 
-        window.addStudentToClass = function(cName) {
-            const name = document.getElementById('newStudentName-' + cName).value.trim(); if(!name) return;
+        // TELEFONDA ÖĞRENCİ EKLEME HATASINI KÖKÜNDEN ÇÖZEN KISIM
+        window.addStudentToClass = function(cName, safeCName) {
+            if(currentRole !== 'Yönetici') { alert("Güvenlik: Sadece Yöneticiler öğrenci ekleyebilir."); return; }
+            const inputEl = document.getElementById('newStudentName-' + safeCName);
+            if(!inputEl) return;
+            const name = inputEl.value.trim(); 
+            if(!name) return;
+            
             window.cloudState.schoolData[cName].push(name);
             window.cloudState.attendanceDatabase[cName].push({ogrenci: name, durum: "geldi"});
             saveToCloudDatabase();
+            
+            window.openClassAccordion = cName; // Sayfa yenilenince bu sınıf açık kalsın
+            window.refreshCurrentActiveModule();
         };
 
         window.deleteStudent = function(cName, idx) {
+            if(currentRole !== 'Yönetici') { alert("Güvenlik: Sadece Yöneticiler öğrenci silebilir."); return; }
             window.cloudState.schoolData[cName].splice(idx,1); window.cloudState.attendanceDatabase[cName].splice(idx,1);
             saveToCloudDatabase();
+            window.openClassAccordion = cName;
+            window.refreshCurrentActiveModule();
         };
 
         window.createUserAccount = function() {
@@ -502,15 +510,15 @@
             if(!f || !u || !p) { alert("Lütfen tüm alanları doldurun."); return; }
             if(window.cloudState.users.find(x => x.username === u)) { alert("Bu kullanıcı adı zaten alınmış."); return; }
             window.cloudState.users.push({role:r, fullname:f, username:u, password:p});
-            saveToCloudDatabase();
+            saveToCloudDatabase(); window.refreshCurrentActiveModule();
         };
 
         window.deleteUserAccount = function(idx) {
-            window.cloudState.users.splice(idx, 1); saveToCloudDatabase();
+            window.cloudState.users.splice(idx, 1); saveToCloudDatabase(); window.refreshCurrentActiveModule();
         };
 
         window.updateAttendance = function(s, idx, stat) {
-            window.cloudState.attendanceDatabase[s][idx].durum = stat; saveToCloudDatabase();
+            window.cloudState.attendanceDatabase[s][idx].durum = stat; saveToCloudDatabase(); window.refreshCurrentActiveModule();
         };
 
         window.addNewTeacherLocal = function() {
@@ -520,12 +528,12 @@
                 window.cloudState.teachersList.push(full);
                 window.cloudState.teacherRequirements[full] = {};
                 Object.keys(window.cloudState.schoolData).forEach(s => window.cloudState.teacherRequirements[full][s] = 0);
-                saveToCloudDatabase();
+                saveToCloudDatabase(); window.refreshCurrentActiveModule();
             }
         };
 
         window.deleteTeacherLocal = function(idx, name) {
-            window.cloudState.teachersList.splice(idx, 1); delete window.cloudState.teacherRequirements[name]; saveToCloudDatabase();
+            window.cloudState.teachersList.splice(idx, 1); delete window.cloudState.teacherRequirements[name]; saveToCloudDatabase(); window.refreshCurrentActiveModule();
         };
 
         // --- DERS MOTORU (AI) KODLARI ---
@@ -609,26 +617,33 @@
             container.innerHTML = h + "</tbody></table></div>";
         };
 
-        // --- CHATBOT ---
-        window.toggleChat = function() {
-            const w = document.getElementById('chatbotWidget'); w.classList.toggle('collapsed');
-            document.getElementById('chatToggleIcon').className = w.classList.contains('collapsed') ? 'fa-solid fa-chevron-up' : 'fa-solid fa-chevron-down';
-        };
-        window.sendChatMessage = function() {
-            const inp = document.getElementById('chatInput'); const msg = inp.value.trim().toLowerCase(); if(!msg) return;
-            const body = document.getElementById('chatBody'); body.innerHTML += `<div class="user-msg">${inp.value}</div>`;
+        // --- YENİ ZAFER AI (GEMİNİ BENZERİ) MANTIK ---
+        window.sendAIChatMessage = function() {
+            const inp = document.getElementById('aiChatInput'); 
+            const msg = inp.value.trim().toLowerCase(); 
+            if(!msg) return;
+            const body = document.getElementById('aiChatHistory'); 
+            body.innerHTML += `<div class="ai-user-msg">${inp.value}</div>`;
             inp.value = ""; body.scrollTop = body.scrollHeight;
             setTimeout(() => {
-                let answer = "Bu bilgiye ulaşamadım, müdürlüğe danışabilirsiniz.";
-                for(let kb of window.cloudState.chatbotKB) { if(msg.includes(kb.soru.toLowerCase())) { answer = kb.cevap; break; } }
-                body.innerHTML += `<div class="bot-msg">${answer}</div>`; body.scrollTop = body.scrollHeight;
-            }, 400);
+                let answer = "Bulut sistemimde bu sorunun cevabı bulunmuyor. Lütfen yöneticiye danışın veya sisteme öğretilmesini talep edin.";
+                for(let kb of window.cloudState.chatbotKB) { 
+                    if(msg.includes(kb.soru.toLowerCase())) { answer = kb.cevap; break; } 
+                }
+                body.innerHTML += `<div class="ai-bot-msg">${answer}</div>`; 
+                body.scrollTop = body.scrollHeight;
+            }, 600);
         };
+
         window.addKBLocal = function() {
             const s = document.getElementById('cbSoru').value.trim(); const c = document.getElementById('cbCevap').value.trim(); if(!s || !c) return;
-            window.cloudState.chatbotKB.push({soru:s, cevap:c}); saveToCloudDatabase();
+            window.cloudState.chatbotKB.push({soru:s, cevap:c}); 
+            saveToCloudDatabase(); window.refreshCurrentActiveModule();
         };
-        window.deleteKBLocal = function(idx) { window.cloudState.chatbotKB.splice(idx,1); saveToCloudDatabase(); };
+        window.deleteKBLocal = function(idx) { 
+            window.cloudState.chatbotKB.splice(idx,1); 
+            saveToCloudDatabase(); window.refreshCurrentActiveModule(); 
+        };
     </script>
 </body>
 </html>
