@@ -14,6 +14,8 @@
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-color); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; padding-bottom: 80px;}
+        
+        /* Genel Arayüz ve Login */
         .login-container { background: var(--card-bg); padding: 3rem; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); width: 100%; max-width: 480px; text-align: center; border-top: 6px solid var(--primary-color); }
         .digital-flama { display: inline-flex; align-items: center; gap: 8px; background: #FFF5F5; padding: 8px 16px; border-radius: 20px; color: var(--primary-color); font-weight: 800; font-size: 0.9rem; margin-bottom: 10px; }
         .logo-title { font-size: 1.8rem; font-weight: 900; color: #1E293B; letter-spacing: -0.5px; }
@@ -21,7 +23,10 @@
         .role-btn { background: #F8FAFC; border: 1px solid var(--border-color); padding: 12px 5px; border-radius: 12px; cursor: pointer; font-size: 0.85rem; font-weight: 600; color: #64748B; transition: all 0.2s; }
         .role-btn i { display: block; font-size: 1.4rem; margin-bottom: 6px; }
         .role-btn.active { background: #FFF5F5; border-color: var(--primary-color); color: var(--primary-color); box-shadow: 0 4px 12px rgba(211,47,47,0.15); }
-        .dashboard-container { display: none; width: 100%; max-width: 800px; background: var(--bg-color); min-height: 90vh; flex-direction: column; border-radius: 16px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.05); }
+        
+        /* Dashboard ve Detay Ekranları */
+        .dashboard-container, .detail-container { display: none; width: 100%; max-width: 800px; background: var(--bg-color); min-height: 90vh; flex-direction: column; border-radius: 16px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.05); }
+        .detail-container { background: white; padding: 2rem; }
         .header { background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); color: white; padding: 2rem; display: flex; align-items: center; justify-content: space-between; }
         .header h1 { font-size: 1.6rem; font-weight: 800; }
         .grid-menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 2rem; background: #FFF; }
@@ -29,21 +34,40 @@
         .menu-card:hover { transform: translateY(-4px); border-color: var(--primary-color); box-shadow: 0 8px 20px rgba(211,47,47,0.08); }
         .menu-card i { font-size: 1.8rem; color: var(--primary-color); margin-bottom: 10px; }
         .menu-card span { font-size: 0.85rem; font-weight: 700; color: #334155; }
-        .detail-container { display: none; width: 100%; max-width: 800px; background: white; min-height: 90vh; flex-direction: column; padding: 2rem; border-radius: 16px; box-shadow: 0 15px 35px rgba(0,0,0,0.05); }
         .detail-header { display: flex; align-items: center; margin-bottom: 2rem; border-bottom: 2px solid var(--primary-color); padding-bottom: 15px; justify-content: space-between; }
         .detail-header h2 { font-size: 1.5rem; color: #1E293B; margin-left: 15px; font-weight: 800; }
         .feature-box { background: #F8FAFC; padding: 20px; border-radius: 14px; border-left: 5px solid var(--primary-color); margin-bottom: 20px; }
+        
+        /* Form Elemanları */
+        select, textarea, input { width: 100%; padding: 12px 16px; border: 1px solid #CBD5E1; border-radius: 12px; font-size: 0.95rem; outline: none; font-weight: 600; margin-bottom: 12px; }
+        .action-btn { width: 100%; padding: 14px; border: none; border-radius: 12px; color: white; font-weight: 700; cursor: pointer; background: var(--primary-color); display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; transition: 0.2s;}
+        .action-btn:hover { opacity: 0.9; }
+        .crud-item-row { background: #FFF; border: 1px solid var(--border-color); padding: 12px 16px; border-radius: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .crud-icon-btn { background: none; border: none; cursor: pointer; font-size: 1rem; color: #E74C3C; }
+        .flex-row { display: flex; gap: 10px; width: 100%; }
+        
+        /* Sınıf Listesi Yeni Accordion Görünümü */
+        .zafer-list-card { background: white; border: 1px solid #CBD5E1; margin-bottom: 10px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.04); overflow: hidden; }
+        .zafer-list-header { padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: #F8FAFC; color: #334155; font-weight: 700; font-size: 0.95rem; border-bottom: 1px solid transparent; transition: all 0.2s;}
+        .zafer-list-header:hover { background: #F1F5F9; }
+        .zafer-list-header.active { border-bottom: 1px solid #CBD5E1; background: #FFF; }
+        .zafer-list-body { padding: 20px; background: white; display: none; border-top: 2px solid var(--primary-color); }
+        .zafer-list-body.open { display: block; }
+        .z-progress-label { font-size: 0.85rem; font-weight: 700; color: #475569; margin-bottom: 6px; }
+        .z-progress-bg { background: #E2E8F0; height: 22px; border-radius: 4px; margin-bottom: 18px; overflow: hidden; width: 100%; }
+        .z-progress-fill { height: 100%; display: flex; align-items: center; padding-left: 10px; color: white; font-size: 0.75rem; font-weight: bold; }
+        .z-progress-fill.blue { background: #3498DB; }
+        .z-progress-fill.green { background: #2ECC71; }
+        .z-progress-fill.orange { background: #F39C12; }
+        .z-action-links { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; padding-left: 20px; border-left: 3px solid #E2E8F0; }
+        .z-action-links a { text-decoration: none; color: #2980B9; font-size: 0.95rem; font-weight: 600; display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .z-action-links a i { width: 18px; text-align: center; }
+        .z-badge { background: #64748B; color: white; border-radius: 12px; padding: 2px 8px; font-size: 0.75rem; font-weight: bold; margin-left: auto; }
+
+        /* Matris Ders Programı ve Auto Schedule UI */
         .modern-class-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 14px; margin-bottom: 20px; }
         .modern-class-card { background: #FFF; border: 2px solid #E2E8F0; padding: 15px; border-radius: 14px; text-align: center; font-size: 1.1rem; font-weight: 800; color: #475569; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .modern-class-card.active { border-color: var(--primary-color); background: #FFF5F5; color: var(--primary-color); }
-        .attendance-student-card { background: white; border: 1px solid var(--border-color); padding: 16px; border-radius: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.02); flex-wrap: wrap; gap:10px;}
-        .status-options { display: flex; gap: 8px; }
-        .status-btn { border: 1px solid #CBD5E1; background: white; padding: 8px 16px; border-radius: 10px; font-size: 0.8rem; font-weight: 800; cursor: pointer; color: #64748B; }
-        .status-btn.geldi-active { background: var(--status-geldi); color: white; border-color: var(--status-geldi); }
-        .status-btn.gelmedi-active { background: var(--status-gelmedi); color: white; border-color: var(--status-gelmedi); }
-        .status-btn.izinli-active { background: var(--status-izinli); color: white; border-color: var(--status-izinli); }
-        select, textarea, input { width: 100%; padding: 12px 16px; border: 1px solid #CBD5E1; border-radius: 12px; font-size: 0.95rem; outline: none; font-weight: 600; margin-bottom: 12px; }
-        .action-btn { width: 100%; padding: 14px; border: none; border-radius: 12px; color: white; font-weight: 700; cursor: pointer; background: var(--primary-color); display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; }
         .matrix-wrapper { overflow-x: auto; margin-top: 15px; background: #FFF; border-radius: 14px; padding: 5px; }
         .matrix-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 0.8rem; min-width: 500px; }
         .matrix-table th { background: var(--primary-color); color: white; padding: 12px 8px; border: 1px solid var(--primary-dark); }
@@ -53,16 +77,16 @@
         .hour-controls { display: flex; align-items: center; gap: 12px; }
         .hour-badge { background: #F1F5F9; font-weight: 800; padding: 6px 14px; border-radius: 8px; font-size: 0.9rem; min-width: 65px; text-align: center; border: 1px solid #CBD5E1; }
         .h-btn { background: #FFF; border: 1px solid #CBD5E1; width: 32px; height: 32px; border-radius: 8px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .crud-item-row { background: #FFF; border: 1px solid var(--border-color); padding: 12px 16px; border-radius: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-        .crud-info { display: flex; flex-direction: column; }
-        .crud-name { font-weight: 700; color: #1E293B; }
-        .crud-sub { font-size: 0.75rem; color: #64748B; }
-        .crud-actions { display: flex; gap: 10px; }
-        .crud-icon-btn { background: none; border: none; cursor: pointer; font-size: 1rem; }
-        .flex-row { display: flex; gap: 10px; width: 100%; }
-        .bottom-nav { background: white; display: flex; justify-content: space-around; padding: 16px; border-top: 1px solid var(--border-color); position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;}
-        .nav-item { color: #94A3B8; font-size: 1.5rem; cursor: pointer; }
-        .nav-item.active { color: var(--primary-color); }
+
+        /* Devamsızlık Modülü */
+        .attendance-student-card { background: white; border: 1px solid var(--border-color); padding: 16px; border-radius: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.02); flex-wrap: wrap; gap:10px;}
+        .status-options { display: flex; gap: 8px; }
+        .status-btn { border: 1px solid #CBD5E1; background: white; padding: 8px 16px; border-radius: 10px; font-size: 0.8rem; font-weight: 800; cursor: pointer; color: #64748B; }
+        .status-btn.geldi-active { background: var(--status-geldi); color: white; border-color: var(--status-geldi); }
+        .status-btn.gelmedi-active { background: var(--status-gelmedi); color: white; border-color: var(--status-gelmedi); }
+        .status-btn.izinli-active { background: var(--status-izinli); color: white; border-color: var(--status-izinli); }
+        
+        /* Chatbot */
         .chatbot-widget { position: fixed; bottom: 70px; right: 20px; width: 320px; background: #fff; border-radius: 16px 16px 0 0; box-shadow: 0 5px 25px rgba(0,0,0,0.2); z-index: 999; display: flex; flex-direction: column; border: 1px solid var(--border-color); transition: all 0.3s; }
         .chatbot-widget.collapsed { transform: translateY(calc(100% - 50px)); }
         .chat-header { background: var(--primary-color); color: white; padding: 15px; border-radius: 16px 16px 0 0; font-weight: bold; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
@@ -72,6 +96,13 @@
         .chat-input-area { display: flex; padding: 10px; background: white; border-top: 1px solid var(--border-color); }
         .chat-input-area input { margin-bottom: 0; border-radius: 20px; padding: 10px 15px; border: 1px solid #E2E8F0; width: 100%; }
         .chat-input-area button { background: var(--primary-color); color: white; border: none; padding: 0 15px; margin-left: 10px; border-radius: 20px; cursor: pointer; }
+
+        /* Alt Navigasyon ve Ekstra */
+        .bottom-nav { background: white; display: flex; justify-content: space-around; padding: 16px; border-top: 1px solid var(--border-color); position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;}
+        .nav-item { color: #94A3B8; font-size: 1.5rem; cursor: pointer; }
+        .nav-item.active { color: var(--primary-color); }
+        .director-credit { text-align: center; font-size: 0.75rem; color: #94A3B8; margin-top: 15px; font-weight: bold; }
+
         @media (max-width: 768px) {
             .role-selector { grid-template-columns: repeat(2, 1fr); }
             .grid-menu { grid-template-columns: repeat(2, 1fr); }
@@ -81,9 +112,10 @@
 </head>
 <body>
 
+    <!-- GİRİŞ EKRANI -->
     <div class="login-container" id="loginScreen">
         <div class="logo-area">
-            <div class="digital-flama"><i class="fa-solid fa-cloud"></i><div class="flama-text">ZAFER KAMPÜS V5.0 (SAFE CLOUD)</div></div>
+            <div class="digital-flama"><i class="fa-solid fa-cloud"></i><div class="flama-text">ZAFER KAMPÜS V7.0 (FULL CLOUD)</div></div>
             <div class="logo-title" style="margin-bottom: 20px;">SİSTEM GİRİŞİ</div>
         </div>
         <div class="role-selector">
@@ -96,16 +128,20 @@
         <div class="input-group"><input type="password" id="loginPassword" placeholder="Şifre"></div>
         <button class="action-btn" onclick="window.handleLogin()">Bulut Sunucusuna Bağlan</button>
         <p style="font-size: 0.8rem; color: #94A3B8; margin-top: 15px;">İlk Kurulum Yönetici Girişi: admin / 1234</p>
+        <div class="director-credit">Zafer Koleji Yönetim Sistemi<br>Directed by Enes Başaran</div>
     </div>
 
+    <!-- ANA PANEL -->
     <div class="dashboard-container" id="dashboardScreen">
         <div class="header">
             <div><h1 id="brandTitle">ZAFER KAMPÜS</h1><p id="welcomeText">Yükleniyor...</p><p id="userRoleText">Erişim Rolü: -</p></div>
             <div class="header-logo-mini-digital" id="cloudSyncStatus"><i class="fa-solid fa-sync fa-spin"></i> Bulut Eşitleniyor...</div>
         </div>
         <div class="grid-menu" id="mainMenuGrid"></div>
+        <div class="director-credit" style="padding-bottom: 20px;">Zafer Koleji Directed by Enes Başaran</div>
     </div>
 
+    <!-- DETAY PANELİ -->
     <div class="detail-container" id="detailScreen">
         <div class="detail-header">
             <div style="display:flex; align-items:center;">
@@ -116,13 +152,14 @@
         <div id="detailContent"></div>
     </div>
 
+    <!-- CHATBOT ARAYÜZÜ -->
     <div class="chatbot-widget collapsed" id="chatbotWidget">
         <div class="chat-header" onclick="window.toggleChat()">
             <span><i class="fa-solid fa-robot"></i> Zafer Asistan AI</span>
             <i class="fa-solid fa-chevron-up" id="chatToggleIcon"></i>
         </div>
         <div class="chat-body" id="chatBody">
-            <div class="bot-msg">Merhaba! Ben Zafer Koleji bulut asistanıyım. Sorularınızı bekliyorum.</div>
+            <div class="bot-msg">Merhaba! Ben Zafer Koleji bulut asistanıyım. Size nasıl yardımcı olabilirim?</div>
         </div>
         <div class="chat-input-area">
             <input type="text" id="chatInput" placeholder="Soru sorun..." onkeypress="if(event.key === 'Enter') window.sendChatMessage()">
@@ -130,12 +167,14 @@
         </div>
     </div>
 
+    <!-- ALT NAVİGASYON -->
     <div class="bottom-nav">
         <i class="fa-solid fa-chevron-left nav-item" onclick="window.goHome()"></i>
         <i class="fa-solid fa-house nav-item active" onclick="window.goHome()"></i>
         <i class="fa-solid fa-power-off nav-item" onclick="window.logout()" style="color:var(--primary-color);"></i>
     </div>
 
+    <!-- SİSTEM KODLARI (FIREBASE, UI, MANTIK) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -153,6 +192,7 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const docRef = doc(db, "zafer_kampus", "main_db");
 
         let currentRole = "Yönetici";
         let currentUserFullName = "";
@@ -160,7 +200,7 @@
         let selectedAdminClassView = "8/A";
         let selectedScheduleClassPlan = "8/A";
 
-        // Varsayılan Veri Çerçevesi
+        // Sistemin Default Veri Yapısı
         window.cloudState = {
             users: [{ role: "Yönetici", fullname: "Sistem Yöneticisi", username: "admin", password: "1234" }],
             schoolData: {"8/A": []},
@@ -171,13 +211,11 @@
             chatbotKB: [{soru: "okul saatleri", cevap: "Dersler 09:00 - 16:30 arasındadır."}]
         };
 
-        const docRef = doc(db, "zafer_kampus", "main_db");
-        
+        // Firebase Dinleyicisi & Offline Kurtarma
         onSnapshot(docRef, (docSnap) => {
             if (docSnap.exists()) {
                 window.cloudState = docSnap.data();
                 
-                // Güvenlik kontrolleri (Boşlukları doldurma)
                 if(!window.cloudState.users) window.cloudState.users = [];
                 if(!window.cloudState.schoolData) window.cloudState.schoolData = {};
                 if(!window.cloudState.teachersList) window.cloudState.teachersList = [];
@@ -187,19 +225,14 @@
                 if(!window.cloudState.chatbotKB) window.cloudState.chatbotKB = [];
                 
                 document.getElementById('cloudSyncStatus').innerHTML = `<i class="fa-solid fa-cloud" style="color:#2ECC71;"></i> Canlı Bağlantı (Aktif)`;
-                
-                // VERİLER BAŞARIYLA GELDİĞİNDE YEREL YEDEK AL (Zırh)
                 localStorage.setItem("zafer_kampus_yedek", JSON.stringify(window.cloudState));
-
                 window.refreshCurrentActiveModule();
             } else {
-                saveToCloudDatabase(); // İlk defa açılıyorsa buluta varsayılan veriyi yaz
+                saveToCloudDatabase(); 
             }
         }, (error) => {
             console.error("Firebase Hatası:", error);
             document.getElementById('cloudSyncStatus').innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color:#E74C3C;"></i> Bulut Hatası - Yedeğe Geçildi`;
-            
-            // FİREBASE ÇÖKERSE YEREL YEDEĞİ DEVREYE SOK
             const yedekVeri = localStorage.getItem("zafer_kampus_yedek");
             if(yedekVeri) {
                 window.cloudState = JSON.parse(yedekVeri);
@@ -207,18 +240,18 @@
             }
         });
 
+        // Buluta Kaydetme Fonksiyonu
         async function saveToCloudDatabase() {
-            // FIREBASE'E GÖNDERMEDEN ÖNCE CİHAZA ZORUNLU YEDEK AL
             localStorage.setItem("zafer_kampus_yedek", JSON.stringify(window.cloudState));
-            
             try {
                 await setDoc(docRef, window.cloudState);
             } catch (e) {
                 console.error("Buluta yazma hatası: ", e);
-                alert("Veri buluta aktarılamadı (Veritabanı kapalı), ancak cihazınıza yerel olarak yedeklendi. Veri kaybolmadı.");
+                alert("🔴 DİKKAT: Değişiklik BULUTA KAYDEDİLEMEDİ! Firebase veritabanı kuralları (Rules) kilitli olabilir. Sayfayı yenilerseniz verileriniz silinir.");
             }
         }
 
+        // --- GİRİŞ VE NAVİGASYON ---
         window.selectRole = function(r, el) { 
             currentRole = r; 
             document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('active')); 
@@ -246,6 +279,7 @@
         window.goHome = function() { document.getElementById('detailScreen').style.display = 'none'; document.getElementById('dashboardScreen').style.display = 'flex'; window.renderMenu(); };
         window.logout = function() { location.reload(); };
 
+        // --- ANA MENÜ LİSTESİ ---
         window.renderMenu = function() {
             const grid = document.getElementById('mainMenuGrid'); if(!grid) return; grid.innerHTML = "";
             const modules = [
@@ -253,7 +287,7 @@
                 { id: 'ogrenci_yonetim', title: 'Sınıf & Öğrenci Yönetimi', icon: 'fa-users-rectangle', roles: ['Yönetici'] },
                 { id: 'kullanici_yonetim', title: 'Hesap & Şifre Yönetimi', icon: 'fa-id-card-clip', roles: ['Yönetici'] },
                 { id: 'siniflar', title: 'Öğretmen Kadrosu', icon: 'fa-chalkboard-user', roles: ['Yönetici'] },
-                { id: 'devamsizlik', title: 'Devamsızlık', icon: 'fa-user-xmark', roles: ['Yönetici', 'Öğretmen'] },
+                { id: 'devamsizlik', title: 'Yoklama Paneli', icon: 'fa-user-xmark', roles: ['Yönetici', 'Öğretmen'] },
                 { id: 'auto_schedule', title: 'Akıllı Ders Dağıtımı', icon: 'fa-wand-magic-sparkles', roles: ['Yönetici'] },
                 { id: 'chatbot_admin', title: 'Chatbot Eğitimi', icon: 'fa-brain', roles: ['Yönetici'] },
                 { id: 'yardim', title: 'Destek & Yardım', icon: 'fa-circle-question', roles: ['Yönetici', 'Öğretmen', 'Öğrenci', 'Veli'] }
@@ -264,6 +298,26 @@
         window.currentOpenModuleId = "";
         window.openModule = function(id) { window.currentOpenModuleId = id; document.getElementById('dashboardScreen').style.display = 'none'; document.getElementById('detailScreen').style.display = 'flex'; window.refreshCurrentActiveModule(); };
 
+        // --- ACCORDION UI AÇ KAPA ---
+        window.toggleZCard = function(cName) {
+            const bodies = document.querySelectorAll('.zafer-list-body');
+            const headers = document.querySelectorAll('.zafer-list-header');
+            let targetBody = document.getElementById('zbody-' + cName);
+            let targetHeader = document.getElementById('zhead-' + cName);
+            if(targetBody.classList.contains('open')) {
+                targetBody.classList.remove('open'); targetHeader.classList.remove('active');
+            } else {
+                bodies.forEach(b => b.classList.remove('open')); headers.forEach(h => h.classList.remove('active'));
+                targetBody.classList.add('open'); targetHeader.classList.add('active');
+            }
+        };
+
+        window.showStudentEditArea = function(cName) {
+            const area = document.getElementById('student-edit-area-' + cName);
+            area.style.display = area.style.display === 'none' ? 'block' : 'none';
+        };
+
+        // --- MODÜL İÇERİKLERİNİN RENDER EDİLMESİ ---
         window.refreshCurrentActiveModule = function() {
             const content = document.getElementById('detailContent'); const title = document.getElementById('detailTitle');
             if(!content || document.getElementById('detailScreen').style.display === 'none') return;
@@ -271,30 +325,55 @@
 
             if(window.currentOpenModuleId === 'ogrenci_yonetim') {
                 title.innerText = "Sınıf ve Öğrenci Kontrol Merkezi";
-                content.innerHTML = `
-                    <div class="feature-box" style="background:#E3F2FD; border-left-color:#1565C0;">
-                        <h4><i class="fa-solid fa-layer-group"></i> Yeni Sınıf Şubesi Aç</h4>
-                        <div class="flex-row"><input type="text" id="newClassName" placeholder="Şube Adı (Örn: 9/A)"><button class="action-btn" style="background:#1565C0; width:150px;" onclick="window.createNewClass()">Sınıfı Aç</button></div>
-                    </div>
-                    <div class="modern-class-grid">${Object.keys(window.cloudState.schoolData).map(x=>`<div class="modern-class-card ${selectedAdminClassView===x?'active':''}" onclick="window.changeAdminClassView('${x}')">Sınıf ${x}</div>`).join('')}</div>
-                    ${Object.keys(window.cloudState.schoolData).length > 0 ? `
-                    <div class="feature-box" style="background:#FFF;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                            <h4>${selectedAdminClassView} Şubesi Öğrencileri</h4>
-                            <button class="action-btn" style="width:auto; margin:0; padding:8px 15px; font-size:0.8rem;" onclick="window.deleteClass('${selectedAdminClassView}')">Sınıfı Kapat</button>
+                let classesHTML = Object.keys(window.cloudState.schoolData).map((cName, idx) => {
+                    let studentCount = window.cloudState.schoolData[cName].length;
+                    return `
+                    <div class="zafer-list-card">
+                        <div class="zafer-list-header" id="zhead-${cName}" onclick="window.toggleZCard('${cName}')">
+                            <span>${idx+1}. Sınıf Yönetimi: ${cName} Şubesi</span><i class="fa-solid fa-caret-down"></i>
                         </div>
-                        <div class="flex-row" style="margin-bottom:15px;"><input type="text" id="newStudentName" placeholder="Öğrenci Adı Soyadı"><button class="action-btn" style="width:120px;" onclick="window.addStudentToClass()">Kaydet</button></div>
-                        <div>${(window.cloudState.schoolData[selectedAdminClassView] || []).map((stu, idx) => `
-                            <div class="crud-item-row">
-                                <span class="crud-name">${stu}</span>
-                                <div class="crud-actions">
-                                    <button class="crud-icon-btn" onclick="window.deleteStudent(${idx})" style="color:#E74C3C;"><i class="fa-solid fa-trash"></i></button>
+                        <div class="zafer-list-body" id="zbody-${cName}">
+                            <div class="z-progress-label">Not Girişi</div>
+                            <div class="z-progress-bg"><div class="z-progress-fill blue" style="width: 85%;">85%</div></div>
+                            <div class="z-progress-label">Not Onayı</div>
+                            <div class="z-progress-bg"><div class="z-progress-fill green" style="width: 100%;">100%</div></div>
+                            <div class="z-progress-label">Devamsızlık Girişi</div>
+                            <div class="z-progress-bg"><div class="z-progress-fill orange" style="width: 15%;">15%</div></div>
+
+                            <div class="z-action-links">
+                                <a onclick="window.showStudentEditArea('${cName}')"><i class="fa-solid fa-user-graduate"></i> Öğrencileri Listele / Ekle <span class="z-badge">${studentCount}</span></a>
+                                <a onclick="window.changeAdminClassView('${cName}'); window.openModule('devamsizlik')"><i class="fa-solid fa-check-square"></i> Devamsızlık Gir</a>
+                                <a onclick="window.deleteClass('${cName}')" style="color:#E74C3C;"><i class="fa-solid fa-trash"></i> Sınıfı Komple Sil</a>
+                            </div>
+
+                            <div id="student-edit-area-${cName}" style="display:none; margin-top:20px; border-top:1px solid #eee; padding-top:15px;">
+                                <div class="flex-row" style="margin-bottom:10px;">
+                                    <input type="text" id="newStudentName-${cName}" placeholder="Yeni Öğrenci Ekle">
+                                    <button class="action-btn" style="width:100px; margin-bottom:0;" onclick="window.addStudentToClass('${cName}')">Ekle</button>
                                 </div>
-                            </div>`).join('')}</div>
-                    </div>` : ''}`;
+                                <div>
+                                    ${window.cloudState.schoolData[cName].map((stu, sIdx) => `
+                                        <div class="crud-item-row" style="padding: 8px 12px;">
+                                            <span style="font-size:0.9rem; font-weight:600;">${stu}</span>
+                                            <button class="crud-icon-btn" onclick="window.deleteStudent('${cName}', ${sIdx})"><i class="fa-solid fa-trash"></i></button>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('');
+
+                content.innerHTML = `
+                    <div class="flex-row" style="margin-bottom:20px;">
+                        <input type="text" id="newClassName" placeholder="Yeni Şube Adı (Örn: 9/A)">
+                        <button class="action-btn" style="width:180px; margin-bottom:0;" onclick="window.createNewClass()">Sınıf Aç</button>
+                    </div>
+                    ${classesHTML || '<p style="text-align:center; color:#94A3B8;">Henüz kayıtlı sınıf bulunmamaktadır.</p>'}
+                `;
             }
             else if(window.currentOpenModuleId === 'kullanici_yonetim') {
-                title.innerText = "Kullanıcı Hesapları ve Yetki Yönetimi";
+                title.innerText = "Kullanıcı Hesapları ve Şifre Yönetimi";
                 content.innerHTML = `
                     <div class="feature-box" style="background:#F3E5F5; border-left-color:#7B1FA2;">
                         <h4><i class="fa-solid fa-user-plus"></i> Yeni Hesap Tanımla</h4>
@@ -304,16 +383,16 @@
                         <button class="action-btn" style="background:#7B1FA2;" onclick="window.createUserAccount()">Hesabı Aktifleştir</button>
                     </div>
                     <div class="feature-box" style="background:#FFF;">
-                        <h4>Sistem Kullanıcıları</h4>
+                        <h4>Kayıtlı Sistem Kullanıcıları</h4>
                         <div>${window.cloudState.users.map((u, idx) => `
                             <div class="crud-item-row">
                                 <div class="crud-info"><span class="crud-name">${u.fullname} [${u.role}]</span><span class="crud-sub">Giriş: ${u.username} | Şifre: ${u.password}</span></div>
-                                <button class="crud-icon-btn" onclick="window.deleteUserAccount(${idx})" style="color:#E74C3C;"><i class="fa-solid fa-trash"></i></button>
+                                <button class="crud-icon-btn" onclick="window.deleteUserAccount(${idx})"><i class="fa-solid fa-trash"></i></button>
                             </div>`).join('')}</div>
                     </div>`;
             }
             else if(window.currentOpenModuleId === 'devamsizlik') {
-                title.innerText = "Canlı Yoklama Sistemi";
+                title.innerText = "Yoklama Paneli";
                 content.innerHTML = `<div class="modern-class-grid">${Object.keys(window.cloudState.schoolData).map(x=>`<div class="modern-class-card ${selectedAdminClassView===x?'active':''}" onclick="window.changeAdminClassView('${x}')">Sınıf ${x}</div>`).join('')}</div><div id="attArea"></div>`;
                 const area = document.getElementById('attArea');
                 if(area && window.cloudState.attendanceDatabase[selectedAdminClassView]) {
@@ -342,7 +421,7 @@
                 window.renderTeachersHourInputs();
             }
             else if(window.currentOpenModuleId === 'siniflar') {
-                title.innerText = "Öğretmen Kadrosu";
+                title.innerText = "Öğretmen Kadrosu Yönetimi";
                 content.innerHTML = `
                     <div class="feature-box">
                         <h4>Yeni Öğretmen Ekle</h4>
@@ -382,12 +461,13 @@
             }
         };
 
+        // --- FONKSİYONLARIN İŞLEYİŞ MANTIKLARI ---
         window.changeAdminClassView = function(x) { selectedAdminClassView = x; window.refreshCurrentActiveModule(); };
         window.changeScheduleClassPlan = function(x) { selectedScheduleClassPlan = x; window.refreshCurrentActiveModule(); };
 
         window.createNewClass = function() {
             const cName = document.getElementById('newClassName').value.trim(); if(!cName) return;
-            if(window.cloudState.schoolData[cName]) return;
+            if(window.cloudState.schoolData[cName]) { alert("Bu sınıf zaten mevcut."); return; }
             window.cloudState.schoolData[cName] = [];
             window.cloudState.attendanceDatabase[cName] = [];
             window.cloudState.scheduleDatabase[cName] = {};
@@ -397,21 +477,20 @@
         };
 
         window.deleteClass = function(cName) {
-            if(!confirm("Sınıfı silmek istiyor musunuz?")) return;
+            if(!confirm(`${cName} sınıfını silmek istediğinize emin misiniz?`)) return;
             delete window.cloudState.schoolData[cName]; delete window.cloudState.attendanceDatabase[cName]; delete window.cloudState.scheduleDatabase[cName];
             saveToCloudDatabase();
         };
 
-        window.addStudentToClass = function() {
-            const name = document.getElementById('newStudentName').value.trim(); if(!name) return;
-            window.cloudState.schoolData[selectedAdminClassView].push(name);
-            window.cloudState.attendanceDatabase[selectedAdminClassView].push({ogrenci: name, durum: "geldi"});
+        window.addStudentToClass = function(cName) {
+            const name = document.getElementById('newStudentName-' + cName).value.trim(); if(!name) return;
+            window.cloudState.schoolData[cName].push(name);
+            window.cloudState.attendanceDatabase[cName].push({ogrenci: name, durum: "geldi"});
             saveToCloudDatabase();
         };
 
-        window.deleteStudent = function(idx) {
-            window.cloudState.schoolData[selectedAdminClassView].splice(idx,1);
-            window.cloudState.attendanceDatabase[selectedAdminClassView].splice(idx,1);
+        window.deleteStudent = function(cName, idx) {
+            window.cloudState.schoolData[cName].splice(idx,1); window.cloudState.attendanceDatabase[cName].splice(idx,1);
             saveToCloudDatabase();
         };
 
@@ -420,7 +499,8 @@
             const f = document.getElementById('newUserFullname').value.trim();
             const u = document.getElementById('newUserUsername').value.trim();
             const p = document.getElementById('newUserPassword').value.trim();
-            if(!f || !u || !p) return;
+            if(!f || !u || !p) { alert("Lütfen tüm alanları doldurun."); return; }
+            if(window.cloudState.users.find(x => x.username === u)) { alert("Bu kullanıcı adı zaten alınmış."); return; }
             window.cloudState.users.push({role:r, fullname:f, username:u, password:p});
             saveToCloudDatabase();
         };
@@ -436,16 +516,19 @@
         window.addNewTeacherLocal = function() {
             const n = document.getElementById('nT').value.trim(); const b = document.getElementById('nB').value.trim(); if(!n || !b) return;
             const full = `${n} Hoca (${b})`;
-            window.cloudState.teachersList.push(full);
-            window.cloudState.teacherRequirements[full] = {};
-            Object.keys(window.cloudState.schoolData).forEach(s => window.cloudState.teacherRequirements[full][s] = 0);
-            saveToCloudDatabase();
+            if(!window.cloudState.teachersList.includes(full)){
+                window.cloudState.teachersList.push(full);
+                window.cloudState.teacherRequirements[full] = {};
+                Object.keys(window.cloudState.schoolData).forEach(s => window.cloudState.teacherRequirements[full][s] = 0);
+                saveToCloudDatabase();
+            }
         };
 
         window.deleteTeacherLocal = function(idx, name) {
             window.cloudState.teachersList.splice(idx, 1); delete window.cloudState.teacherRequirements[name]; saveToCloudDatabase();
         };
 
+        // --- DERS MOTORU (AI) KODLARI ---
         window.renderTeachersHourInputs = function() {
             const container = document.getElementById('teachersHourInputsContainer'); if(!container) return;
             let total = 0;
@@ -455,7 +538,7 @@
                 return `<div class="hour-setter-row"><span>${t}</span><div class="hour-controls">
                     <button class="h-btn" onclick="window.adjustTeacherHour('${t}', -1)">-</button><div class="hour-badge">${hours} Saat</div>
                     <button class="h-btn" onclick="window.adjustTeacherHour('${t}', 1)">+</button></div></div>`;
-            }).join('') + `<div style='margin-top:10px; font-weight:bold;'>Sınıf Toplam Yükü: ${total} / 40 Saat</div>`;
+            }).join('') + `<div style='margin-top:10px; font-weight:bold; color:${total===40?'#2ECC71':'#E74C3C'}'>Sınıf Toplam Yükü: ${total} / 40 Saat</div>`;
         };
 
         window.adjustTeacherHour = function(t, offset) {
@@ -467,14 +550,15 @@
         };
 
         window.triggerAutoScheduleAI = function() {
+            if (!window.cloudState || !window.cloudState.scheduleDatabase) {
+                alert("Veriler henüz buluttan yüklenmedi, lütfen 3 saniye bekleyip tekrar deneyin."); return;
+            }
             const days = ["Pzt","Sal","Çar","Per","Cum"];
             let total = 0;
             window.cloudState.teachersList.forEach(t => total += window.cloudState.teacherRequirements[t]?.[selectedScheduleClassPlan] || 0);
             if(total !== 40) { alert(`Hata: Program saat yükü tam olarak 40 olmalıdır. Şu an: ${total}`); return; }
 
             let temp = JSON.parse(JSON.stringify(window.cloudState.scheduleDatabase));
-            
-            // Güvenlik Düzeltmesi (reading 'Pzt' hatası için)
             if(!temp[selectedScheduleClassPlan]) temp[selectedScheduleClassPlan] = {};
             days.forEach(d => { 
                 if(!temp[selectedScheduleClassPlan][d]) temp[selectedScheduleClassPlan][d] = {};
@@ -507,7 +591,7 @@
 
             if(failed) { alert("Hata: Öğretmen programlarında çakışma oluştu, dağıtım tamamlanamadı!"); return; }
             window.cloudState.scheduleDatabase = temp;
-            saveToCloudDatabase(); alert("Başarılı: Çakışmasız yeni program oluşturuldu ve kaydedildi.");
+            saveToCloudDatabase(); alert("Başarılı: Çakışmasız yeni program oluşturuldu ve buluta kaydedildi.");
             window.openModule('dersler');
         };
 
@@ -515,7 +599,7 @@
             const container = document.getElementById('mC'); if(!container) return; const days = ["Pzt","Sal","Çar","Per","Cum"];
             let h = `<div class="matrix-wrapper"><table class="matrix-table"><thead><tr><th>Saat</th>${days.map(d=>`<th>${d}</th>`).join('')}</tr></thead><tbody>`;
             for(let hr=1; hr<=8; hr++) {
-                h += `<tr><td style="font-weight:bold;">${hr}. Ders</td>`;
+                h += `<tr><td style="font-weight:bold; background:#F8FAFC;">${hr}. Ders</td>`;
                 days.map(d => {
                     let cur = window.cloudState.scheduleDatabase[s]?.[d]?.[hr] || "-";
                     h += `<td>${cur !== "-" ? `<div class="matrix-cell-box">${cur.substring(cur.indexOf("(")+1, cur.indexOf(")"))}<small>${cur.split(' ')[0]}</small></div>` : `<span>-</span>`}</td>`;
@@ -525,8 +609,10 @@
             container.innerHTML = h + "</tbody></table></div>";
         };
 
+        // --- CHATBOT ---
         window.toggleChat = function() {
             const w = document.getElementById('chatbotWidget'); w.classList.toggle('collapsed');
+            document.getElementById('chatToggleIcon').className = w.classList.contains('collapsed') ? 'fa-solid fa-chevron-up' : 'fa-solid fa-chevron-down';
         };
         window.sendChatMessage = function() {
             const inp = document.getElementById('chatInput'); const msg = inp.value.trim().toLowerCase(); if(!msg) return;
