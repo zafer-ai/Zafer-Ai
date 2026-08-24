@@ -1,1137 +1,805 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Maarif Din Eğitimi Portalı - Akıllı Tahta & İçerik Yönetimi</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f1f5f9; }
-    .touch-target { min-height: 52px; }
-    .prose img { border-radius: 1rem; margin: 1rem 0; max-height: 450px; object-fit: contain; width: 100%; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); background: #f8fafc; }
-    .drag-active { border-color: #4f46e5 !important; background-color: #eef2ff !important; }
-    .game-card { transition: all 0.2s ease-in-out; cursor: pointer; }
-    .game-card:hover { transform: translateY(-2px); }
-    .game-card.selected { border-color: #6366f1; background-color: #e0e7ff; }
-    .game-card.matched { border-color: #10b981; background-color: #d1fae5; pointer-events: none; opacity: 0.7; }
-  </style>
-</head>
-<body class="text-slate-800 antialiased flex flex-col min-h-screen selection:bg-indigo-500 selection:text-white">
+<!-- FIREBASE BULUT VERİTABANI VE SİSTEM MOTORU -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getFirestore, doc, setDoc, onSnapshot, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-  <!-- HEADER -->
-  <header class="bg-indigo-950 text-white shadow-xl sticky top-0 z-40 border-b border-indigo-900">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-      <div class="flex items-center space-x-3 cursor-pointer" onclick="goHome()">
-        <div class="bg-indigo-800 p-2.5 rounded-2xl text-2xl shadow-inner">📖</div>
-        <div>
-          <h1 class="text-base md:text-xl font-extrabold tracking-tight">MAARİF DİN EĞİTİMİ PORTALI</h1>
-          <p class="text-xs text-indigo-300">Türkiye Yüzyılı Maarif Modeli Akıllı Tahta Portalı</p>
-        </div>
-      </div>
-      <div class="flex items-center space-x-3">
-        <span id="cloud-sync-status" class="text-xs font-bold px-2.5 py-1 rounded-lg bg-indigo-900 text-indigo-200 border border-indigo-700 flex items-center space-x-1">
-          <span>🔄</span> <span>Yükleniyor...</span>
-        </span>
-        
-        <!-- YÖNETİCİ BUTONU / DURUMU -->
-        <div id="admin-auth-btn-area">
-          <button onclick="openLoginModal()" class="touch-target bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold px-3.5 py-2 rounded-xl text-xs transition-all flex items-center space-x-1.5 border border-slate-700 shadow">
-            <span>🔐</span> <span class="hidden md:inline">Yönetici Girişi</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  </header>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCw8wekTKw3Qn-efTBylldgVsRtKgGlW3c",
+    authDomain: "zaferai.firebaseapp.com",
+    projectId: "zaferai",
+    storageBucket: "zaferai.firebasestorage.app",
+    messagingSenderId: "808774923591",
+    appId: "1:808774923591:web:e8ad9b8b7388ab6eb18862"
+  };
 
-  <!-- YÖNETİCİ GİRİŞ MODALI -->
-  <div id="login-modal" class="fixed inset-0 bg-slate-900/80 z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 space-y-5 border border-slate-200 relative animate-fade-in">
-      <div class="flex justify-between items-center border-b pb-3">
-        <h3 class="font-extrabold text-slate-900 text-lg flex items-center space-x-2">
-          <span>🔐</span> <span>Yönetici Paneli Girişi</span>
-        </h3>
-        <button onclick="closeLoginModal()" class="text-slate-400 hover:text-slate-700 text-xl font-bold">✕</button>
-      </div>
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const docRef = doc(db, "maarif_portal", "curriculum_db");
+  const analyticsDocRef = doc(db, "maarif_portal", "analytics");
 
-      <form onsubmit="handleAdminLogin(event)" class="space-y-4">
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Kullanıcı Adı</label>
-          <input type="text" id="login-username" required autocomplete="off" class="w-full border rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none">
-        </div>
+  const ADMIN_CREDENTIALS = {
+    username: "bacharans",
+    password: "enesenes1"
+  };
 
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Şifre</label>
-          <input type="password" id="login-password" required autocomplete="off" class="w-full border rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none">
-        </div>
+  window.isAdminLoggedIn = false;
 
-        <div id="login-error-msg" class="hidden text-xs font-bold text-rose-600 bg-rose-50 p-3 rounded-xl border border-rose-200 text-center">
-          Kullanıcı adı veya şifre hatalı!
-        </div>
+  // OTOMATİK ZİYARET VE TIKLAMA SAYACINI BİLDİR
+  async function recordVisit() {
+    try {
+      const nowFormatted = new Date().toLocaleString("tr-TR");
+      await setDoc(analyticsDocRef, {
+        totalVisits: increment(1),
+        lastVisitAt: nowFormatted
+      }, { merge: true });
+    } catch (err) {
+      console.warn("Ziyaret kaydedilemedi:", err);
+    }
+  }
 
-        <button type="submit" class="w-full touch-target bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg text-sm">
-          Giriş Yap ve Yetki Al
-        </button>
-      </form>
-    </div>
-  </div>
+  async function recordClick() {
+    try {
+      await setDoc(analyticsDocRef, {
+        totalClicks: increment(1)
+      }, { merge: true });
+    } catch (err) {
+      console.warn("Tıklama kaydedilemedi:", err);
+    }
+  }
 
-  <!-- AKILLI TAHTA HIZLI SORU ALANI -->
-  <div id="quick-quiz-zone" class="bg-gradient-to-r from-indigo-900 to-purple-900 text-white py-6 px-4 shadow-inner hidden">
-    <div class="max-w-4xl mx-auto bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 relative">
-      <div class="flex items-center justify-between mb-4">
-        <div class="flex items-center space-x-3">
-          <span class="text-3xl">🎯</span>
-          <div>
-            <h3 class="text-xl font-extrabold text-amber-300">AKILLI TAHTA SORU CANAVARI</h3>
-            <p class="text-xs text-slate-300">Sıradaki öğrenci tahtaya gelsin ve şıkkını seçsin!</p>
-          </div>
-        </div>
-        
-        <div class="flex items-center space-x-2">
-          <button onclick="triggerQuickQuestionForCurrentWeek()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-3.5 py-2 rounded-xl text-xs transition-all flex items-center space-x-1.5 shadow-lg active:scale-95">
-            <span>🔄</span> <span>Başka Soru Çek (Değiştir)</span>
-          </button>
-          
-          <button onclick="closeQuickQuiz()" class="text-white/70 hover:text-white text-xl font-bold px-2 py-1">✕</button>
-        </div>
-      </div>
+  document.addEventListener("click", (e) => {
+    if (e.target.closest("button") || e.target.closest(".game-card") || e.target.closest("a")) {
+      recordClick();
+    }
+  });
 
-      <div id="quick-question-box" class="space-y-4"></div>
-    </div>
-  </div>
+  onSnapshot(analyticsDocRef, (snap) => {
+    if (snap.exists()) {
+      const data = snap.data();
+      document.getElementById('stat-total-visits').innerText = data.totalVisits || 0;
+      document.getElementById('stat-total-clicks').innerText = data.totalClicks || 0;
+      document.getElementById('stat-last-visit').innerText = data.lastVisitAt || "-";
+    }
+  });
 
-  <!-- ANA İÇERİK -->
-  <main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6">
+  // VARSAYILAN MÜFREDAT TANIMLARI
+  const official5thGradeCurriculum = {
+    1: { title: "Evrendeki Mükemmel Düzen ve Ölçü", outcome: "5.1.1. Evrendeki mükemmel düzen ile Allah'ın varlığı arasında bağ kurar.", body: "<h3>Evrendeki Muazzam Uyum</h3><p>Gezegenlerin yörüngelerinden, mevsimlerin ardı ardına gelişine kadar evrendeki hiçbir şey başıboş değildir.</p>", videoUrl: "https://www.youtube.com/watch?v=84QYx9-H-Yk", gameTerms: [{term: "Sünnetullah", def: "Allah'ın evrene koyduğu fiziksel ve biyolojik kanunlar."}, {term: "Düzen", def: "Evrendeki kusursuz uyum ve denge."}], questions: [{ text: "Gök cisimlerinin yörüngelerinden sapmadan dönmesi hangisi ile açıklanır?", options: ["Evrendeki kusursuz düzenle", "Rastlantısal döngülerle", "Doğa olaylarının şansıyla", "Gezegenlerin kendi isteğiyle"], correctIndex: 0 }] },
+    2: { title: "Allah (c.c.) Vardır ve Birdir (Tevhit İnancı)", outcome: "5.1.1. Allah'ın varlığı ve birliği fikrini kavrar.", body: "<h3>Eşi ve Benzeri Olmayan: Allah</h3><p>İslam dininin temel direği Tevhit inancıdır.</p>", videoUrl: "https://www.youtube.com/watch?v=13X8l7Z4B_s", gameTerms: [{term: "Tevhit", def: "Allah'ın tek ve bir olduğuna inanmak."}, {term: "İhlas", def: "Samimiyet ve içtenlikle ibadet etmek."}], questions: [{ text: "Allah'ın bir ve tek olmasına, ortağı olmamasına ne ad verilir?", options: ["İhlas", "Kader", "Tevhit", "Ahlak"], correctIndex: 2 }] }
+  };
+  for (let i = 3; i <= 36; i++) {
+    official5thGradeCurriculum[i] = { title: `5. Sınıf Din Kültürü - ${i}. Hafta`, outcome: `5.${Math.ceil(i/7)}. Öğretim programı kazanımı.`, body: `<p>5. Sınıf ${i}. hafta ders içeriği metni.</p>`, videoUrl: "https://www.youtube.com/watch?v=84QYx9-H-Yk", gameTerms: [{term: "Kavram A", def: "5. Sınıf A Tanımı"}, {term: "Kavram B", def: "5. Sınıf B Tanımı"}], questions: [{ text: `5. Sınıf ${i}. hafta ders konusuyla ilgili hangisi doğrudur?`, options: ["Doğru Bilgi", "Yanlış Şık", "Yanlış Şık", "Yanlış Şık"], correctIndex: 0 }] };
+  }
 
-    <!-- ADIM 1: SINIF SEÇİMİ -->
-    <section id="step-grade" class="space-y-6">
-      <div class="text-center my-8">
-        <h2 class="text-2xl md:text-4xl font-extrabold text-slate-950 tracking-tight">Müfredat Seviyesi Seçiniz</h2>
-        <p class="text-slate-500 mt-2 text-sm md:text-base">Milli Eğitim Bakanlığı TYMM Din Kültürü ve Ahlak Bilgisi Müfredatı</p>
-      </div>
+  const official6thGradeCurriculum = {};
+  for (let i = 1; i <= 36; i++) {
+    official6thGradeCurriculum[i] = { title: `6. Sınıf Din Kültürü - ${i}. Hafta`, outcome: `6.${Math.ceil(i/7)}. Öğretim programı kazanımı.`, body: `<p>6. Sınıf ${i}. hafta ders içeriği metni.</p>`, videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", gameTerms: [{term: "Kelam", def: "Allah'ın konuşma sıfatı."}, {term: "Vahiy", def: "Allah'ın peygamberlerine gönderdiği mesajlar."}], questions: [{ text: `6. Sınıf ${i}. Hafta konusuna ait örnek soru?`, options: ["Doğru Seçenek", "Yanlış Şık", "Yanlış Şık", "Yanlış Şık"], correctIndex: 0 }] };
+  }
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-        <button onclick="selectGrade(5)" class="touch-target bg-gradient-to-br from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 transition-all text-white p-8 rounded-3xl shadow-xl flex flex-col items-center justify-center space-y-3 group border-b-4 border-emerald-800">
-          <span class="text-6xl font-black group-hover:scale-110 transition-transform">5</span>
-          <span class="text-sm font-black tracking-widest bg-white/20 px-3 py-1 rounded-full">5. SINIF MÜFREDATI</span>
-        </button>
+  const official7thGradeCurriculum = {};
+  for (let i = 1; i <= 36; i++) {
+    official7thGradeCurriculum[i] = { title: `7. Sınıf Din Kültürü - ${i}. Hafta`, outcome: `7.${Math.ceil(i/7)}. Öğretim programı kazanımı.`, body: `<p>7. Sınıf ${i}. hafta ders içeriği metni.</p>`, videoUrl: "https://www.youtube.com/watch?v=84QYx9-H-Yk", gameTerms: [{term: "Melek", def: "Nurdan yaratılmış gözle görülmeyen varlıklar."}, {term: "Ahiret", def: "Ölümden sonraki sonsuz hayat."}], questions: [{ text: `7. Sınıf ${i}. Hafta konusuna ait örnek soru?`, options: ["Doğru Seçenek", "Yanlış Şık", "Yanlış Şık", "Yanlış Şık"], correctIndex: 0 }] };
+  }
 
-        <button onclick="selectGrade(6)" class="touch-target bg-gradient-to-br from-sky-600 to-indigo-700 hover:from-sky-700 hover:to-indigo-800 transition-all text-white p-8 rounded-3xl shadow-xl flex flex-col items-center justify-center space-y-3 group border-b-4 border-sky-800">
-          <span class="text-6xl font-black group-hover:scale-110 transition-transform">6</span>
-          <span class="text-sm font-black tracking-widest bg-white/20 px-3 py-1 rounded-full">6. SINIF MAARİF MODELİ</span>
-        </button>
+  const lgsExamQuestionBank = {
+    1: [
+      { text: "[2018 LGS] Hz. Ömer, devlete ait bir işi yaparken devletin mumunu, kendi özel işini yaparken ise kendi mumunu kullanmıştır. Hz. Ömer'in bu davranışı kaderle ilgili hangi kavramla doğrudan ilişkilidir?", options: ["Sorumluluk ve Adalet", "Ecel ve Ömür", "Fiziksel Yasalar", "Rızık ve Tevekkül"], correctIndex: 0 },
+      { text: "[2020 LGS] Evrendeki fiziksel, biyolojik ve toplumsal yasalar Allah'ın takdiriyle gerçekleşir. Buna göre aşağıdakilerden hangisi biyolojik yasalara örnektir?", options: ["Fotosentez ve canlıların üremesi", "Isınan metallerin genleşmesi", "Adaletli toplumlarda huzurun artması", "Suyun 100 derecede kaynaması"], correctIndex: 0 }
+    ],
+    2: [
+      { text: "[2019 LGS] İnsan akıl ve irade sahibi bir varlıktır. Yapacağı eylemleri kendi seçer ve sonuçlarından sorumlu tutulur. Bu durum aşağıdakilerden hangisini gösterir?", options: ["Özgürlük ile sorumluluk arasındaki ilişkiyi", "Külli iradenin sınırlandırılabileceğini", "Ecelin eylemlere bağlı olduğunu", "Toplumsal yasaların önemsizliğini"], correctIndex: 0 }
+    ]
+  };
 
-        <button onclick="selectGrade(7)" class="touch-target bg-gradient-to-br from-amber-600 to-orange-700 hover:from-amber-700 hover:to-orange-800 transition-all text-white p-8 rounded-3xl shadow-xl flex flex-col items-center justify-center space-y-3 group border-b-4 border-amber-800">
-          <span class="text-6xl font-black group-hover:scale-110 transition-transform">7</span>
-          <span class="text-sm font-black tracking-widest bg-white/20 px-3 py-1 rounded-full">7. SINIF MÜFREDATI</span>
-        </button>
+  const official8thGradeCurriculum = {
+    1: {
+      title: "Kader ve Kaza Kavramları", outcome: "8.1.1. Kader ve kaza kavramlarını açıklar.",
+      body: "<h3>Kader ve Kaza Nedir?</h3><p><b>Kader:</b> Allah'ın ezelden ebede kadar olacak her şeyi önceden bilmesi ve takdir etmesidir.<br><b>Kaza:</b> Zamanı geldiğinde Allah'ın takdir ettiği şeylerin gerçekleşmesidir.</p>",
+      videoUrl: "https://www.youtube.com/watch?v=84QYx9-H-Yk",
+      gameTerms: [{ term: "Kader", def: "Ölçü, miktar, planlama ve takdir etmek." }, { term: "Kaza", def: "Planlanan şeyin zamanı gelince gerçekleşmesi." }, { term: "Sünnetullah", def: "Evrendeki fiziksel, biyolojik ve toplumsal yasalar." }],
+      questions: lgsExamQuestionBank[1]
+    },
+    2: {
+      title: "İnsanın İradesi ve Sorumluluğu", outcome: "8.1.2. İnsanın iradesi ile kader arasında ilişki kurar.",
+      body: "<h3>Küllî İrade ve Cüz'î İrade</h3><p>Allah insanlara seçme özgürlüğü (cüz'î irade) vermiştir. Yapılan seçimlerin sonucunda sorumluluk insana aittir.</p>",
+      videoUrl: "https://www.youtube.com/watch?v=13X8l7Z4B_s",
+      gameTerms: [{ term: "Küllî İrade", def: "Allah'ın sınırsız ve sonsuz iradesi." }, { term: "Cüz'î İrade", def: "İnsana verilen sınırlı seçme özgürlüğü." }, { term: "Sorumluluk", def: "Eylemlerinin sonucunu üstlenme bilinci." }],
+      questions: lgsExamQuestionBank[2]
+    }
+  };
 
-        <button onclick="selectGrade(8)" class="touch-target bg-gradient-to-br from-purple-600 to-pink-700 hover:from-purple-700 hover:to-pink-800 transition-all text-white p-8 rounded-3xl shadow-xl flex flex-col items-center justify-center space-y-3 group border-b-4 border-purple-800">
-          <span class="text-6xl font-black group-hover:scale-110 transition-transform">8</span>
-          <span class="text-sm font-black tracking-widest bg-white/20 px-3 py-1 rounded-full">8. SINIF LGS MÜFREDATI</span>
-        </button>
-      </div>
-    </section>
-
-    <!-- ADIM 2: HAFTALAR / ÜNİTELER -->
-    <section id="step-weeks" class="hidden space-y-6">
-      <div class="flex items-center justify-between border-b border-slate-300 pb-4">
-        <button onclick="goBack('step-grade')" class="touch-target bg-slate-200 hover:bg-slate-300 text-slate-800 px-4 py-2 rounded-xl font-bold transition-all flex items-center space-x-1">
-          <span>← Ana Sayfaya Dön</span>
-        </button>
-        <h2 id="selected-grade-title" class="text-lg md:text-2xl font-extrabold text-slate-900"></h2>
-      </div>
-
-      <div id="weeks-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
-    </section>
-
-    <!-- ADIM 3: DERS DETAYI & AKILLI TAHTA MODÜLÜ -->
-    <section id="step-lesson" class="hidden space-y-6">
-      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-300 pb-4">
-        <button onclick="goBack('step-weeks')" class="touch-target bg-slate-200 hover:bg-slate-300 text-slate-800 px-4 py-2 rounded-xl font-bold flex items-center space-x-1">
-          <span>← Ünitelere Dön</span>
-        </button>
-        
-        <div class="flex items-center space-x-2">
-          <button onclick="triggerQuickQuestionForCurrentWeek()" class="touch-target bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold px-4 py-2 rounded-xl text-xs md:text-sm transition-all flex items-center space-x-2 shadow-lg active:scale-95 animate-bounce">
-            <span>🎯</span> <span>TAHTAYA KALK (Bu Haftadan Soru Çek!)</span>
-          </button>
-          
-          <!-- SADECE YÖNETİCİYE GÖRÜNÜR BUTON -->
-          <button id="edit-current-week-btn" onclick="openAdminPanelForCurrentWeek()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center space-x-1 shadow hidden">
-            <span>✏️</span> <span>Bu Haftayı Düzenle</span>
-          </button>
-        </div>
-      </div>
-
-      <div class="bg-white rounded-3xl shadow-xl border border-slate-200 p-5 md:p-8 space-y-6">
-        <div>
-          <span id="lesson-badge" class="inline-block bg-indigo-100 text-indigo-900 font-extrabold px-3 py-1 rounded-lg text-xs md:text-sm mb-3"></span>
-          <h2 id="lesson-title" class="text-xl md:text-3xl font-black text-slate-900 tracking-tight"></h2>
-          <p id="lesson-outcome" class="text-slate-600 mt-3 text-sm md:text-base font-medium border-l-4 border-indigo-600 pl-3 bg-indigo-50/50 py-2.5 pr-2 rounded-r-xl"></p>
-        </div>
-
-        <!-- TAB NAVİGASYONU -->
-        <div class="border-b border-slate-200 flex space-x-2 md:space-x-6 overflow-x-auto">
-          <button onclick="switchTab('content')" id="tab-content" class="touch-target pb-3 font-bold border-b-4 border-indigo-600 text-indigo-600 px-3 text-sm md:text-base whitespace-nowrap">📚 Ders Özeti ve Görseller</button>
-          <button onclick="switchTab('game')" id="tab-game" class="touch-target pb-3 font-bold text-slate-400 border-b-4 border-transparent px-3 text-sm md:text-base whitespace-nowrap flex items-center space-x-1">
-            <span>🎮 Oyunla Öğrenme</span>
-          </button>
-          <button onclick="switchTab('video')" id="tab-video" class="touch-target pb-3 font-bold text-slate-400 border-b-4 border-transparent px-3 text-sm md:text-base whitespace-nowrap flex items-center space-x-1">
-            <span>🎬 EBA / Video</span>
-          </button>
-          <button onclick="switchTab('quiz')" id="tab-quiz" class="touch-target pb-3 font-bold text-slate-400 border-b-4 border-transparent px-3 text-sm md:text-base whitespace-nowrap flex items-center space-x-1">
-            <span>🎯 Sınıf Tarama Soruları</span>
-            <span id="quiz-count-badge" class="bg-indigo-100 text-indigo-800 text-xs px-2 py-0.5 rounded-full font-black">0</span>
-          </button>
-        </div>
-
-        <!-- İÇERİK VE RESİM PANELİ -->
-        <div id="panel-content" class="space-y-4 min-h-[200px]">
-          <div id="lesson-image-box" class="hidden">
-            <img id="lesson-main-image" src="" alt="Ders Görseli / Kitap Sayfası" class="w-full max-h-[500px] object-contain rounded-2xl border bg-slate-50 shadow-md">
-          </div>
-          <div id="lesson-body" class="prose max-w-none text-slate-700 text-base md:text-lg leading-relaxed"></div>
-        </div>
-
-        <!-- OYUNLA ÖĞRENME PANELİ -->
-        <div id="panel-game" class="hidden min-h-[200px] space-y-6">
-          <div class="bg-indigo-50 border border-indigo-200 rounded-2xl p-4 flex flex-col md:flex-row justify-between items-center gap-3">
-            <div>
-              <h3 class="font-extrabold text-indigo-950 text-lg">🎮 Kavram Eşleştirme Oyunu</h3>
-              <p class="text-xs text-indigo-700">Soldaki kavramı bulun ve sağdaki doğru tanımıyla eşleştirin!</p>
-            </div>
-            <div id="game-score" class="bg-indigo-600 text-white font-black px-4 py-2 rounded-xl text-sm shadow">
-              Puan: 0
-            </div>
-          </div>
-          
-          <div id="game-container" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
-          <div id="game-success-message" class="hidden text-center p-6 bg-emerald-100 border-2 border-emerald-400 rounded-2xl text-emerald-950 font-black text-xl animate-bounce">
-            🎉 TEBRİKLER! Bu haftanın tüm kavramlarını başarıyla öğrendin!
-          </div>
-        </div>
-
-        <!-- VİDEO PANELİ -->
-        <div id="panel-video" class="hidden min-h-[200px] space-y-4">
-          <div id="video-container" class="aspect-video w-full max-w-3xl mx-auto rounded-2xl overflow-hidden bg-black flex items-center justify-center text-white shadow-lg"></div>
-        </div>
-
-        <!-- TEST PANELİ -->
-        <div id="panel-quiz" class="hidden min-h-[200px] space-y-6">
-          <div id="questions-list-container" class="space-y-6"></div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- YÖNETİM VE DÜZENLEME PANELİ -->
-  <div id="admin-panel" class="fixed inset-0 bg-slate-900/80 z-50 hidden flex justify-end">
-    <div class="w-full md:w-[720px] bg-white h-full shadow-2xl flex flex-col border-l border-slate-200">
-      
-      <div class="p-4 bg-indigo-950 text-white flex justify-between items-center">
-        <div>
-          <h3 class="font-bold text-lg">⚙️ Müfredat ve İçerik Düzenleme Paneli</h3>
-          <p class="text-xs text-indigo-300">Öğretmen Yönetim Modülü (Bulut Destekli)</p>
-        </div>
-        <button onclick="closeAdminPanel()" class="text-xl font-bold bg-indigo-900 hover:bg-indigo-800 w-10 h-10 rounded-xl flex items-center justify-center">✕</button>
-      </div>
-
-      <!-- SADECE YÖNETİCİYE ÖZEL İSTATİSTİK / ANALİTİK KARTI -->
-      <div class="bg-indigo-900 text-white p-4 mx-6 mt-6 rounded-2xl border border-indigo-700 shadow-md">
-        <h4 class="text-xs font-black uppercase tracking-wider text-amber-400 mb-3 flex items-center space-x-1">
-          <span>📊</span> <span>Site Ziyaretçi &amp; Etkileşim İstatistikleri</span>
-        </h4>
-        <div class="grid grid-cols-3 gap-2 text-center">
-          <div class="bg-indigo-950/70 p-2.5 rounded-xl border border-indigo-800">
-            <span class="block text-[10px] text-indigo-300 font-bold uppercase">Giriş Sayısı</span>
-            <span id="stat-total-visits" class="text-base md:text-lg font-black text-emerald-400">0</span>
-          </div>
-          <div class="bg-indigo-950/70 p-2.5 rounded-xl border border-indigo-800">
-            <span class="block text-[10px] text-indigo-300 font-bold uppercase">Toplam Tıklama</span>
-            <span id="stat-total-clicks" class="text-base md:text-lg font-black text-amber-300">0</span>
-          </div>
-          <div class="bg-indigo-950/70 p-2.5 rounded-xl border border-indigo-800">
-            <span class="block text-[10px] text-indigo-300 font-bold uppercase">Son Ziyaret</span>
-            <span id="stat-last-visit" class="text-[10px] font-bold text-slate-200 leading-tight block mt-1">-</span>
-          </div>
-        </div>
-      </div>
-
-      <form id="admin-form" onsubmit="saveLesson(event)" class="p-6 flex-grow overflow-y-auto space-y-5">
-        
-        <div class="grid grid-cols-2 gap-3 bg-slate-100 p-3 rounded-xl border">
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Sınıf</label>
-            <select id="form-grade" onchange="loadLessonToForm()" class="w-full border rounded-lg p-2 text-sm font-bold bg-white"></select>
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Hafta / Ünite</label>
-            <select id="form-week" onchange="loadLessonToForm()" class="w-full border rounded-lg p-2 text-sm font-bold bg-white"></select>
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-800 mb-1">Ders Konu Başlığı</label>
-          <input type="text" id="form-title" required class="w-full border rounded-xl p-3 text-sm font-semibold focus:ring-2 focus:ring-indigo-500 outline-none">
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-800 mb-1">MEB Kazanımı</label>
-          <input type="text" id="form-outcome" class="w-full border rounded-xl p-2.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500 outline-none">
-        </div>
-
-        <!-- DOSYA / GÖRSEL YÜKLEME -->
-        <div class="space-y-2 border-t pt-3">
-          <label class="block text-xs font-bold text-slate-800">Ders Afişi / Görsel Yükle</label>
-          <div id="drop-zone" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)" class="border-2 border-dashed border-indigo-200 hover:border-indigo-500 bg-indigo-50/50 rounded-2xl p-4 text-center transition-all">
-            <div class="flex flex-col items-center justify-center space-y-2">
-              <span class="text-3xl">📄</span>
-              <p class="text-xs font-semibold text-slate-600">Bilgisayardan dosya çekin veya sürükleyin</p>
-              <input type="file" id="form-file-input" accept="image/*" onchange="handleFileSelect(event)" class="hidden">
-              <button type="button" onclick="document.getElementById('form-file-input').click()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs shadow">Dosya Seç</button>
-            </div>
-          </div>
-          <div class="flex items-center space-x-2 pt-1">
-            <span class="text-[11px] font-bold text-slate-400">veya URL:</span>
-            <input type="url" id="form-image-url" placeholder="https://..." class="flex-grow border rounded-lg p-1.5 text-xs font-mono">
-          </div>
-          <div id="image-preview-container" class="hidden relative mt-2 border rounded-xl p-2 bg-slate-50 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-              <img id="image-preview" src="" class="w-12 h-12 object-cover rounded-lg border">
-              <span class="text-xs font-bold text-slate-700">Görsel Yüklendi</span>
-            </div>
-            <button type="button" onclick="clearUploadedImage()" class="text-rose-600 font-bold text-xs bg-rose-50 px-2.5 py-1 rounded-lg">Sil</button>
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-800 mb-1">Ders Video URL (EBA / YouTube)</label>
-          <input type="url" id="form-video-url" placeholder="https://www.youtube.com/watch?v=..." class="w-full border rounded-xl p-2.5 text-xs font-mono">
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-800 mb-1">Ders Metni İçeriği</label>
-          <div id="form-body-editor" contenteditable="true" class="p-3 min-h-[140px] max-h-[220px] border rounded-xl bg-white text-sm outline-none overflow-y-auto prose"></div>
-        </div>
-
-        <!-- DİNAMİK OYUN KAVRAMI EDİTÖRÜ -->
-        <div class="border-t pt-4 space-y-3">
-          <div class="flex items-center justify-between">
-            <h4 class="font-bold text-sm text-slate-900">🎮 Bu Haftaya Özel Oyun Kavramları</h4>
-            <button type="button" onclick="addGameTermForm()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg">+ Yeni Kavram Ekle</button>
-          </div>
-          <div id="form-game-terms-editor-list" class="space-y-2"></div>
-        </div>
-
-        <!-- AI & LGS SORU ÜRETİCİ VE SORU EDİTÖRÜ -->
-        <div class="border-t pt-4 space-y-4">
-          <div class="flex flex-wrap items-center justify-between gap-2">
-            <h4 class="font-bold text-sm text-slate-900">Soru Sihirbazı & LGS Havuzu</h4>
-            <div class="flex items-center space-x-2">
-              <div class="flex items-center bg-purple-50 border border-purple-200 rounded-lg p-1 space-x-1">
-                <select id="ai-question-count" class="bg-white border rounded text-xs font-bold p-1">
-                  <option value="1">1 Soru</option>
-                  <option value="3" selected>3 Soru</option>
-                  <option value="5">5 Soru</option>
-                </select>
-                <button type="button" onclick="generateSmartAiQuestion()" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-extrabold px-3 py-1.5 rounded-md flex items-center space-x-1 shadow">
-                  <span>🤖</span> <span id="ai-btn-text">AI / LGS Soru Üret</span>
-                </button>
-              </div>
-              <button type="button" onclick="addManualQuestionForm()" class="bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold px-3 py-2 rounded-lg">+ Manuel Soru</button>
-            </div>
-          </div>
-          <div id="form-questions-editor-list" class="space-y-3"></div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3 pt-2">
-          <button type="button" onclick="previewCurrentForm()" class="touch-target bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl shadow-lg text-sm">👁️ Canlı Önizleme Yap</button>
-          <button type="submit" class="touch-target bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg text-sm">💾 Buluta Kaydet ve Yayınla</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- FOOTER / ALT BİLGİ -->
-  <footer class="bg-slate-900 text-slate-400 text-center py-4 text-xs mt-auto border-t border-slate-800 space-y-1">
-    <div>Milli Eğitim Bakanlığı Türkiye Yüzyılı Maarif Modeli Din Kültürü ve Ahlak Bilgisi Öğretim Programına Uygundur.</div>
-    <div>Bu programın yazarı: <strong class="text-slate-200">Enes Başaran</strong> | İletişim: <a href="mailto:ensbsrn@outlook.com" class="text-indigo-400 hover:underline font-semibold">ensbsrn@outlook.com</a></div>
-  </footer>
-
-  <!-- FIREBASE BULUT VERİTABANI VE SİSTEM MOTORU -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, doc, setDoc, onSnapshot, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyCw8wekTKw3Qn-efTBylldgVsRtKgGlW3c",
-      authDomain: "zaferai.firebaseapp.com",
-      projectId: "zaferai",
-      storageBucket: "zaferai.firebasestorage.app",
-      messagingSenderId: "808774923591",
-      appId: "1:808774923591:web:e8ad9b8b7388ab6eb18862"
+  for (let i = 3; i <= 36; i++) {
+    official8thGradeCurriculum[i] = {
+      title: `8. Sınıf Din Kültürü - ${i}. Hafta LGS Modülü`, outcome: `8.${Math.ceil(i/7)}. LGS Müfredat Kazanımı.`,
+      body: `<p>8. Sınıf LGS ${i}. hafta ders içeriği ve sınav analiz notları.</p>`, videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      gameTerms: [{term: "8.Sınıf Kavram 1", def: "LGS Tanım 1"}, {term: "8.Sınıf Kavram 2", def: "LGS Tanım 2"}],
+      questions: [{ text: `[LGS Örnek Soru] 8. Sınıf ${i}. Hafta LGS sorusu?`, options: ["Doğru Seçenek", "Yanlış Şık", "Yanlış Şık", "Yanlış Şık"], correctIndex: 0 }]
     };
+  }
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const docRef = doc(db, "maarif_portal", "curriculum_db");
-    const analyticsDocRef = doc(db, "maarif_portal", "analytics");
+  window.curriculumData = {
+    5: official5thGradeCurriculum,
+    6: official6thGradeCurriculum,
+    7: official7thGradeCurriculum,
+    8: official8thGradeCurriculum
+  };
 
-    // YÖNETİCİ KİMLİK BİLGİLERİ
-    const ADMIN_CREDENTIALS = {
-      username: "bacharans",
-      password: "enesenes1"
-    };
+  window.selectedGrade = 8;
+  window.activeWeek = 1;
+  window.currentEditingQuestions = [];
+  window.currentEditingGameTerms = [];
+  window.lastQuickQuestionIndex = -1;
 
+  // GİRİŞ MANTIKLARI
+  window.openLoginModal = function() {
+    document.getElementById('login-modal').classList.remove('hidden');
+    document.getElementById('login-error-msg').classList.add('hidden');
+  };
+
+  window.closeLoginModal = function() {
+    document.getElementById('login-modal').classList.add('hidden');
+  };
+
+  window.handleAdminLogin = function(e) {
+    e.preventDefault();
+    const u = document.getElementById('login-username').value.trim();
+    const p = document.getElementById('login-password').value.trim();
+
+    if (u === ADMIN_CREDENTIALS.username && p === ADMIN_CREDENTIALS.password) {
+      window.isAdminLoggedIn = true;
+      window.closeLoginModal();
+      window.updateAdminUI();
+      alert("Başarıyla Yönetici Girişi Yapıldı! Artık içerikleri düzenleyebilirsiniz.");
+    } else {
+      document.getElementById('login-error-msg').classList.remove('hidden');
+    }
+  };
+
+  window.logoutAdmin = function() {
     window.isAdminLoggedIn = false;
+    window.updateAdminUI();
+    window.closeAdminPanel();
+    alert("Yönetici oturumu kapatıldı.");
+  };
 
-    // OTOMATİK ZİYARET VE TIKLAMA SAYACINI BİLDİR
-    async function recordVisit() {
-      try {
-        const nowFormatted = new Date().toLocaleString("tr-TR");
-        await setDoc(analyticsDocRef, {
-          totalVisits: increment(1),
-          lastVisitAt: nowFormatted
-        }, { merge: true });
-      } catch (err) {
-        console.warn("Ziyaret kaydedilemedi:", err);
-      }
-    }
+  window.updateAdminUI = function() {
+    const btnArea = document.getElementById('admin-auth-btn-area');
+    const editBtn = document.getElementById('edit-current-week-btn');
 
-    async function recordClick() {
-      try {
-        await setDoc(analyticsDocRef, {
-          totalClicks: increment(1)
-        }, { merge: true });
-      } catch (err) {
-        console.warn("Tıklama kaydedilemedi:", err);
-      }
-    }
-
-    // Sayfa genelindeki tıklamaları otomatik dinle ve sayacı artır
-    document.addEventListener("click", (e) => {
-      if (e.target.closest("button") || e.target.closest(".game-card") || e.target.closest("a")) {
-        recordClick();
-      }
-    });
-
-    // ANALİTİK VERİLERİNİ LİVE DİNLE
-    onSnapshot(analyticsDocRef, (snap) => {
-      if (snap.exists()) {
-        const data = snap.data();
-        document.getElementById('stat-total-visits').innerText = data.totalVisits || 0;
-        document.getElementById('stat-total-clicks').innerText = data.totalClicks || 0;
-        document.getElementById('stat-last-visit').innerText = data.lastVisitAt || "-";
-      }
-    });
-
-    // 5. SINIF MEB MÜFREDATI
-    const official5thGradeCurriculum = {
-      1: { title: "Evrendeki Mükemmel Düzen ve Ölçü", outcome: "5.1.1. Evrendeki mükemmel düzen ile Allah'ın varlığı arasında bağ kurar.", body: "<h3>Evrendeki Muazzam Uyum</h3><p>Gezegenlerin yörüngelerinden, mevsimlerin ardı ardına gelişine kadar evrendeki hiçbir şey başıboş değildir.</p>", videoUrl: "https://www.youtube.com/watch?v=84QYx9-H-Yk", gameTerms: [{term: "Sünnetullah", def: "Allah'ın evrene koyduğu fiziksel ve biyolojik kanunlar."}, {term: "Düzen", def: "Evrendeki kusursuz uyum ve denge."}], questions: [{ text: "Gök cisimlerinin yörüngelerinden sapmadan dönmesi hangisi ile açıklanır?", options: ["Evrendeki kusursuz düzenle", "Rastlantısal döngülerle", "Doğa olaylarının şansıyla", "Gezegenlerin kendi isteğiyle"], correctIndex: 0 }] },
-      2: { title: "Allah (c.c.) Vardır ve Birdir (Tevhit İnancı)", outcome: "5.1.1. Allah'ın varlığı ve birliği fikrini kavrar.", body: "<h3>Eşi ve Benzeri Olmayan: Allah</h3><p>İslam dininin temel direği Tevhit inancıdır.</p>", videoUrl: "https://www.youtube.com/watch?v=13X8l7Z4B_s", gameTerms: [{term: "Tevhit", def: "Allah'ın tek ve bir olduğuna inanmak."}, {term: "İhlas", def: "Samimiyet ve içtenlikle ibadet etmek."}], questions: [{ text: "Allah'ın bir ve tek olmasına, ortağı olmamasına ne ad verilir?", options: ["İhlas", "Kader", "Tevhit", "Ahlak"], correctIndex: 2 }] }
-    };
-    for (let i = 3; i <= 36; i++) {
-      official5thGradeCurriculum[i] = { title: `5. Sınıf Din Kültürü - ${i}. Hafta`, outcome: `5.${Math.ceil(i/7)}. Öğretim programı kazanımı.`, body: `<p>5. Sınıf ${i}. hafta ders içeriği metni.</p>`, videoUrl: "https://www.youtube.com/watch?v=84QYx9-H-Yk", gameTerms: [{term: "Kavram A", def: "5. Sınıf A Tanımı"}, {term: "Kavram B", def: "5. Sınıf B Tanımı"}], questions: [{ text: `5. Sınıf ${i}. hafta ders konusuyla ilgili hangisi doğrudur?`, options: ["Doğru Bilgi", "Yanlış Şık", "Yanlış Şık", "Yanlış Şık"], correctIndex: 0 }] };
-    }
-
-    // 6. SINIF MEB MÜFREDATI
-    const official6thGradeCurriculum = {};
-    for (let i = 1; i <= 36; i++) {
-      official6thGradeCurriculum[i] = { title: `6. Sınıf Din Kültürü - ${i}. Hafta`, outcome: `6.${Math.ceil(i/7)}. Öğretim programı kazanımı.`, body: `<p>6. Sınıf ${i}. hafta ders içeriği metni.</p>`, videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", gameTerms: [{term: "Kelam", def: "Allah'ın konuşma sıfatı."}, {term: "Vahiy", def: "Allah'ın peygamberlerine gönderdiği mesajlar."}], questions: [{ text: `6. Sınıf ${i}. Hafta konusuna ait örnek soru?`, options: ["Doğru Seçenek", "Yanlış Şık", "Yanlış Şık", "Yanlış Şık"], correctIndex: 0 }] };
-    }
-
-    // 7. SINIF MEB MÜFREDATI
-    const official7thGradeCurriculum = {};
-    for (let i = 1; i <= 36; i++) {
-      official7thGradeCurriculum[i] = { title: `7. Sınıf Din Kültürü - ${i}. Hafta`, outcome: `7.${Math.ceil(i/7)}. Öğretim programı kazanımı.`, body: `<p>7. Sınıf ${i}. hafta ders içeriği metni.</p>`, videoUrl: "https://www.youtube.com/watch?v=84QYx9-H-Yk", gameTerms: [{term: "Melek", def: "Nurdan yaratılmış gözle görülmeyen varlıklar."}, {term: "Ahiret", def: "Ölümden sonraki sonsuz hayat."}], questions: [{ text: `7. Sınıf ${i}. Hafta konusuna ait örnek soru?`, options: ["Doğru Seçenek", "Yanlış Şık", "Yanlış Şık", "Yanlış Şık"], correctIndex: 0 }] };
-    }
-
-    // 8. SINIF LGS MÜFREDATI & LGS ÇIKMIŞ SORU BANKASI
-    const lgsExamQuestionBank = {
-      1: [
-        { text: "[2018 LGS] Hz. Ömer, devlete ait bir işi yaparken devletin mumunu, kendi özel işini yaparken ise kendi mumunu kullanmıştır. Hz. Ömer'in bu davranışı kaderle ilgili hangi kavramla doğrudan ilişkilidir?", options: ["Sorumluluk ve Adalet", "Ecel ve Ömür", "Fiziksel Yasalar", "Rızık ve Tevekkül"], correctIndex: 0 },
-        { text: "[2020 LGS] Evrendeki fiziksel, biyolojik ve toplumsal yasalar Allah'ın takdiriyle gerçekleşir. Buna göre aşağıdakilerden hangisi biyolojik yasalara örnektir?", options: ["Fotosentez ve canlıların üremesi", "Isınan metallerin genleşmesi", "Adaletli toplumlarda huzurun artması", "Suyun 100 derecede kaynaması"], correctIndex: 0 }
-      ],
-      2: [
-        { text: "[2019 LGS] İnsan akıl ve irade sahibi bir varlıktır. Yapacağı eylemleri kendi seçer ve sonuçlarından sorumlu tutulur. Bu durum aşağıdakilerden hangisini gösterir?", options: ["Özgürlük ile sorumluluk arasındaki ilişkiyi", "Külli iradenin sınırlandırılabileceğini", "Ecelin eylemlere bağlı olduğunu", "Toplumsal yasaların önemsizliğini"], correctIndex: 0 }
-      ]
-    };
-
-    const official8thGradeCurriculum = {
-      1: {
-        title: "Kader ve Kaza Kavramları", outcome: "8.1.1. Kader ve kaza kavramlarını açıklar.",
-        body: "<h3>Kader ve Kaza Nedir?</h3><p><b>Kader:</b> Allah'ın ezelden ebede kadar olacak her şeyi önceden bilmesi ve takdir etmesidir.<br><b>Kaza:</b> Zamanı geldiğinde Allah'ın takdir ettiği şeylerin gerçekleşmesidir.</p>",
-        videoUrl: "https://www.youtube.com/watch?v=84QYx9-H-Yk",
-        gameTerms: [{ term: "Kader", def: "Ölçü, miktar, planlama ve takdir etmek." }, { term: "Kaza", def: "Planlanan şeyin zamanı gelince gerçekleşmesi." }, { term: "Sünnetullah", def: "Evrendeki fiziksel, biyolojik ve toplumsal yasalar." }],
-        questions: lgsExamQuestionBank[1]
-      },
-      2: {
-        title: "İnsanın İradesi ve Sorumluluğu", outcome: "8.1.2. İnsanın iradesi ile kader arasında ilişki kurar.",
-        body: "<h3>Küllî İrade ve Cüz'î İrade</h3><p>Allah insanlara seçme özgürlüğü (cüz'î irade) vermiştir. Yapılan seçimlerin sonucunda sorumluluk insana aittir.</p>",
-        videoUrl: "https://www.youtube.com/watch?v=13X8l7Z4B_s",
-        gameTerms: [{ term: "Küllî İrade", def: "Allah'ın sınırsız ve sonsuz iradesi." }, { term: "Cüz'î İrade", def: "İnsana verilen sınırlı seçme özgürlüğü." }, { term: "Sorumluluk", def: "Eylemlerinin sonucunu üstlenme bilinci." }],
-        questions: lgsExamQuestionBank[2]
-      }
-    };
-
-    for (let i = 3; i <= 36; i++) {
-      official8thGradeCurriculum[i] = {
-        title: `8. Sınıf Din Kültürü - ${i}. Hafta LGS Modülü`, outcome: `8.${Math.ceil(i/7)}. LGS Müfredat Kazanımı.`,
-        body: `<p>8. Sınıf LGS ${i}. hafta ders içeriği ve sınav analiz notları.</p>`, videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-        gameTerms: [{term: "8.Sınıf Kavram 1", def: "LGS Tanım 1"}, {term: "8.Sınıf Kavram 2", def: "LGS Tanım 2"}],
-        questions: [{ text: `[LGS Örnek Soru] 8. Sınıf ${i}. Hafta LGS sorusu?`, options: ["Doğru Seçenek", "Yanlış Şık", "Yanlış Şık", "Yanlış Şık"], correctIndex: 0 }]
-      };
-    }
-
-    const defaultCurriculum = {
-      5: official5thGradeCurriculum,
-      6: official6thGradeCurriculum,
-      7: official7thGradeCurriculum,
-      8: official8thGradeCurriculum
-    };
-
-    window.curriculumData = defaultCurriculum;
-    window.selectedGrade = 8;
-    window.activeWeek = 1;
-    window.currentEditingQuestions = [];
-    window.currentEditingGameTerms = [];
-    window.lastQuickQuestionIndex = -1;
-
-    // GİRİŞ MANTIKLARI
-    window.openLoginModal = function() {
-      document.getElementById('login-modal').classList.remove('hidden');
-      document.getElementById('login-error-msg').classList.add('hidden');
-    };
-
-    window.closeLoginModal = function() {
-      document.getElementById('login-modal').classList.add('hidden');
-    };
-
-    window.handleAdminLogin = function(e) {
-      e.preventDefault();
-      const u = document.getElementById('login-username').value.trim();
-      const p = document.getElementById('login-password').value.trim();
-
-      if (u === ADMIN_CREDENTIALS.username && p === ADMIN_CREDENTIALS.password) {
-        window.isAdminLoggedIn = true;
-        window.closeLoginModal();
-        window.updateAdminUI();
-        alert("Başarıyla Yönetici Girişi Yapıldı! Artık içerikleri düzenleyebilirsiniz.");
-      } else {
-        document.getElementById('login-error-msg').classList.remove('hidden');
-      }
-    };
-
-    window.logoutAdmin = function() {
-      window.isAdminLoggedIn = false;
-      window.updateAdminUI();
-      window.closeAdminPanel();
-      alert("Yönetici oturumu kapatıldı.");
-    };
-
-    window.updateAdminUI = function() {
-      const btnArea = document.getElementById('admin-auth-btn-area');
-      const editBtn = document.getElementById('edit-current-week-btn');
-
-      if (window.isAdminLoggedIn) {
-        btnArea.innerHTML = `
-          <div class="flex items-center space-x-2">
-            <span class="text-xs font-black text-amber-300 bg-indigo-900 px-3 py-1.5 rounded-xl border border-amber-500/30 flex items-center space-x-1">
-              <span>👑</span> <span>Yönetici: Enes Başaran</span>
-            </span>
-            <button onclick="logoutAdmin()" class="bg-rose-800 hover:bg-rose-700 text-white font-bold px-3 py-1.5 rounded-xl text-xs transition-all shadow">
-              Çıkış
-            </button>
-          </div>
-        `;
-        if (editBtn) editBtn.classList.remove('hidden');
-      } else {
-        btnArea.innerHTML = `
-          <button onclick="openLoginModal()" class="touch-target bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold px-3.5 py-2 rounded-xl text-xs transition-all flex items-center space-x-1.5 border border-slate-700 shadow">
-            <span>🔐</span> <span class="hidden md:inline">Yönetici Girişi</span>
+    if (window.isAdminLoggedIn) {
+      btnArea.innerHTML = `
+        <div class="flex items-center space-x-2">
+          <span class="text-xs font-black text-amber-300 bg-indigo-900 px-3 py-1.5 rounded-xl border border-amber-500/30 flex items-center space-x-1">
+            <span>👑</span> <span>Yönetici: Enes Başaran</span>
+          </span>
+          <button onclick="logoutAdmin()" class="bg-rose-800 hover:bg-rose-700 text-white font-bold px-3 py-1.5 rounded-xl text-xs transition-all shadow">
+            Çıkış
           </button>
-        `;
-        if (editBtn) editBtn.classList.add('hidden');
-      }
-    };
+        </div>
+      `;
+      if (editBtn) editBtn.classList.remove('hidden');
+    } else {
+      btnArea.innerHTML = `
+        <button onclick="openLoginModal()" class="touch-target bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold px-3.5 py-2 rounded-xl text-xs transition-all flex items-center space-x-1.5 border border-slate-700 shadow">
+          <span>🔐</span> <span class="hidden md:inline">Yönetici Girişi</span>
+        </button>
+      `;
+      if (editBtn) editBtn.classList.add('hidden');
+    }
+  };
 
-    // Bulut Veri Dinleme
-    onSnapshot(docRef, (snapshot) => {
-      const statusEl = document.getElementById('cloud-sync-status');
-      if (snapshot.exists()) {
-        const cloudData = snapshot.data();
-        if (cloudData && cloudData.curriculum) {
-          window.curriculumData = cloudData.curriculum;
-          localStorage.setItem('maarif_curriculum_backup', JSON.stringify(window.curriculumData));
-        }
-        if (statusEl) statusEl.innerHTML = `<span>🟢</span> <span>Bulut Bağlantısı Aktif</span>`;
-      } else {
-        window.saveToCloudDatabase();
+  // BULUT VERİ DİNLEME (Firestore Realtime)
+  onSnapshot(docRef, (snapshot) => {
+    const statusEl = document.getElementById('cloud-sync-status');
+    if (snapshot.exists()) {
+      const cloudData = snapshot.data();
+      if (cloudData && cloudData.curriculum) {
+        window.curriculumData = cloudData.curriculum;
+        localStorage.setItem('maarif_curriculum_backup', JSON.stringify(window.curriculumData));
       }
+      if (statusEl) statusEl.innerHTML = `<span>🟢</span> <span>Bulut Bağlantısı Aktif</span>`;
+    } else {
+      window.saveToCloudDatabase();
+    }
+    refreshCurrentView();
+  }, (error) => {
+    console.error("Bulut Bağlantı Hatası:", error);
+    const statusEl = document.getElementById('cloud-sync-status');
+    if (statusEl) statusEl.innerHTML = `<span>🟡</span> <span>Çevrimdışı Mod</span>`;
+    const localBackup = localStorage.getItem('maarif_curriculum_backup');
+    if (localBackup) {
+      window.curriculumData = JSON.parse(localBackup);
       refreshCurrentView();
-    }, (error) => {
-      console.error("Bulut Bağlantı Hatası:", error);
-      const statusEl = document.getElementById('cloud-sync-status');
-      if (statusEl) statusEl.innerHTML = `<span>🟡</span> <span>Çevrimdışı Mod</span>`;
-      const localBackup = localStorage.getItem('maarif_curriculum_backup');
-      if (localBackup) {
-        window.curriculumData = JSON.parse(localBackup);
-        refreshCurrentView();
-      }
-    });
+    }
+  });
 
-    window.saveToCloudDatabase = async function() {
-      localStorage.setItem('maarif_curriculum_backup', JSON.stringify(window.curriculumData));
-      try {
-        await setDoc(docRef, { curriculum: window.curriculumData }, { merge: true });
-        const statusEl = document.getElementById('cloud-sync-status');
-        if (statusEl) statusEl.innerHTML = `<span>🟢</span> <span>Buluta Kaydedildi</span>`;
-      } catch (err) {
-        console.error("Kaydetme Hatası:", err);
-        alert("Uyarı: Veriler yerel hafızaya kaydedildi ancak bulut sunucusuna iletilemedi.");
-      }
-    };
+  window.saveToCloudDatabase = async function() {
+    localStorage.setItem('maarif_curriculum_backup', JSON.stringify(window.curriculumData));
+    const statusEl = document.getElementById('cloud-sync-status');
+    if (statusEl) statusEl.innerHTML = `<span>⏳</span> <span>Kaydediliyor...</span>`;
+    
+    try {
+      await setDoc(docRef, { curriculum: window.curriculumData }, { merge: true });
+      if (statusEl) statusEl.innerHTML = `<span>🟢</span> <span>Buluta Kaydedildi</span>`;
+      return true;
+    } catch (err) {
+      console.error("Kaydetme Hatası Detayı:", err);
+      if (statusEl) statusEl.innerHTML = `<span>🔴</span> <span>Kayıt Başarısız!</span>`;
+      alert("Bulut Kayıt Hatası!\n\nDetay: " + err.message + "\n\nLütfen görsel boyutunun çok büyük olmadığından emin olun.");
+      return false;
+    }
+  };
 
-    function refreshCurrentView() {
-      const stepWeeks = document.getElementById('step-weeks');
-      const stepLesson = document.getElementById('step-lesson');
-      if (!stepWeeks.classList.contains('hidden')) {
-        window.selectGrade(window.selectedGrade);
-      } else if (!stepLesson.classList.contains('hidden')) {
-        const data = window.curriculumData[window.selectedGrade]?.[window.activeWeek];
-        window.openLesson(window.activeWeek, data);
-      }
+  function refreshCurrentView() {
+    const stepWeeks = document.getElementById('step-weeks');
+    const stepLesson = document.getElementById('step-lesson');
+    if (!stepWeeks.classList.contains('hidden')) {
+      window.selectGrade(window.selectedGrade);
+    } else if (!stepLesson.classList.contains('hidden')) {
+      const data = window.curriculumData[window.selectedGrade]?.[window.activeWeek];
+      window.openLesson(window.activeWeek, data);
+    }
+  }
+
+  // EKRAN GEÇİŞ & İŞLEV FONKSİYONLARI
+  window.setupGradeOptions = function() {
+    const gSelect = document.getElementById('form-grade');
+    gSelect.innerHTML = '<option value="5">5. Sınıf</option><option value="6">6. Sınıf</option><option value="7">7. Sınıf</option><option value="8">8. Sınıf (LGS)</option>';
+    const wSelect = document.getElementById('form-week');
+    wSelect.innerHTML = '';
+    for (let i = 1; i <= 36; i++) {
+      wSelect.innerHTML += `<option value="${i}">${i}. Hafta / Ünite</option>`;
+    }
+  };
+
+  window.selectGrade = function(grade) {
+    window.selectedGrade = grade;
+    document.getElementById('step-grade').classList.add('hidden');
+    document.getElementById('step-weeks').classList.remove('hidden');
+    document.getElementById('selected-grade-title').innerText = `${grade}. Sınıf MEB Müfredat Planı (36 Hafta)`;
+
+    const grid = document.getElementById('weeks-grid');
+    grid.innerHTML = '';
+
+    for (let w = 1; w <= 36; w++) {
+      const lesson = window.curriculumData[grade]?.[w];
+      const isFilled = !!(lesson && lesson.title);
+      const qCount = lesson?.questions?.length || 0;
+
+      const card = document.createElement('button');
+      card.className = `touch-target p-5 rounded-2xl shadow-sm border transition-all text-left flex flex-col justify-between active:scale-95 ${
+        isFilled ? 'bg-white border-slate-200 hover:border-indigo-500 hover:shadow-md' : 'bg-slate-100 border-dashed border-slate-300 opacity-60'
+      }`;
+
+      card.onclick = () => { window.openLesson(w, lesson); };
+
+      card.innerHTML = `
+        <div class="w-full">
+          <span class="text-xs font-bold px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-700">${w}. Hafta</span>
+          <h4 class="text-sm font-extrabold text-slate-800 mt-2 line-clamp-2">${isFilled ? lesson.title : 'İçerik Girilmemiş'}</h4>
+        </div>
+        <div class="mt-4 flex items-center justify-between w-full text-[11px] font-bold">
+          <span class="text-purple-700 bg-purple-50 px-2 py-0.5 rounded-md">🎯 ${qCount} Soru</span>
+          <span class="text-indigo-600">Aç ve İncele →</span>
+        </div>
+      `;
+      grid.appendChild(card);
+    }
+  };
+
+  window.openLesson = function(week, data) {
+    window.activeWeek = week;
+    window.lastQuickQuestionIndex = -1;
+    document.getElementById('step-weeks').classList.add('hidden');
+    document.getElementById('step-lesson').classList.remove('hidden');
+
+    document.getElementById('lesson-badge').innerText = `${window.selectedGrade}. Sınıf / ${week}. Hafta`;
+    document.getElementById('lesson-title').innerText = data?.title || "Konu Başlığı Girilmemiş";
+    document.getElementById('lesson-outcome').innerText = "MEB Kazanımı: " + (data?.outcome || "Genel müfredat kazanımı.");
+    document.getElementById('lesson-body').innerHTML = data?.body || "<p>Bu ders için henüz metin özeti eklenmemiştir.</p>";
+
+    const imgBox = document.getElementById('lesson-image-box');
+    const imgTag = document.getElementById('lesson-main-image');
+    if (data?.imageUrl) {
+      imgTag.src = data.imageUrl;
+      imgBox.classList.remove('hidden');
+    } else {
+      imgBox.classList.add('hidden');
     }
 
-    // Ekran Geçiş & İşlev Fonksiyonları
-    window.setupGradeOptions = function() {
-      const gSelect = document.getElementById('form-grade');
-      gSelect.innerHTML = '<option value="5">5. Sınıf</option><option value="6">6. Sınıf</option><option value="7">7. Sınıf</option><option value="8">8. Sınıf (LGS)</option>';
-      const wSelect = document.getElementById('form-week');
-      wSelect.innerHTML = '';
-      for (let i = 1; i <= 36; i++) {
-        wSelect.innerHTML += `<option value="${i}">${i}. Hafta / Ünite</option>`;
-      }
-    };
-
-    window.selectGrade = function(grade) {
-      window.selectedGrade = grade;
-      document.getElementById('step-grade').classList.add('hidden');
-      document.getElementById('step-weeks').classList.remove('hidden');
-      document.getElementById('selected-grade-title').innerText = `${grade}. Sınıf MEB Müfredat Planı (36 Hafta)`;
-
-      const grid = document.getElementById('weeks-grid');
-      grid.innerHTML = '';
-
-      for (let w = 1; w <= 36; w++) {
-        const lesson = window.curriculumData[grade]?.[w];
-        const isFilled = !!(lesson && lesson.title);
-        const qCount = lesson?.questions?.length || 0;
-
-        const card = document.createElement('button');
-        card.className = `touch-target p-5 rounded-2xl shadow-sm border transition-all text-left flex flex-col justify-between active:scale-95 ${
-          isFilled ? 'bg-white border-slate-200 hover:border-indigo-500 hover:shadow-md' : 'bg-slate-100 border-dashed border-slate-300 opacity-60'
-        }`;
-
-        card.onclick = () => { window.openLesson(w, lesson); };
-
-        card.innerHTML = `
-          <div class="w-full">
-            <span class="text-xs font-bold px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-700">${w}. Hafta</span>
-            <h4 class="text-sm font-extrabold text-slate-800 mt-2 line-clamp-2">${isFilled ? lesson.title : 'İçerik Girilmemiş'}</h4>
-          </div>
-          <div class="mt-4 flex items-center justify-between w-full text-[11px] font-bold">
-            <span class="text-purple-700 bg-purple-50 px-2 py-0.5 rounded-md">🎯 ${qCount} Soru</span>
-            <span class="text-indigo-600">Aç ve İncele →</span>
-          </div>
-        `;
-        grid.appendChild(card);
-      }
-    };
-
-    window.openLesson = function(week, data) {
-      window.activeWeek = week;
-      window.lastQuickQuestionIndex = -1;
-      document.getElementById('step-weeks').classList.add('hidden');
-      document.getElementById('step-lesson').classList.remove('hidden');
-
-      document.getElementById('lesson-badge').innerText = `${window.selectedGrade}. Sınıf / ${week}. Hafta`;
-      document.getElementById('lesson-title').innerText = data?.title || "Konu Başlığı Girilmemiş";
-      document.getElementById('lesson-outcome').innerText = "MEB Kazanımı: " + (data?.outcome || "Genel müfredat kazanımı.");
-      document.getElementById('lesson-body').innerHTML = data?.body || "<p>Bu ders için henüz metin özeti eklenmemiştir.</p>";
-
-      const imgBox = document.getElementById('lesson-image-box');
-      const imgTag = document.getElementById('lesson-main-image');
-      if (data?.imageUrl) {
-        imgTag.src = data.imageUrl;
-        imgBox.classList.remove('hidden');
+    const videoBox = document.getElementById('video-container');
+    if (data?.videoUrl) {
+      let vidId = window.getYoutubeId(data.videoUrl);
+      if (vidId) {
+        videoBox.innerHTML = `<iframe src="https://www.youtube.com/embed/${vidId}" class="w-full h-full border-0" allowfullscreen></iframe>`;
       } else {
-        imgBox.classList.add('hidden');
+        videoBox.innerHTML = `<div class="p-6 text-slate-400 text-center">Video linki geçersiz.</div>`;
       }
+    } else {
+      videoBox.innerHTML = `<div class="p-6 text-slate-400 text-center flex flex-col items-center"><span class="text-4xl mb-2">🎬</span><span>Bu haftaya henüz video eklenmemiş.</span></div>`;
+    }
 
-      const videoBox = document.getElementById('video-container');
-      if (data?.videoUrl) {
-        let vidId = window.getYoutubeId(data.videoUrl);
-        if (vidId) {
-          videoBox.innerHTML = `<iframe src="https://www.youtube.com/embed/${vidId}" class="w-full h-full border-0" allowfullscreen></iframe>`;
-        } else {
-          videoBox.innerHTML = `<div class="p-6 text-slate-400 text-center">Video linki geçersiz.</div>`;
-        }
-      } else {
-        videoBox.innerHTML = `<div class="p-6 text-slate-400 text-center flex flex-col items-center"><span class="text-4xl mb-2">🎬</span><span>Bu haftaya henüz video eklenmemiş.</span></div>`;
-      }
+    const qList = data?.questions || [];
+    document.getElementById('quiz-count-badge').innerText = qList.length;
+    const qContainer = document.getElementById('questions-list-container');
+    qContainer.innerHTML = '';
 
-      const qList = data?.questions || [];
-      document.getElementById('quiz-count-badge').innerText = qList.length;
-      const qContainer = document.getElementById('questions-list-container');
-      qContainer.innerHTML = '';
-
-      if (qList.length === 0) {
-        qContainer.innerHTML = `<p class="p-4 text-center text-slate-400 font-bold">Bu haftaya henüz soru eklenmedi.</p>`;
-      } else {
-        qList.forEach((q, qIdx) => {
-          const div = document.createElement('div');
-          div.className = "bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-3 shadow-sm";
-          div.innerHTML = `
-            <div class="font-extrabold text-slate-900 text-base">Soru ${qIdx + 1}: ${q.text}</div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              ${q.options.map((opt, oIdx) => `
-                <button onclick="window.solveInLesson(${qIdx}, ${oIdx}, ${q.correctIndex})" id="lesson-btn-${qIdx}-${oIdx}" class="touch-target text-left p-3 bg-white border border-slate-200 rounded-xl font-medium hover:border-indigo-500 transition-all text-sm">
-                  ${String.fromCharCode(65 + oIdx)}) ${opt}
-                </button>
-              `).join('')}
-            </div>
-            <div id="lesson-feedback-${qIdx}" class="hidden p-3 rounded-xl text-center font-bold text-sm"></div>
-          `;
-          qContainer.appendChild(div);
-        });
-      }
-
-      window.initGame(data?.gameTerms || []);
-      window.switchTab('content');
-      window.updateAdminUI();
-    };
-
-    window.initGame = function(terms) {
-      const container = document.getElementById('game-container');
-      const scoreTag = document.getElementById('game-score');
-      const msg = document.getElementById('game-success-message');
-      
-      container.innerHTML = '';
-      msg.classList.add('hidden');
-      scoreTag.innerText = "Puan: 0";
-
-      if (!terms || terms.length === 0) {
-        container.innerHTML = `<div class="col-span-2 text-center p-8 bg-slate-100 rounded-2xl font-bold text-slate-500">Bu hafta için tanımlanmış oyun kavramı bulunamadı.</div>`;
-        return;
-      }
-
-      let termList = terms.map((item, idx) => ({ id: idx, text: item.term }));
-      let defList = terms.map((item, idx) => ({ id: idx, text: item.def }));
-
-      termList.sort(() => Math.random() - 0.5);
-      defList.sort(() => Math.random() - 0.5);
-
-      let termCol = document.createElement('div');
-      termCol.className = "space-y-3";
-      termCol.innerHTML = `<h4 class="font-extrabold text-xs uppercase tracking-wider text-slate-500 mb-2">Kavramlar</h4>`;
-
-      termList.forEach(t => {
-        termCol.innerHTML += `
-          <div onclick="window.selectTerm(this, ${t.id})" id="term-card-${t.id}" class="game-card p-4 bg-white border-2 border-indigo-100 rounded-2xl font-black text-indigo-950 text-sm md:text-base shadow-sm">
-            📌 ${t.text}
-          </div>
-        `;
-      });
-
-      let defCol = document.createElement('div');
-      defCol.className = "space-y-3";
-      defCol.innerHTML = `<h4 class="font-extrabold text-xs uppercase tracking-wider text-slate-500 mb-2">Açıklamalar / Tanımlar</h4>`;
-
-      defList.forEach(d => {
-        defCol.innerHTML += `
-          <div onclick="window.selectDef(this, ${d.id})" id="def-card-${d.id}" class="game-card p-4 bg-white border-2 border-slate-200 rounded-2xl font-medium text-slate-700 text-xs md:text-sm shadow-sm">
-            💡 ${d.text}
-          </div>
-        `;
-      });
-
-      container.appendChild(termCol);
-      container.appendChild(defCol);
-    };
-
-    let selectedTermCard = null;
-    let selectedDefCard = null;
-    let currentGameScore = 0;
-
-    window.selectTerm = function(el, id) {
-      if (el.classList.contains('matched')) return;
-      document.querySelectorAll('#game-container [id^="term-card-"]').forEach(c => c.classList.remove('selected'));
-      el.classList.add('selected');
-      selectedTermCard = { el, id };
-      window.checkGameMatch();
-    };
-
-    window.selectDef = function(el, id) {
-      if (el.classList.contains('matched')) return;
-      document.querySelectorAll('#game-container [id^="def-card-"]').forEach(c => c.classList.remove('selected'));
-      el.classList.add('selected');
-      selectedDefCard = { el, id };
-      window.checkGameMatch();
-    };
-
-    window.checkGameMatch = function() {
-      if (selectedTermCard && selectedDefCard) {
-        if (selectedTermCard.id === selectedDefCard.id) {
-          selectedTermCard.el.className = "game-card matched p-4 border-2 rounded-2xl font-black text-emerald-900 text-sm md:text-base";
-          selectedDefCard.el.className = "game-card matched p-4 border-2 rounded-2xl font-medium text-emerald-900 text-xs md:text-sm";
-          
-          currentGameScore += 100;
-          document.getElementById('game-score').innerText = `Puan: ${currentGameScore}`;
-        } else {
-          let tEl = selectedTermCard.el;
-          let dEl = selectedDefCard.el;
-          tEl.classList.add('border-rose-500', 'bg-rose-50');
-          dEl.classList.add('border-rose-500', 'bg-rose-50');
-
-          setTimeout(() => {
-            tEl.classList.remove('selected', 'border-rose-500', 'bg-rose-50');
-            dEl.classList.remove('selected', 'border-rose-500', 'bg-rose-50');
-          }, 600);
-        }
-        selectedTermCard = null;
-        selectedDefCard = null;
-      }
-    };
-
-    window.solveInLesson = function(qIdx, selected, correct) {
-      for (let i = 0; i < 4; i++) {
-        let b = document.getElementById(`lesson-btn-${qIdx}-${i}`);
-        if (b) b.className = "touch-target text-left p-3 bg-white border border-slate-200 text-slate-400 rounded-xl font-medium text-sm";
-      }
-      let selBtn = document.getElementById(`lesson-btn-${qIdx}-${selected}`);
-      let fb = document.getElementById(`lesson-feedback-${qIdx}`);
-      fb.classList.remove('hidden');
-
-      if (selected === correct) {
-        selBtn.className = "touch-target text-left p-3 bg-emerald-600 border border-emerald-600 text-white rounded-xl font-bold text-sm shadow-md";
-        fb.innerText = "🎉 TEBRİKLER! DOĞRU CEVAP.";
-        fb.className = "p-3 rounded-xl text-center font-bold text-sm bg-emerald-100 text-emerald-900";
-      } else {
-        selBtn.className = "touch-target text-left p-3 bg-rose-600 border border-rose-600 text-white rounded-xl font-bold text-sm shadow-md";
-        document.getElementById(`lesson-btn-${qIdx}-${correct}`).className = "touch-target text-left p-3 bg-emerald-100 border border-emerald-400 text-emerald-900 rounded-xl font-bold text-sm";
-        fb.innerText = "❌ YANLIŞ CEVAP. Tekrar inceleyebilirsin.";
-        fb.className = "p-3 rounded-xl text-center font-bold text-sm bg-rose-100 text-rose-900";
-      }
-    };
-
-    window.triggerQuickQuestionForCurrentWeek = function() {
-      const currentLessonData = window.curriculumData[window.selectedGrade]?.[window.activeWeek];
-      const qList = currentLessonData?.questions || [];
-
-      if (qList.length === 0) {
-        alert(`Bu haftaya (${window.activeWeek}. Hafta) henüz soru eklenmemiş!`);
-        return;
-      }
-
-      let randomIndex = Math.floor(Math.random() * qList.length);
-      if (qList.length > 1 && randomIndex === window.lastQuickQuestionIndex) {
-        randomIndex = (randomIndex + 1) % qList.length;
-      }
-      window.lastQuickQuestionIndex = randomIndex;
-
-      const randomTarget = qList[randomIndex];
-      const qZone = document.getElementById('quick-quiz-zone');
-      const qBox = document.getElementById('quick-question-box');
-
-      qZone.classList.remove('hidden');
-      qZone.scrollIntoView({ behavior: 'smooth' });
-
-      qBox.innerHTML = `
-        <div class="bg-indigo-950/60 p-3 rounded-xl border border-white/10 mb-2 flex justify-between text-xs font-bold text-amber-400">
-          <span>Konu: ${window.selectedGrade}. Sınıf - ${currentLessonData.title}</span>
-          <span>${window.activeWeek}. Hafta Özel Sorusu (Soru ${randomIndex + 1}/${qList.length})</span>
-        </div>
-        <div class="text-lg md:text-xl font-bold text-white mb-4 bg-slate-900/40 p-4 rounded-xl border border-slate-700">${randomTarget.text}</div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-          ${randomTarget.options.map((opt, idx) => `
-            <button onclick="window.checkQuickAnswer(${idx}, ${randomTarget.correctIndex})" id="quick-opt-${idx}" class="touch-target text-left p-4 bg-white/10 hover:bg-white/20 border border-white/20 rounded-2xl font-semibold text-white transition-all text-base active:scale-95">
-              ${String.fromCharCode(65 + idx)}) ${opt}
-            </button>
-          `).join('')}
-        </div>
-        <div id="quick-feedback" class="hidden text-center text-lg font-black p-4 rounded-2xl shadow-lg mt-3"></div>
-      `;
-    };
-
-    window.checkQuickAnswer = function(selected, correct) {
-      for (let i = 0; i < 4; i++) {
-        let b = document.getElementById(`quick-opt-${i}`);
-        if (b) b.className = "touch-target text-left p-4 bg-white/5 border border-white/10 text-white/40 rounded-2xl font-semibold text-base";
-      }
-
-      const selBtn = document.getElementById(`quick-opt-${selected}`);
-      const fb = document.getElementById('quick-feedback');
-      fb.classList.remove('hidden');
-
-      if (selected === correct) {
-        selBtn.className = "touch-target text-left p-4 bg-emerald-600 border border-emerald-500 text-white font-black text-lg rounded-2xl shadow-xl";
-        fb.innerText = "🌟 MUHTEŞEM! DOĞRU CEVAP VERDİN. 100 PUAN! 🌟";
-        fb.className = "text-center text-lg font-black p-4 rounded-2xl shadow-lg mt-3 bg-emerald-500 text-slate-950 border-2 border-white animate-bounce";
-      } else {
-        selBtn.className = "touch-target text-left p-4 bg-rose-600 border border-rose-500 text-white font-bold rounded-2xl";
-        let cBtn = document.getElementById(`quick-opt-${correct}`);
-        if (cBtn) cBtn.className = "touch-target text-left p-4 bg-emerald-500/30 border-2 border-emerald-400 text-emerald-200 font-black rounded-2xl";
-        fb.innerText = "💥 Sağlık Olsun! Doğru Cevap Yeşil Renkle Gösterildi.";
-        fb.className = "text-center text-sm font-black p-4 rounded-2xl shadow-lg mt-3 bg-rose-900 text-rose-200 border border-rose-700";
-      }
-    };
-
-    window.closeQuickQuiz = function() {
-      document.getElementById('quick-quiz-zone').classList.add('hidden');
-    };
-
-    window.openAdminPanel = function() {
-      if (!window.isAdminLoggedIn) {
-        window.openLoginModal();
-        return;
-      }
-      document.getElementById('form-grade').value = window.selectedGrade;
-      document.getElementById('form-week').value = window.activeWeek;
-      window.loadLessonToForm();
-      document.getElementById('admin-panel').classList.remove('hidden');
-    };
-
-    window.openAdminPanelForCurrentWeek = function() {
-      window.openAdminPanel();
-    };
-
-    window.closeAdminPanel = function() {
-      document.getElementById('admin-panel').classList.add('hidden');
-    };
-
-    window.loadLessonToForm = function() {
-      const g = document.getElementById('form-grade').value;
-      const w = document.getElementById('form-week').value;
-      const data = window.curriculumData[g]?.[w] || {};
-
-      document.getElementById('form-title').value = data.title || "";
-      document.getElementById('form-outcome').value = data.outcome || "";
-      document.getElementById('form-image-url').value = data.imageUrl || "";
-      
-      if (data.imageUrl) {
-        window.showImagePreview(data.imageUrl);
-      } else {
-        window.clearUploadedImage();
-      }
-
-      document.getElementById('form-video-url').value = data.videoUrl || "";
-      document.getElementById('form-body-editor').innerHTML = data.body || "";
-      
-      window.currentEditingQuestions = data.questions ? JSON.parse(JSON.stringify(data.questions)) : [];
-      window.currentEditingGameTerms = data.gameTerms ? JSON.parse(JSON.stringify(data.gameTerms)) : [];
-      
-      window.renderFormQuestions();
-      window.renderFormGameTerms();
-    };
-
-    window.saveLesson = async function(e) {
-      e.preventDefault();
-      if (!window.isAdminLoggedIn) {
-        alert("Yetkisiz işlem! Değişiklik yapmak için yönetici girişi yapmalısınız.");
-        return;
-      }
-      const g = document.getElementById('form-grade').value;
-      const w = document.getElementById('form-week').value;
-
-      if (!window.curriculumData[g]) window.curriculumData[g] = {};
-      window.curriculumData[g][w] = {
-        title: document.getElementById('form-title').value,
-        outcome: document.getElementById('form-outcome').value,
-        imageUrl: document.getElementById('form-image-url').value,
-        videoUrl: document.getElementById('form-video-url').value,
-        body: document.getElementById('form-body-editor').innerHTML,
-        questions: window.currentEditingQuestions,
-        gameTerms: window.currentEditingGameTerms
-      };
-
-      await window.saveToCloudDatabase();
-      alert("Haftalık Ders, Görseller ve Soru Bankası Bulut Veritabanına Kaydedildi!");
-      window.closeAdminPanel();
-      window.selectGrade(g);
-    };
-
-    window.generateSmartAiQuestion = function() {
-      const count = parseInt(document.getElementById('ai-question-count').value) || 1;
-      const topicTitle = document.getElementById('form-title').value || "Genel Din Kültürü";
-
-      const generalBank = [
-        { text: `"${topicTitle}" konusu düşünüldüğünde, bir müminin sergilemesi gereken en temel ahlaki yaklaşım hangisidir?`, options: ["İhlas ve dürüstlük", "Gösteriş ve kibir", "Sorumluluktan kaçma", "Bencillik"], correctIndex: 0 },
-        { text: `Aşağıdakilerden hangisi "${topicTitle}" dersindeki temel öğretilerin toplumsal hayata sağladığı faydalardandır?`, options: ["Karşılıklı sevgi ve adaleti pekiştirmesi", "İnsanlar arası iletişimi koparması", "Sadece bireysel çıkara odaklanması", "Gelenekleri tamamen yok etmesi"], correctIndex: 0 }
-      ];
-
-      for (let i = 0; i < count; i++) {
-        window.currentEditingQuestions.push(JSON.parse(JSON.stringify(generalBank[i % generalBank.length])));
-      }
-      window.renderFormQuestions();
-    };
-
-    window.addManualQuestionForm = function() {
-      window.currentEditingQuestions.push({ text: "Soru metnini yazınız...", options: ["A Şıkkı", "B Şıkkı", "C Şıkkı", "D Şıkkı"], correctIndex: 0 });
-      window.renderFormQuestions();
-    };
-
-    window.renderFormQuestions = function() {
-      const c = document.getElementById('form-questions-editor-list');
-      c.innerHTML = '';
-      window.currentEditingQuestions.forEach((q, idx) => {
-        const d = document.createElement('div');
-        d.className = "p-3 bg-slate-50 border rounded-xl space-y-2 text-xs shadow-sm";
-        d.innerHTML = `
-          <div class="flex justify-between font-bold text-slate-800">
-            <span>Soru #${idx+1}</span>
-            <button type="button" onclick="window.currentEditingQuestions.splice(${idx},1); window.renderFormQuestions();" class="text-rose-600 hover:underline">Sil</button>
-          </div>
-          <input type="text" value="${q.text}" onchange="window.currentEditingQuestions[${idx}].text=this.value" class="w-full p-2 border rounded font-semibold bg-white">
-          <div class="grid grid-cols-2 gap-2 pt-1">
-            ${q.options.map((o, oi) => `
-              <div class="flex items-center space-x-1">
-                <input type="radio" name="form_c_${idx}" ${q.correctIndex===oi?'checked':''} onchange="window.currentEditingQuestions[${idx}].correctIndex=${oi}">
-                <input type="text" value="${o}" onchange="window.currentEditingQuestions[${idx}].options[${oi}]=this.value" class="w-full border p-1 text-[11px] rounded bg-white">
-              </div>
+    if (qList.length === 0) {
+      qContainer.innerHTML = `<p class="p-4 text-center text-slate-400 font-bold">Bu haftaya henüz soru eklenmedi.</p>`;
+    } else {
+      qList.forEach((q, qIdx) => {
+        const div = document.createElement('div');
+        div.className = "bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-3 shadow-sm";
+        div.innerHTML = `
+          <div class="font-extrabold text-slate-900 text-base">Soru ${qIdx + 1}: ${q.text}</div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            ${q.options.map((opt, oIdx) => `
+              <button onclick="window.solveInLesson(${qIdx}, ${oIdx}, ${q.correctIndex})" id="lesson-btn-${qIdx}-${oIdx}" class="touch-target text-left p-3 bg-white border border-slate-200 rounded-xl font-medium hover:border-indigo-500 transition-all text-sm">
+                ${String.fromCharCode(65 + oIdx)}) ${opt}
+              </button>
             `).join('')}
           </div>
+          <div id="lesson-feedback-${qIdx}" class="hidden p-3 rounded-xl text-center font-bold text-sm"></div>
         `;
-        c.appendChild(d);
+        qContainer.appendChild(div);
       });
-    };
+    }
 
-    window.addGameTermForm = function() {
-      window.currentEditingGameTerms.push({ term: "Yeni Kavram", def: "Tanımı ve Açıklaması" });
-      window.renderFormGameTerms();
-    };
+    window.initGame(data?.gameTerms || []);
+    window.switchTab('content');
+    window.updateAdminUI();
+  };
 
-    window.renderFormGameTerms = function() {
-      const c = document.getElementById('form-game-terms-editor-list');
-      c.innerHTML = '';
-      if (window.currentEditingGameTerms.length === 0) {
-        c.innerHTML = `<p class="text-xs text-slate-400 italic">Henüz oyun kavramı eklenmedi.</p>`;
-        return;
+  window.initGame = function(terms) {
+    const container = document.getElementById('game-container');
+    const scoreTag = document.getElementById('game-score');
+    const msg = document.getElementById('game-success-message');
+    
+    container.innerHTML = '';
+    msg.classList.add('hidden');
+    scoreTag.innerText = "Puan: 0";
+
+    if (!terms || terms.length === 0) {
+      container.innerHTML = `<div class="col-span-2 text-center p-8 bg-slate-100 rounded-2xl font-bold text-slate-500">Bu hafta için tanımlanmış oyun kavramı bulunamadı.</div>`;
+      return;
+    }
+
+    let termList = terms.map((item, idx) => ({ id: idx, text: item.term }));
+    let defList = terms.map((item, idx) => ({ id: idx, text: item.def }));
+
+    termList.sort(() => Math.random() - 0.5);
+    defList.sort(() => Math.random() - 0.5);
+
+    let termCol = document.createElement('div');
+    termCol.className = "space-y-3";
+    termCol.innerHTML = `<h4 class="font-extrabold text-xs uppercase tracking-wider text-slate-500 mb-2">Kavramlar</h4>`;
+
+    termList.forEach(t => {
+      termCol.innerHTML += `
+        <div onclick="window.selectTerm(this, ${t.id})" id="term-card-${t.id}" class="game-card p-4 bg-white border-2 border-indigo-100 rounded-2xl font-black text-indigo-950 text-sm md:text-base shadow-sm">
+          📌 ${t.text}
+        </div>
+      `;
+    });
+
+    let defCol = document.createElement('div');
+    defCol.className = "space-y-3";
+    defCol.innerHTML = `<h4 class="font-extrabold text-xs uppercase tracking-wider text-slate-500 mb-2">Açıklamalar / Tanımlar</h4>`;
+
+    defList.forEach(d => {
+      defCol.innerHTML += `
+        <div onclick="window.selectDef(this, ${d.id})" id="def-card-${d.id}" class="game-card p-4 bg-white border-2 border-slate-200 rounded-2xl font-medium text-slate-700 text-xs md:text-sm shadow-sm">
+          💡 ${d.text}
+        </div>
+      `;
+    });
+
+    container.appendChild(termCol);
+    container.appendChild(defCol);
+  };
+
+  let selectedTermCard = null;
+  let selectedDefCard = null;
+  let currentGameScore = 0;
+
+  window.selectTerm = function(el, id) {
+    if (el.classList.contains('matched')) return;
+    document.querySelectorAll('#game-container [id^="term-card-"]').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedTermCard = { el, id };
+    window.checkGameMatch();
+  };
+
+  window.selectDef = function(el, id) {
+    if (el.classList.contains('matched')) return;
+    document.querySelectorAll('#game-container [id^="def-card-"]').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedDefCard = { el, id };
+    window.checkGameMatch();
+  };
+
+  window.checkGameMatch = function() {
+    if (selectedTermCard && selectedDefCard) {
+      if (selectedTermCard.id === selectedDefCard.id) {
+        selectedTermCard.el.className = "game-card matched p-4 border-2 rounded-2xl font-black text-emerald-900 text-sm md:text-base";
+        selectedDefCard.el.className = "game-card matched p-4 border-2 rounded-2xl font-medium text-emerald-900 text-xs md:text-sm";
+        
+        currentGameScore += 100;
+        document.getElementById('game-score').innerText = `Puan: ${currentGameScore}`;
+      } else {
+        let tEl = selectedTermCard.el;
+        let dEl = selectedDefCard.el;
+        tEl.classList.add('border-rose-500', 'bg-rose-50');
+        dEl.classList.add('border-rose-500', 'bg-rose-50');
+
+        setTimeout(() => {
+          tEl.classList.remove('selected', 'border-rose-500', 'bg-rose-50');
+          dEl.classList.remove('selected', 'border-rose-500', 'bg-rose-50');
+        }, 600);
       }
-      window.currentEditingGameTerms.forEach((item, idx) => {
-        const d = document.createElement('div');
-        d.className = "flex items-center space-x-2 bg-slate-100 p-2 rounded-lg text-xs";
-        d.innerHTML = `
-          <input type="text" value="${item.term}" placeholder="Kavram" onchange="window.currentEditingGameTerms[${idx}].term=this.value" class="w-1/3 border p-1 rounded font-bold bg-white">
-          <input type="text" value="${item.def}" placeholder="Tanımı" onchange="window.currentEditingGameTerms[${idx}].def=this.value" class="flex-grow border p-1 rounded bg-white">
-          <button type="button" onclick="window.currentEditingGameTerms.splice(${idx},1); window.renderFormGameTerms();" class="text-rose-600 font-bold px-1">✕</button>
-        `;
-        c.appendChild(d);
-      });
+      selectedTermCard = null;
+      selectedDefCard = null;
+    }
+  };
+
+  window.solveInLesson = function(qIdx, selected, correct) {
+    for (let i = 0; i < 4; i++) {
+      let b = document.getElementById(`lesson-btn-${qIdx}-${i}`);
+      if (b) b.className = "touch-target text-left p-3 bg-white border border-slate-200 text-slate-400 rounded-xl font-medium text-sm";
+    }
+    let selBtn = document.getElementById(`lesson-btn-${qIdx}-${selected}`);
+    let fb = document.getElementById(`lesson-feedback-${qIdx}`);
+    fb.classList.remove('hidden');
+
+    if (selected === correct) {
+      selBtn.className = "touch-target text-left p-3 bg-emerald-600 border border-emerald-600 text-white rounded-xl font-bold text-sm shadow-md";
+      fb.innerText = "🎉 TEBRİKLER! DOĞRU CEVAP.";
+      fb.className = "p-3 rounded-xl text-center font-bold text-sm bg-emerald-100 text-emerald-900";
+    } else {
+      selBtn.className = "touch-target text-left p-3 bg-rose-600 border border-rose-600 text-white rounded-xl font-bold text-sm shadow-md";
+      document.getElementById(`lesson-btn-${qIdx}-${correct}`).className = "touch-target text-left p-3 bg-emerald-100 border border-emerald-400 text-emerald-900 rounded-xl font-bold text-sm";
+      fb.innerText = "❌ YANLIŞ CEVAP. Tekrar inceleyebilirsin.";
+      fb.className = "p-3 rounded-xl text-center font-bold text-sm bg-rose-100 text-rose-900";
+    }
+  };
+
+  window.triggerQuickQuestionForCurrentWeek = function() {
+    const currentLessonData = window.curriculumData[window.selectedGrade]?.[window.activeWeek];
+    const qList = currentLessonData?.questions || [];
+
+    if (qList.length === 0) {
+      alert(`Bu haftaya (${window.activeWeek}. Hafta) henüz soru eklenmemiş!`);
+      return;
+    }
+
+    let randomIndex = Math.floor(Math.random() * qList.length);
+    if (qList.length > 1 && randomIndex === window.lastQuickQuestionIndex) {
+      randomIndex = (randomIndex + 1) % qList.length;
+    }
+    window.lastQuickQuestionIndex = randomIndex;
+
+    const randomTarget = qList[randomIndex];
+    const qZone = document.getElementById('quick-quiz-zone');
+    const qBox = document.getElementById('quick-question-box');
+
+    qZone.classList.remove('hidden');
+    qZone.scrollIntoView({ behavior: 'smooth' });
+
+    qBox.innerHTML = `
+      <div class="bg-indigo-950/60 p-3 rounded-xl border border-white/10 mb-2 flex justify-between text-xs font-bold text-amber-400">
+        <span>Konu: ${window.selectedGrade}. Sınıf - ${currentLessonData.title}</span>
+        <span>${window.activeWeek}. Hafta Özel Sorusu (Soru ${randomIndex + 1}/${qList.length})</span>
+      </div>
+      <div class="text-lg md:text-xl font-bold text-white mb-4 bg-slate-900/40 p-4 rounded-xl border border-slate-700">${randomTarget.text}</div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        ${randomTarget.options.map((opt, idx) => `
+          <button onclick="window.checkQuickAnswer(${idx}, ${randomTarget.correctIndex})" id="quick-opt-${idx}" class="touch-target text-left p-4 bg-white/10 hover:bg-white/20 border border-white/20 rounded-2xl font-semibold text-white transition-all text-base active:scale-95">
+            ${String.fromCharCode(65 + idx)}) ${opt}
+          </button>
+        `).join('')}
+      </div>
+      <div id="quick-feedback" class="hidden text-center text-lg font-black p-4 rounded-2xl shadow-lg mt-3"></div>
+    `;
+  };
+
+  window.checkQuickAnswer = function(selected, correct) {
+    for (let i = 0; i < 4; i++) {
+      let b = document.getElementById(`quick-opt-${i}`);
+      if (b) b.className = "touch-target text-left p-4 bg-white/5 border border-white/10 text-white/40 rounded-2xl font-semibold text-base";
+    }
+
+    const selBtn = document.getElementById(`quick-opt-${selected}`);
+    const fb = document.getElementById('quick-feedback');
+    fb.classList.remove('hidden');
+
+    if (selected === correct) {
+      selBtn.className = "touch-target text-left p-4 bg-emerald-600 border border-emerald-500 text-white font-black text-lg rounded-2xl shadow-xl";
+      fb.innerText = "🌟 MUHTEŞEM! DOĞRU CEVAP VERDİN. 100 PUAN! 🌟";
+      fb.className = "text-center text-lg font-black p-4 rounded-2xl shadow-lg mt-3 bg-emerald-500 text-slate-950 border-2 border-white animate-bounce";
+    } else {
+      selBtn.className = "touch-target text-left p-4 bg-rose-600 border border-rose-500 text-white font-bold rounded-2xl";
+      let cBtn = document.getElementById(`quick-opt-${correct}`);
+      if (cBtn) cBtn.className = "touch-target text-left p-4 bg-emerald-500/30 border-2 border-emerald-400 text-emerald-200 font-black rounded-2xl";
+      fb.innerText = "💥 Sağlık Olsun! Doğru Cevap Yeşil Renkle Gösterildi.";
+      fb.className = "text-center text-sm font-black p-4 rounded-2xl shadow-lg mt-3 bg-rose-900 text-rose-200 border border-rose-700";
+    }
+  };
+
+  window.closeQuickQuiz = function() {
+    document.getElementById('quick-quiz-zone').classList.add('hidden');
+  };
+
+  window.openAdminPanel = function() {
+    if (!window.isAdminLoggedIn) {
+      window.openLoginModal();
+      return;
+    }
+    document.getElementById('form-grade').value = window.selectedGrade;
+    document.getElementById('form-week').value = window.activeWeek;
+    window.loadLessonToForm();
+    document.getElementById('admin-panel').classList.remove('hidden');
+  };
+
+  window.openAdminPanelForCurrentWeek = function() {
+    window.openAdminPanel();
+  };
+
+  window.closeAdminPanel = function() {
+    document.getElementById('admin-panel').classList.add('hidden');
+  };
+
+  window.loadLessonToForm = function() {
+    const g = document.getElementById('form-grade').value;
+    const w = document.getElementById('form-week').value;
+    const data = window.curriculumData[g]?.[w] || {};
+
+    document.getElementById('form-title').value = data.title || "";
+    document.getElementById('form-outcome').value = data.outcome || "";
+    document.getElementById('form-image-url').value = data.imageUrl || "";
+    
+    if (data.imageUrl) {
+      window.showImagePreview(data.imageUrl);
+    } else {
+      window.clearUploadedImage();
+    }
+
+    document.getElementById('form-video-url').value = data.videoUrl || "";
+    document.getElementById('form-body-editor').innerHTML = data.body || "";
+    
+    window.currentEditingQuestions = data.questions ? JSON.parse(JSON.stringify(data.questions)) : [];
+    window.currentEditingGameTerms = data.gameTerms ? JSON.parse(JSON.stringify(data.gameTerms)) : [];
+    
+    window.renderFormQuestions();
+    window.renderFormGameTerms();
+  };
+
+  // KERSİZ VE BOYUTU DÜŞÜRÜLMÜŞ KAYDETME İŞLEMİ
+  window.saveLesson = async function(e) {
+    if (e) e.preventDefault();
+    
+    if (!window.isAdminLoggedIn) {
+      alert("Yetkisiz işlem! Değişiklik yapmak için yönetici girişi yapmalısınız.");
+      return;
+    }
+
+    const g = document.getElementById('form-grade').value;
+    const w = document.getElementById('form-week').value;
+
+    if (!window.curriculumData[g]) window.curriculumData[g] = {};
+    
+    window.curriculumData[g][w] = {
+      title: document.getElementById('form-title').value,
+      outcome: document.getElementById('form-outcome').value,
+      imageUrl: document.getElementById('form-image-url').value,
+      videoUrl: document.getElementById('form-video-url').value,
+      body: document.getElementById('form-body-editor').innerHTML,
+      questions: window.currentEditingQuestions,
+      gameTerms: window.currentEditingGameTerms
     };
 
-    window.processFile = function(file) {
-      if (!file || !file.type.startsWith('image/')) {
-        alert("Lütfen geçerli bir resim dosyası seçin.");
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const base64Url = e.target.result;
-        document.getElementById('form-image-url').value = base64Url;
-        window.showImagePreview(base64Url);
-      };
-      reader.readAsDataURL(file);
-    };
-
-    window.handleFileSelect = function(e) {
-      const file = e.target.files[0];
-      window.processFile(file);
-    };
-
-    window.handleDragOver = function(e) {
-      e.preventDefault();
-      document.getElementById('drop-zone').classList.add('drag-active');
-    };
-
-    window.handleDragLeave = function(e) {
-      e.preventDefault();
-      document.getElementById('drop-zone').classList.remove('drag-active');
-    };
-
-    window.handleDrop = function(e) {
-      e.preventDefault();
-      document.getElementById('drop-zone').classList.remove('drag-active');
-      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-        window.processFile(e.dataTransfer.files[0]);
-      }
-    };
-
-    window.showImagePreview = function(url) {
-      if (!url) return;
-      document.getElementById('image-preview').src = url;
-      document.getElementById('image-preview-container').classList.remove('hidden');
-    };
-
-    window.clearUploadedImage = function() {
-      document.getElementById('form-image-url').value = "";
-      document.getElementById('form-file-input').value = "";
-      document.getElementById('image-preview').src = "";
-      document.getElementById('image-preview-container').classList.add('hidden');
-    };
-
-    window.previewCurrentForm = function() {
-      const mockData = {
-        title: document.getElementById('form-title').value,
-        outcome: document.getElementById('form-outcome').value,
-        imageUrl: document.getElementById('form-image-url').value,
-        videoUrl: document.getElementById('form-video-url').value,
-        body: document.getElementById('form-body-editor').innerHTML,
-        questions: window.currentEditingQuestions,
-        gameTerms: window.currentEditingGameTerms
-      };
+    const isSuccess = await window.saveToCloudDatabase();
+    if (isSuccess) {
+      alert("Haftalık Ders, Görseller ve Soru Bankası Başarıyla Bulut Veritabanına Kaydedildi!");
       window.closeAdminPanel();
-      window.openLesson(document.getElementById('form-week').value, mockData);
-    };
+      window.selectGrade(g);
+    }
+  };
 
-    window.switchTab = function(tab) {
-      ['content', 'game', 'video', 'quiz'].forEach(t => {
-        document.getElementById(`panel-${t}`).classList.add('hidden');
-        document.getElementById(`tab-${t}`).className = "touch-target pb-3 font-bold text-slate-400 border-b-4 border-transparent px-3 text-sm md:text-base flex items-center space-x-1";
-      });
-      document.getElementById(`panel-${tab}`).classList.remove('hidden');
-      document.getElementById(`tab-${tab}`).className = "touch-target pb-3 font-black border-b-4 border-indigo-600 text-indigo-600 px-3 text-sm md:text-base flex items-center space-x-1";
-    };
+  window.generateSmartAiQuestion = function() {
+    const count = parseInt(document.getElementById('ai-question-count').value) || 1;
+    const topicTitle = document.getElementById('form-title').value || "Genel Din Kültürü";
 
-    window.getYoutubeId = function(url) {
-      if (!url) return null;
-      let id = "";
-      if (url.includes("v=")) id = url.split("v=")[1].split("&")[0];
-      else if (url.includes("youtu.be/")) id = url.split("youtu.be/")[1].split("?")[0];
-      return id || null;
-    };
+    const generalBank = [
+      { text: `"${topicTitle}" konusu düşünüldüğünde, bir müminin sergilemesi gereken en temel ahlaki yaklaşım hangisidir?`, options: ["İhlas ve dürüstlük", "Gösteriş ve kibir", "Sorumluluktan kaçma", "Bencillik"], correctIndex: 0 },
+      { text: `Aşağıdakilerden hangisi "${topicTitle}" dersindeki temel öğretilerin toplumsal hayata sağladığı faydalardandır?`, options: ["Karşılıklı sevgi ve adaleti pekiştirmesi", "İnsanlar arası iletişimi koparması", "Sadece bireysel çıkara odaklanması", "Gelenekleri tamamen yok etmesi"], correctIndex: 0 }
+    ];
 
-    window.goHome = function() {
-      document.getElementById('step-weeks').classList.add('hidden');
-      document.getElementById('step-lesson').classList.add('hidden');
-      document.getElementById('step-grade').classList.remove('hidden');
-    };
+    for (let i = 0; i < count; i++) {
+      window.currentEditingQuestions.push(JSON.parse(JSON.stringify(generalBank[i % generalBank.length])));
+    }
+    window.renderFormQuestions();
+  };
 
-    window.goBack = function(id) {
-      document.getElementById('step-grade').classList.add('hidden');
-      document.getElementById('step-weeks').classList.add('hidden');
-      document.getElementById('step-lesson').classList.add('hidden');
-      document.getElementById(id).classList.remove('hidden');
-      if (id === 'step-weeks') window.selectGrade(window.selectedGrade);
-    };
+  window.addManualQuestionForm = function() {
+    window.currentEditingQuestions.push({ text: "Soru metnini yazınız...", options: ["A Şıkkı", "B Şıkkı", "C Şıkkı", "D Şıkkı"], correctIndex: 0 });
+    window.renderFormQuestions();
+  };
 
-    window.onload = function() {
-      window.setupGradeOptions();
-      window.updateAdminUI();
-      recordVisit();
+  window.renderFormQuestions = function() {
+    const c = document.getElementById('form-questions-editor-list');
+    c.innerHTML = '';
+    window.currentEditingQuestions.forEach((q, idx) => {
+      const d = document.createElement('div');
+      d.className = "p-3 bg-slate-50 border rounded-xl space-y-2 text-xs shadow-sm";
+      d.innerHTML = `
+        <div class="flex justify-between font-bold text-slate-800">
+          <span>Soru #${idx+1}</span>
+          <button type="button" onclick="window.currentEditingQuestions.splice(${idx},1); window.renderFormQuestions();" class="text-rose-600 hover:underline">Sil</button>
+        </div>
+        <input type="text" value="${q.text}" onchange="window.currentEditingQuestions[${idx}].text=this.value" class="w-full p-2 border rounded font-semibold bg-white">
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          ${q.options.map((o, oi) => `
+            <div class="flex items-center space-x-1">
+              <input type="radio" name="form_c_${idx}" ${q.correctIndex===oi?'checked':''} onchange="window.currentEditingQuestions[${idx}].correctIndex=${oi}">
+              <input type="text" value="${o}" onchange="window.currentEditingQuestions[${idx}].options[${oi}]=this.value" class="w-full border p-1 text-[11px] rounded bg-white">
+            </div>
+          `).join('')}
+        </div>
+      `;
+      c.appendChild(d);
+    });
+  };
+
+  window.addGameTermForm = function() {
+    window.currentEditingGameTerms.push({ term: "Yeni Kavram", def: "Tanımı ve Açıklaması" });
+    window.renderFormGameTerms();
+  };
+
+  window.renderFormGameTerms = function() {
+    const c = document.getElementById('form-game-terms-editor-list');
+    c.innerHTML = '';
+    if (window.currentEditingGameTerms.length === 0) {
+      c.innerHTML = `<p class="text-xs text-slate-400 italic">Henüz oyun kavramı eklenmedi.</p>`;
+      return;
+    }
+    window.currentEditingGameTerms.forEach((item, idx) => {
+      const d = document.createElement('div');
+      d.className = "flex items-center space-x-2 bg-slate-100 p-2 rounded-lg text-xs";
+      d.innerHTML = `
+        <input type="text" value="${item.term}" placeholder="Kavram" onchange="window.currentEditingGameTerms[${idx}].term=this.value" class="w-1/3 border p-1 rounded font-bold bg-white">
+        <input type="text" value="${item.def}" placeholder="Tanımı" onchange="window.currentEditingGameTerms[${idx}].def=this.value" class="flex-grow border p-1 rounded bg-white">
+        <button type="button" onclick="window.currentEditingGameTerms.splice(${idx},1); window.renderFormGameTerms();" class="text-rose-600 font-bold px-1">✕</button>
+      `;
+      c.appendChild(d);
+    });
+  };
+
+  // RESİM BOYUTUNU CANLI OTOMATİK SIKIŞTIRMA (Firestore 1 MB Sınırını Aşmamak İçin)
+  window.processFile = function(file) {
+    if (!file || !file.type.startsWith('image/')) {
+      alert("Lütfen geçerli bir resim dosyası seçin.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const img = new Image();
+      img.onload = function() {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        const maxDimension = 900; // Maksimum genişlik veya yükseklik
+
+        if (width > height) {
+          if (width > maxDimension) {
+            height *= maxDimension / width;
+            width = maxDimension;
+          }
+        } else {
+          if (height > maxDimension) {
+            width *= maxDimension / height;
+            height = maxDimension;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // JPEG formatında %70 kalite ile sıkıştır
+        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+        document.getElementById('form-image-url').value = compressedBase64;
+        window.showImagePreview(compressedBase64);
+      };
+      img.src = e.target.result;
     };
-  </script>
-</body>
-</html>
+    reader.readAsDataURL(file);
+  };
+
+  window.handleFileSelect = function(e) {
+    const file = e.target.files[0];
+    window.processFile(file);
+  };
+
+  window.handleDragOver = function(e) {
+    e.preventDefault();
+    document.getElementById('drop-zone').classList.add('drag-active');
+  };
+
+  window.handleDragLeave = function(e) {
+    e.preventDefault();
+    document.getElementById('drop-zone').classList.remove('drag-active');
+  };
+
+  window.handleDrop = function(e) {
+    e.preventDefault();
+    document.getElementById('drop-zone').classList.remove('drag-active');
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      window.processFile(e.dataTransfer.files[0]);
+    }
+  };
+
+  window.showImagePreview = function(url) {
+    if (!url) return;
+    document.getElementById('image-preview').src = url;
+    document.getElementById('image-preview-container').classList.remove('hidden');
+  };
+
+  window.clearUploadedImage = function() {
+    document.getElementById('form-image-url').value = "";
+    document.getElementById('form-file-input').value = "";
+    document.getElementById('image-preview').src = "";
+    document.getElementById('image-preview-container').classList.add('hidden');
+  };
+
+  window.previewCurrentForm = function() {
+    const mockData = {
+      title: document.getElementById('form-title').value,
+      outcome: document.getElementById('form-outcome').value,
+      imageUrl: document.getElementById('form-image-url').value,
+      videoUrl: document.getElementById('form-video-url').value,
+      body: document.getElementById('form-body-editor').innerHTML,
+      questions: window.currentEditingQuestions,
+      gameTerms: window.currentEditingGameTerms
+    };
+    window.closeAdminPanel();
+    window.openLesson(document.getElementById('form-week').value, mockData);
+  };
+
+  window.switchTab = function(tab) {
+    ['content', 'game', 'video', 'quiz'].forEach(t => {
+      document.getElementById(`panel-${t}`).classList.add('hidden');
+      document.getElementById(`tab-${t}`).className = "touch-target pb-3 font-bold text-slate-400 border-b-4 border-transparent px-3 text-sm md:text-base flex items-center space-x-1";
+    });
+    document.getElementById(`panel-${tab}`).classList.remove('hidden');
+    document.getElementById(`tab-${tab}`).className = "touch-target pb-3 font-black border-b-4 border-indigo-600 text-indigo-600 px-3 text-sm md:text-base flex items-center space-x-1";
+  };
+
+  window.getYoutubeId = function(url) {
+    if (!url) return null;
+    let id = "";
+    if (url.includes("v=")) id = url.split("v=")[1].split("&")[0];
+    else if (url.includes("youtu.be/")) id = url.split("youtu.be/")[1].split("?")[0];
+    return id || null;
+  };
+
+  window.goHome = function() {
+    document.getElementById('step-weeks').classList.add('hidden');
+    document.getElementById('step-lesson').classList.add('hidden');
+    document.getElementById('step-grade').classList.remove('hidden');
+  };
+
+  window.goBack = function(id) {
+    document.getElementById('step-grade').classList.add('hidden');
+    document.getElementById('step-weeks').classList.add('hidden');
+    document.getElementById('step-lesson').classList.add('hidden');
+    document.getElementById(id).classList.remove('hidden');
+    if (id === 'step-weeks') window.selectGrade(window.selectedGrade);
+  };
+
+  window.onload = function() {
+    window.setupGradeOptions();
+    window.updateAdminUI();
+    recordVisit();
+  };
+</script>
