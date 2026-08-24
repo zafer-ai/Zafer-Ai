@@ -14,7 +14,6 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
-  const docRef = doc(db, "maarif_portal", "curriculum_db");
   const analyticsDocRef = doc(db, "maarif_portal", "analytics");
 
   const ADMIN_CREDENTIALS = {
@@ -24,27 +23,18 @@
 
   window.isAdminLoggedIn = false;
 
-  // OTOMATİK ZİYARET VE TIKLAMA SAYACINI BİLDİR
+  // ANALİTİK VE TIKLAMA
   async function recordVisit() {
     try {
       const nowFormatted = new Date().toLocaleString("tr-TR");
-      await setDoc(analyticsDocRef, {
-        totalVisits: increment(1),
-        lastVisitAt: nowFormatted
-      }, { merge: true });
-    } catch (err) {
-      console.warn("Ziyaret kaydedilemedi:", err);
-    }
+      await setDoc(analyticsDocRef, { totalVisits: increment(1), lastVisitAt: nowFormatted }, { merge: true });
+    } catch (err) { console.warn("Ziyaret kaydedilemedi:", err); }
   }
 
   async function recordClick() {
     try {
-      await setDoc(analyticsDocRef, {
-        totalClicks: increment(1)
-      }, { merge: true });
-    } catch (err) {
-      console.warn("Tıklama kaydedilemedi:", err);
-    }
+      await setDoc(analyticsDocRef, { totalClicks: increment(1) }, { merge: true });
+    } catch (err) { console.warn("Tıklama kaydedilemedi:", err); }
   }
 
   document.addEventListener("click", (e) => {
@@ -62,66 +52,28 @@
     }
   });
 
-  // VARSAYILAN MÜFREDAT TANIMLARI
-  const official5thGradeCurriculum = {
-    1: { title: "Evrendeki Mükemmel Düzen ve Ölçü", outcome: "5.1.1. Evrendeki mükemmel düzen ile Allah'ın varlığı arasında bağ kurar.", body: "<h3>Evrendeki Muazzam Uyum</h3><p>Gezegenlerin yörüngelerinden, mevsimlerin ardı ardına gelişine kadar evrendeki hiçbir şey başıboş değildir.</p>", videoUrl: "https://www.youtube.com/watch?v=84QYx9-H-Yk", gameTerms: [{term: "Sünnetullah", def: "Allah'ın evrene koyduğu fiziksel ve biyolojik kanunlar."}, {term: "Düzen", def: "Evrendeki kusursuz uyum ve denge."}], questions: [{ text: "Gök cisimlerinin yörüngelerinden sapmadan dönmesi hangisi ile açıklanır?", options: ["Evrendeki kusursuz düzenle", "Rastlantısal döngülerle", "Doğa olaylarının şansıyla", "Gezegenlerin kendi isteğiyle"], correctIndex: 0 }] },
-    2: { title: "Allah (c.c.) Vardır ve Birdir (Tevhit İnancı)", outcome: "5.1.1. Allah'ın varlığı ve birliği fikrini kavrar.", body: "<h3>Eşi ve Benzeri Olmayan: Allah</h3><p>İslam dininin temel direği Tevhit inancıdır.</p>", videoUrl: "https://www.youtube.com/watch?v=13X8l7Z4B_s", gameTerms: [{term: "Tevhit", def: "Allah'ın tek ve bir olduğuna inanmak."}, {term: "İhlas", def: "Samimiyet ve içtenlikle ibadet etmek."}], questions: [{ text: "Allah'ın bir ve tek olmasına, ortağı olmamasına ne ad verilir?", options: ["İhlas", "Kader", "Tevhit", "Ahlak"], correctIndex: 2 }] }
-  };
-  for (let i = 3; i <= 36; i++) {
-    official5thGradeCurriculum[i] = { title: `5. Sınıf Din Kültürü - ${i}. Hafta`, outcome: `5.${Math.ceil(i/7)}. Öğretim programı kazanımı.`, body: `<p>5. Sınıf ${i}. hafta ders içeriği metni.</p>`, videoUrl: "https://www.youtube.com/watch?v=84QYx9-H-Yk", gameTerms: [{term: "Kavram A", def: "5. Sınıf A Tanımı"}, {term: "Kavram B", def: "5. Sınıf B Tanımı"}], questions: [{ text: `5. Sınıf ${i}. hafta ders konusuyla ilgili hangisi doğrudur?`, options: ["Doğru Bilgi", "Yanlış Şık", "Yanlış Şık", "Yanlış Şık"], correctIndex: 0 }] };
-  }
-
-  const official6thGradeCurriculum = {};
-  for (let i = 1; i <= 36; i++) {
-    official6thGradeCurriculum[i] = { title: `6. Sınıf Din Kültürü - ${i}. Hafta`, outcome: `6.${Math.ceil(i/7)}. Öğretim programı kazanımı.`, body: `<p>6. Sınıf ${i}. hafta ders içeriği metni.</p>`, videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", gameTerms: [{term: "Kelam", def: "Allah'ın konuşma sıfatı."}, {term: "Vahiy", def: "Allah'ın peygamberlerine gönderdiği mesajlar."}], questions: [{ text: `6. Sınıf ${i}. Hafta konusuna ait örnek soru?`, options: ["Doğru Seçenek", "Yanlış Şık", "Yanlış Şık", "Yanlış Şık"], correctIndex: 0 }] };
-  }
-
-  const official7thGradeCurriculum = {};
-  for (let i = 1; i <= 36; i++) {
-    official7thGradeCurriculum[i] = { title: `7. Sınıf Din Kültürü - ${i}. Hafta`, outcome: `7.${Math.ceil(i/7)}. Öğretim programı kazanımı.`, body: `<p>7. Sınıf ${i}. hafta ders içeriği metni.</p>`, videoUrl: "https://www.youtube.com/watch?v=84QYx9-H-Yk", gameTerms: [{term: "Melek", def: "Nurdan yaratılmış gözle görülmeyen varlıklar."}, {term: "Ahiret", def: "Ölümden sonraki sonsuz hayat."}], questions: [{ text: `7. Sınıf ${i}. Hafta konusuna ait örnek soru?`, options: ["Doğru Seçenek", "Yanlış Şık", "Yanlış Şık", "Yanlış Şık"], correctIndex: 0 }] };
-  }
-
-  const lgsExamQuestionBank = {
-    1: [
-      { text: "[2018 LGS] Hz. Ömer, devlete ait bir işi yaparken devletin mumunu, kendi özel işini yaparken ise kendi mumunu kullanmıştır. Hz. Ömer'in bu davranışı kaderle ilgili hangi kavramla doğrudan ilişkilidir?", options: ["Sorumluluk ve Adalet", "Ecel ve Ömür", "Fiziksel Yasalar", "Rızık ve Tevekkül"], correctIndex: 0 },
-      { text: "[2020 LGS] Evrendeki fiziksel, biyolojik ve toplumsal yasalar Allah'ın takdiriyle gerçekleşir. Buna göre aşağıdakilerden hangisi biyolojik yasalara örnektir?", options: ["Fotosentez ve canlıların üremesi", "Isınan metallerin genleşmesi", "Adaletli toplumlarda huzurun artması", "Suyun 100 derecede kaynaması"], correctIndex: 0 }
-    ],
-    2: [
-      { text: "[2019 LGS] İnsan akıl ve irade sahibi bir varlıktır. Yapacağı eylemleri kendi seçer ve sonuçlarından sorumlu tutulur. Bu durum aşağıdakilerden hangisini gösterir?", options: ["Özgürlük ile sorumluluk arasındaki ilişkiyi", "Külli iradenin sınırlandırılabileceğini", "Ecelin eylemlere bağlı olduğunu", "Toplumsal yasaların önemsizliğini"], correctIndex: 0 }
-    ]
-  };
-
-  const official8thGradeCurriculum = {
-    1: {
-      title: "Kader ve Kaza Kavramları", outcome: "8.1.1. Kader ve kaza kavramlarını açıklar.",
-      body: "<h3>Kader ve Kaza Nedir?</h3><p><b>Kader:</b> Allah'ın ezelden ebede kadar olacak her şeyi önceden bilmesi ve takdir etmesidir.<br><b>Kaza:</b> Zamanı geldiğinde Allah'ın takdir ettiği şeylerin gerçekleşmesidir.</p>",
-      videoUrl: "https://www.youtube.com/watch?v=84QYx9-H-Yk",
-      gameTerms: [{ term: "Kader", def: "Ölçü, miktar, planlama ve takdir etmek." }, { term: "Kaza", def: "Planlanan şeyin zamanı gelince gerçekleşmesi." }, { term: "Sünnetullah", def: "Evrendeki fiziksel, biyolojik ve toplumsal yasalar." }],
-      questions: lgsExamQuestionBank[1]
-    },
-    2: {
-      title: "İnsanın İradesi ve Sorumluluğu", outcome: "8.1.2. İnsanın iradesi ile kader arasında ilişki kurar.",
-      body: "<h3>Küllî İrade ve Cüz'î İrade</h3><p>Allah insanlara seçme özgürlüğü (cüz'î irade) vermiştir. Yapılan seçimlerin sonucunda sorumluluk insana aittir.</p>",
-      videoUrl: "https://www.youtube.com/watch?v=13X8l7Z4B_s",
-      gameTerms: [{ term: "Küllî İrade", def: "Allah'ın sınırsız ve sonsuz iradesi." }, { term: "Cüz'î İrade", def: "İnsana verilen sınırlı seçme özgürlüğü." }, { term: "Sorumluluk", def: "Eylemlerinin sonucunu üstlenme bilinci." }],
-      questions: lgsExamQuestionBank[2]
+  // VARSAYILAN ŞABLONLAR
+  function generateDefaultGradeData(gradeNum) {
+    const data = {};
+    for (let i = 1; i <= 36; i++) {
+      data[i] = {
+        title: `${gradeNum}. Sınıf Din Kültürü - ${i}. Hafta`,
+        outcome: `${gradeNum}.${Math.ceil(i/7)}. Öğretim programı kazanımı.`,
+        body: `<p>${gradeNum}. Sınıf ${i}. hafta ders içeriği metni.</p>`,
+        videoUrl: "https://www.youtube.com/watch?v=84QYx9-H-Yk",
+        imageUrl: "",
+        gameTerms: [{term: "Kavram", def: "Açıklama"}],
+        questions: [{ text: `${gradeNum}. Sınıf ${i}. hafta örnek soru?`, options: ["Doğru Seçenek", "Yanlış Şık", "Yanlış Şık", "Yanlış Şık"], correctIndex: 0 }]
+      };
     }
-  };
-
-  for (let i = 3; i <= 36; i++) {
-    official8thGradeCurriculum[i] = {
-      title: `8. Sınıf Din Kültürü - ${i}. Hafta LGS Modülü`, outcome: `8.${Math.ceil(i/7)}. LGS Müfredat Kazanımı.`,
-      body: `<p>8. Sınıf LGS ${i}. hafta ders içeriği ve sınav analiz notları.</p>`, videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-      gameTerms: [{term: "8.Sınıf Kavram 1", def: "LGS Tanım 1"}, {term: "8.Sınıf Kavram 2", def: "LGS Tanım 2"}],
-      questions: [{ text: `[LGS Örnek Soru] 8. Sınıf ${i}. Hafta LGS sorusu?`, options: ["Doğru Seçenek", "Yanlış Şık", "Yanlış Şık", "Yanlış Şık"], correctIndex: 0 }]
-    };
+    return data;
   }
 
   window.curriculumData = {
-    5: official5thGradeCurriculum,
-    6: official6thGradeCurriculum,
-    7: official7thGradeCurriculum,
-    8: official8thGradeCurriculum
+    5: generateDefaultGradeData(5),
+    6: generateDefaultGradeData(6),
+    7: generateDefaultGradeData(7),
+    8: generateDefaultGradeData(8)
   };
 
   window.selectedGrade = 8;
@@ -130,7 +82,7 @@
   window.currentEditingGameTerms = [];
   window.lastQuickQuestionIndex = -1;
 
-  // GİRİŞ MANTIKLARI
+  // YÖNETİCİ GİRİŞİ
   window.openLoginModal = function() {
     document.getElementById('login-modal').classList.remove('hidden');
     document.getElementById('login-error-msg').classList.add('hidden');
@@ -149,7 +101,7 @@
       window.isAdminLoggedIn = true;
       window.closeLoginModal();
       window.updateAdminUI();
-      alert("Başarıyla Yönetici Girişi Yapıldı! Artık içerikleri düzenleyebilirsiniz.");
+      alert("Yönetici Girişi Başarılı!");
     } else {
       document.getElementById('login-error-msg').classList.remove('hidden');
     }
@@ -188,44 +140,41 @@
     }
   };
 
-  // BULUT VERİ DİNLEME (Firestore Realtime)
-  onSnapshot(docRef, (snapshot) => {
-    const statusEl = document.getElementById('cloud-sync-status');
-    if (snapshot.exists()) {
-      const cloudData = snapshot.data();
-      if (cloudData && cloudData.curriculum) {
-        window.curriculumData = cloudData.curriculum;
-        localStorage.setItem('maarif_curriculum_backup', JSON.stringify(window.curriculumData));
+  // HER SINIF İÇİN AYRI DOKÜMAN DİNLEME (1MB Limit Çözümü)
+  [5, 6, 7, 8].forEach(grade => {
+    const gradeDocRef = doc(db, "maarif_portal", `grade_${grade}`);
+    onSnapshot(gradeDocRef, (snap) => {
+      const statusEl = document.getElementById('cloud-sync-status');
+      if (snap.exists() && snap.data().weeks) {
+        window.curriculumData[grade] = snap.data().weeks;
+        localStorage.setItem(`maarif_backup_g${grade}`, JSON.stringify(snap.data().weeks));
+        if (statusEl) statusEl.innerHTML = `<span>🟢</span> <span>Bulut Bağlantısı Aktif</span>`;
+      } else {
+        window.saveGradeToCloud(grade);
       }
-      if (statusEl) statusEl.innerHTML = `<span>🟢</span> <span>Bulut Bağlantısı Aktif</span>`;
-    } else {
-      window.saveToCloudDatabase();
-    }
-    refreshCurrentView();
-  }, (error) => {
-    console.error("Bulut Bağlantı Hatası:", error);
-    const statusEl = document.getElementById('cloud-sync-status');
-    if (statusEl) statusEl.innerHTML = `<span>🟡</span> <span>Çevrimdışı Mod</span>`;
-    const localBackup = localStorage.getItem('maarif_curriculum_backup');
-    if (localBackup) {
-      window.curriculumData = JSON.parse(localBackup);
       refreshCurrentView();
-    }
+    }, (error) => {
+      console.error(`Sınıf ${grade} Okuma Hatası:`, error);
+      const backup = localStorage.getItem(`maarif_backup_g${grade}`);
+      if (backup) window.curriculumData[grade] = JSON.parse(backup);
+      refreshCurrentView();
+    });
   });
 
-  window.saveToCloudDatabase = async function() {
-    localStorage.setItem('maarif_curriculum_backup', JSON.stringify(window.curriculumData));
+  window.saveGradeToCloud = async function(grade) {
     const statusEl = document.getElementById('cloud-sync-status');
     if (statusEl) statusEl.innerHTML = `<span>⏳</span> <span>Kaydediliyor...</span>`;
     
     try {
-      await setDoc(docRef, { curriculum: window.curriculumData }, { merge: true });
+      const gradeDocRef = doc(db, "maarif_portal", `grade_${grade}`);
+      await setDoc(gradeDocRef, { weeks: window.curriculumData[grade] }, { merge: true });
+      localStorage.setItem(`maarif_backup_g${grade}`, JSON.stringify(window.curriculumData[grade]));
       if (statusEl) statusEl.innerHTML = `<span>🟢</span> <span>Buluta Kaydedildi</span>`;
       return true;
     } catch (err) {
-      console.error("Kaydetme Hatası Detayı:", err);
-      if (statusEl) statusEl.innerHTML = `<span>🔴</span> <span>Kayıt Başarısız!</span>`;
-      alert("Bulut Kayıt Hatası!\n\nDetay: " + err.message + "\n\nLütfen görsel boyutunun çok büyük olmadığından emin olun.");
+      console.error("Bulut Kayıt Hatası:", err);
+      if (statusEl) statusEl.innerHTML = `<span>🔴</span> <span>Kayıt Başarısız</span>`;
+      alert("Kayıt Hatası: " + err.message);
       return false;
     }
   };
@@ -241,7 +190,7 @@
     }
   }
 
-  // EKRAN GEÇİŞ & İŞLEV FONKSİYONLARI
+  // ARAYÜZ VE GEÇİŞLER
   window.setupGradeOptions = function() {
     const gSelect = document.getElementById('form-grade');
     gSelect.innerHTML = '<option value="5">5. Sınıf</option><option value="6">6. Sınıf</option><option value="7">7. Sınıf</option><option value="8">8. Sınıf (LGS)</option>';
@@ -423,7 +372,6 @@
       if (selectedTermCard.id === selectedDefCard.id) {
         selectedTermCard.el.className = "game-card matched p-4 border-2 rounded-2xl font-black text-emerald-900 text-sm md:text-base";
         selectedDefCard.el.className = "game-card matched p-4 border-2 rounded-2xl font-medium text-emerald-900 text-xs md:text-sm";
-        
         currentGameScore += 100;
         document.getElementById('game-score').innerText = `Puan: ${currentGameScore}`;
       } else {
@@ -431,7 +379,6 @@
         let dEl = selectedDefCard.el;
         tEl.classList.add('border-rose-500', 'bg-rose-50');
         dEl.classList.add('border-rose-500', 'bg-rose-50');
-
         setTimeout(() => {
           tEl.classList.remove('selected', 'border-rose-500', 'bg-rose-50');
           dEl.classList.remove('selected', 'border-rose-500', 'bg-rose-50');
@@ -573,10 +520,8 @@
     window.renderFormGameTerms();
   };
 
-  // KERSİZ VE BOYUTU DÜŞÜRÜLMÜŞ KAYDETME İŞLEMİ
   window.saveLesson = async function(e) {
     if (e) e.preventDefault();
-    
     if (!window.isAdminLoggedIn) {
       alert("Yetkisiz işlem! Değişiklik yapmak için yönetici girişi yapmalısınız.");
       return;
@@ -597,9 +542,9 @@
       gameTerms: window.currentEditingGameTerms
     };
 
-    const isSuccess = await window.saveToCloudDatabase();
+    const isSuccess = await window.saveGradeToCloud(g);
     if (isSuccess) {
-      alert("Haftalık Ders, Görseller ve Soru Bankası Başarıyla Bulut Veritabanına Kaydedildi!");
+      alert("Haftalık Ders ve Görseller Başarıyla Buluta Kaydedildi!");
       window.closeAdminPanel();
       window.selectGrade(g);
     }
@@ -674,7 +619,7 @@
     });
   };
 
-  // RESİM BOYUTUNU CANLI OTOMATİK SIKIŞTIRMA (Firestore 1 MB Sınırını Aşmamak İçin)
+  // RESİM BOYUTUNU YÜKSEK ORANDA SIKIŞTIRMA (Max 600px & %50 Kalite)
   window.processFile = function(file) {
     if (!file || !file.type.startsWith('image/')) {
       alert("Lütfen geçerli bir resim dosyası seçin.");
@@ -687,7 +632,7 @@
         const canvas = document.createElement('canvas');
         let width = img.width;
         let height = img.height;
-        const maxDimension = 900; // Maksimum genişlik veya yükseklik
+        const maxDimension = 600; 
 
         if (width > height) {
           if (width > maxDimension) {
@@ -706,8 +651,8 @@
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, width, height);
 
-        // JPEG formatında %70 kalite ile sıkıştır
-        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+        // JPEG %50 kalite ile dosya boyutunu min seviyeye indir
+        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.5);
         document.getElementById('form-image-url').value = compressedBase64;
         window.showImagePreview(compressedBase64);
       };
