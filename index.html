@@ -238,6 +238,27 @@
         <button onclick="closeAdminPanel()" class="text-xl font-bold bg-indigo-900 hover:bg-indigo-800 w-10 h-10 rounded-xl flex items-center justify-center">✕</button>
       </div>
 
+      <!-- SADECE YÖNETİCİYE ÖZEL İSTATİSTİK / ANALİTİK KARTI -->
+      <div class="bg-indigo-900 text-white p-4 mx-6 mt-6 rounded-2xl border border-indigo-700 shadow-md">
+        <h4 class="text-xs font-black uppercase tracking-wider text-amber-400 mb-3 flex items-center space-x-1">
+          <span>📊</span> <span>Site Ziyaretçi &amp; Etkileşim İstatistikleri</span>
+        </h4>
+        <div class="grid grid-cols-3 gap-2 text-center">
+          <div class="bg-indigo-950/70 p-2.5 rounded-xl border border-indigo-800">
+            <span class="block text-[10px] text-indigo-300 font-bold uppercase">Giriş Sayısı</span>
+            <span id="stat-total-visits" class="text-base md:text-lg font-black text-emerald-400">0</span>
+          </div>
+          <div class="bg-indigo-950/70 p-2.5 rounded-xl border border-indigo-800">
+            <span class="block text-[10px] text-indigo-300 font-bold uppercase">Toplam Tıklama</span>
+            <span id="stat-total-clicks" class="text-base md:text-lg font-black text-amber-300">0</span>
+          </div>
+          <div class="bg-indigo-950/70 p-2.5 rounded-xl border border-indigo-800">
+            <span class="block text-[10px] text-indigo-300 font-bold uppercase">Son Ziyaret</span>
+            <span id="stat-last-visit" class="text-[10px] font-bold text-slate-200 leading-tight block mt-1">-</span>
+          </div>
+        </div>
+      </div>
+
       <form id="admin-form" onsubmit="saveLesson(event)" class="p-6 flex-grow overflow-y-auto space-y-5">
         
         <div class="grid grid-cols-2 gap-3 bg-slate-100 p-3 rounded-xl border">
@@ -342,7 +363,7 @@
   <!-- FIREBASE BULUT VERİTABANI VE SİSTEM MOTORU -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, onSnapshot, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCw8wekTKw3Qn-efTBylldgVsRtKgGlW3c",
@@ -356,6 +377,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const docRef = doc(db, "maarif_portal", "curriculum_db");
+    const analyticsDocRef = doc(db, "maarif_portal", "analytics");
 
     // YÖNETİCİ KİMLİK BİLGİLERİ
     const ADMIN_CREDENTIALS = {
@@ -364,6 +386,46 @@
     };
 
     window.isAdminLoggedIn = false;
+
+    // OTOMATİK ZİYARET VE TIKLAMA SAYACINI BİLDİR
+    async function recordVisit() {
+      try {
+        const nowFormatted = new Date().toLocaleString("tr-TR");
+        await setDoc(analyticsDocRef, {
+          totalVisits: increment(1),
+          lastVisitAt: nowFormatted
+        }, { merge: true });
+      } catch (err) {
+        console.warn("Ziyaret kaydedilemedi:", err);
+      }
+    }
+
+    async function recordClick() {
+      try {
+        await setDoc(analyticsDocRef, {
+          totalClicks: increment(1)
+        }, { merge: true });
+      } catch (err) {
+        console.warn("Tıklama kaydedilemedi:", err);
+      }
+    }
+
+    // Sayfa genelindeki tıklamaları otomatik dinle ve sayacı artır
+    document.addEventListener("click", (e) => {
+      if (e.target.closest("button") || e.target.closest(".game-card") || e.target.closest("a")) {
+        recordClick();
+      }
+    });
+
+    // ANALİTİK VERİLERİNİ LİVE DİNLE
+    onSnapshot(analyticsDocRef, (snap) => {
+      if (snap.exists()) {
+        const data = snap.data();
+        document.getElementById('stat-total-visits').innerText = data.totalVisits || 0;
+        document.getElementById('stat-total-clicks').innerText = data.totalClicks || 0;
+        document.getElementById('stat-last-visit').innerText = data.lastVisitAt || "-";
+      }
+    });
 
     // 5. SINIF MEB MÜFREDATI
     const official5thGradeCurriculum = {
@@ -1068,6 +1130,7 @@
     window.onload = function() {
       window.setupGradeOptions();
       window.updateAdminUI();
+      recordVisit();
     };
   </script>
 </body>
