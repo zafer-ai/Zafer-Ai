@@ -242,22 +242,19 @@
         <button onclick="closeAdminPanel()" class="text-xl font-bold bg-indigo-900 hover:bg-indigo-800 w-10 h-10 rounded-xl flex items-center justify-center">✕</button>
       </div>
 
+      <!-- YENİLENEN CİHAZ BAZLI ANALİTİK PANELİ -->
       <div class="bg-indigo-900 text-white p-4 mx-6 mt-6 rounded-2xl border border-indigo-700 shadow-md">
         <h4 class="text-xs font-black uppercase tracking-wider text-amber-400 mb-3 flex items-center space-x-1">
-          <span>📊</span> <span>Site Ziyaretçi &amp; Etkileşim İstatistikleri</span>
+          <span>🖥️</span> <span>Farklı Cihaz &amp; Erişim İstatistikleri</span>
         </h4>
-        <div class="grid grid-cols-3 gap-2 text-center">
-          <div class="bg-indigo-950/70 p-2.5 rounded-xl border border-indigo-800">
-            <span class="block text-[10px] text-indigo-300 font-bold uppercase">Giriş Sayısı</span>
-            <span id="stat-total-visits" class="text-base md:text-lg font-black text-emerald-400">0</span>
+        <div class="grid grid-cols-2 gap-3 text-center">
+          <div class="bg-indigo-950/70 p-3 rounded-xl border border-indigo-800">
+            <span class="block text-[10px] text-indigo-300 font-bold uppercase">Farklı Cihaz / Ziyaretçi</span>
+            <span id="stat-unique-devices" class="text-xl md:text-2xl font-black text-emerald-400">0</span>
           </div>
-          <div class="bg-indigo-950/70 p-2.5 rounded-xl border border-indigo-800">
-            <span class="block text-[10px] text-indigo-300 font-bold uppercase">Toplam Tıklama</span>
-            <span id="stat-total-clicks" class="text-base md:text-lg font-black text-amber-300">0</span>
-          </div>
-          <div class="bg-indigo-950/70 p-2.5 rounded-xl border border-indigo-800">
-            <span class="block text-[10px] text-indigo-300 font-bold uppercase">Son Ziyaret</span>
-            <span id="stat-last-visit" class="text-[10px] font-bold text-slate-200 leading-tight block mt-1">-</span>
+          <div class="bg-indigo-950/70 p-3 rounded-xl border border-indigo-800">
+            <span class="block text-[10px] text-indigo-300 font-bold uppercase">Son Erişim Zamanı</span>
+            <span id="stat-last-visit" class="text-xs font-bold text-slate-200 leading-tight block mt-1">-</span>
           </div>
         </div>
       </div>
@@ -288,16 +285,16 @@
         <!-- ÇOKLU RESİM YÜKLEME ALANI -->
         <div class="space-y-3 border-t pt-3">
           <div class="flex items-center justify-between">
-            <label class="block text-xs font-bold text-slate-800">Ders Görselleri / Afişler (Yüksek Kaliteli Multi-Upload)</label>
+            <label class="block text-xs font-bold text-slate-800">Ders Görselleri / Afişler (Otomatik Optimize Edilir)</label>
             <span class="text-[10px] text-indigo-600 font-bold bg-indigo-50 px-2 py-0.5 rounded-md">Çoklu Yükleme Aktif</span>
           </div>
           
           <div id="drop-zone" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)" class="border-2 border-dashed border-indigo-200 hover:border-indigo-500 bg-indigo-50/50 rounded-2xl p-4 text-center transition-all">
             <div class="flex flex-col items-center justify-center space-y-2">
               <span class="text-3xl">🖼️</span>
-              <p class="text-xs font-semibold text-slate-600">Bilgisayardan tekli veya birden fazla dosya seçin / sürükleyin</p>
+              <p class="text-xs font-semibold text-slate-600">Görsel seçin veya buraya sürükleyin</p>
               <input type="file" id="form-file-input" accept="image/*" multiple onchange="handleFileSelect(event)" class="hidden">
-              <button type="button" onclick="document.getElementById('form-file-input').click()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs shadow">+ Görsel Dosyaları Seç (Birden Çok)</button>
+              <button type="button" onclick="document.getElementById('form-file-input').click()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs shadow">+ Görsel Dosyaları Seç</button>
             </div>
           </div>
 
@@ -364,7 +361,7 @@
   <!-- FIREBASE BULUT VERİTABANI VE SİSTEM MOTORU -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, doc, setDoc, onSnapshot, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCw8wekTKw3Qn-efTBylldgVsRtKgGlW3c",
@@ -386,35 +383,48 @@
 
     window.isAdminLoggedIn = false;
 
-    // ANALİTİK KAYDI
-    async function recordVisit() {
-      try {
-        const nowFormatted = new Date().toLocaleString("tr-TR");
-        await setDoc(analyticsDocRef, { totalVisits: increment(1), lastVisitAt: nowFormatted }, { merge: true });
-      } catch (err) { console.warn("Ziyaret kaydedilemedi:", err); }
-    }
-
-    async function recordClick() {
-      try {
-        await setDoc(analyticsDocRef, { totalClicks: increment(1) }, { merge: true });
-      } catch (err) { console.warn("Tıklama kaydedilemedi:", err); }
-    }
-
-    document.addEventListener("click", (e) => {
-      if (e.target.closest("button") || e.target.closest(".game-card") || e.target.closest("a")) {
-        recordClick();
+    // FARKLI CİHAZ (UNIQUE VISITOR) TAKİP MOTORU
+    function getOrCreateVisitorId() {
+      let vId = localStorage.getItem('maarif_visitor_id');
+      if (!vId) {
+        vId = 'dev_' + Math.random().toString(36).substring(2, 11) + '_' + Date.now();
+        localStorage.setItem('maarif_visitor_id', vId);
       }
-    });
+      return vId;
+    }
+
+    async function recordDeviceAccess() {
+      try {
+        const vId = getOrCreateVisitorId();
+        const nowFormatted = new Date().toLocaleString("tr-TR");
+        
+        // Firestore'da mevcut analitiği çek
+        const snap = await getDoc(analyticsDocRef);
+        let devices = {};
+        if (snap.exists() && snap.data().devices) {
+          devices = snap.data().devices;
+        }
+
+        devices[vId] = nowFormatted;
+
+        await setDoc(analyticsDocRef, {
+          devices: devices,
+          lastAccessAt: nowFormatted
+        }, { merge: true });
+      } catch (err) { console.warn("Cihaz erişimi kaydedilemedi:", err); }
+    }
 
     onSnapshot(analyticsDocRef, (snap) => {
       if (snap.exists()) {
         const data = snap.data();
-        const visitsEl = document.getElementById('stat-total-visits');
-        const clicksEl = document.getElementById('stat-total-clicks');
+        const devices = data.devices || {};
+        const deviceCount = Object.keys(devices).length;
+
+        const uniqueEl = document.getElementById('stat-unique-devices');
         const lastEl = document.getElementById('stat-last-visit');
-        if (visitsEl) visitsEl.innerText = data.totalVisits || 0;
-        if (clicksEl) clicksEl.innerText = data.totalClicks || 0;
-        if (lastEl) lastEl.innerText = data.lastVisitAt || "-";
+
+        if (uniqueEl) uniqueEl.innerText = deviceCount;
+        if (lastEl) lastEl.innerText = data.lastAccessAt || "-";
       }
     });
 
@@ -516,9 +526,8 @@
       }
     };
 
-    // FIRESTORE 1MB SINIRINI AŞMAMAK İÇİN HER HAFTAYI SEPARATE DOKÜMAN OLARAK DİNLEME VE SAKLAMA
+    // FIRESTORE DINLEME HIZI VE BULUT SIMGESI YENILENDIRMESI
     [5, 6, 7, 8].forEach(grade => {
-      // 1-36 haftanın tamamını ayrı dokümanlar halinde dinliyoruz
       for (let week = 1; week <= 36; week++) {
         const weekDocRef = doc(db, "maarif_portal", `grade_${grade}_week_${week}`);
         onSnapshot(weekDocRef, (snap) => {
@@ -527,14 +536,6 @@
             window.curriculumData[grade][week] = snap.data();
             localStorage.setItem(`maarif_backup_g${grade}_w${week}`, JSON.stringify(snap.data()));
             if (statusEl) statusEl.innerHTML = `<span>🟢</span> <span>Bulut Bağlantısı Aktif</span>`;
-          } else {
-            // Eski tek parça doküman varsa geriye dönük aktar
-            const legacyGradeRef = doc(db, "maarif_portal", `grade_${grade}`);
-            onSnapshot(legacyGradeRef, (legacySnap) => {
-              if (legacySnap.exists() && legacySnap.data().weeks?.[week]) {
-                window.curriculumData[grade][week] = legacySnap.data().weeks[week];
-              }
-            });
           }
           refreshCurrentView();
         }, (error) => {
@@ -546,12 +547,20 @@
       }
     });
 
-    // TEK BİR HAFTAYI BULUTA KAYDETME (1MB SINIRINA TAKILMAZ)
+    // TEK BİR HAFTAYI BULUTA KAYDETME (1MB KONTROLÜ İLE)
     window.saveWeekToCloud = async function(grade, week, weekData) {
       const statusEl = document.getElementById('cloud-sync-status');
       if (statusEl) statusEl.innerHTML = `<span>⏳</span> <span>Kaydediliyor...</span>`;
       
       try {
+        const jsonString = JSON.stringify(weekData);
+        const bytes = new Blob([jsonString]).size;
+        
+        // 1MB = 1,048,576 bytes (Güvenlik sınırı 950KB)
+        if (bytes > 970000) {
+          throw new Error(`Veri boyutu çok yüksek (${(bytes/1024/1024).toFixed(2)} MB)! Lütfen daha az veya daha düşük çözünürlüklü görsel yükleyin.`);
+        }
+
         const weekDocRef = doc(db, "maarif_portal", `grade_${grade}_week_${week}`);
         await setDoc(weekDocRef, weekData, { merge: true });
         localStorage.setItem(`maarif_backup_g${grade}_w${week}`, JSON.stringify(weekData));
@@ -1059,7 +1068,6 @@
 
       window.curriculumData[g][w] = newWeekData;
 
-      // SADECE GÜNCELLENEN HAFTAYI AYRI DOKÜMAN OLARAK KAYDET (HATA VERMEZ)
       const isSuccess = await window.saveWeekToCloud(g, w, newWeekData);
       if (isSuccess) {
         alert("Haftalık Ders ve Görseller Başarıyla Buluta Kaydedildi!");
@@ -1139,7 +1147,7 @@
       });
     };
 
-    // OPTİMİZE GÖRSEL İŞLEME (AKILLI TAHTA İÇİN HD KALİTE + DÜŞÜK DOSYA BOYUTU)
+    // AKILLI SIKIŞTIRMA MOTORU (1MB LIMITI AŞMAMAK İÇİN OPTİMİZE EDİLDİ)
     window.processFile = function(file) {
       if (!file || !file.type.startsWith('image/')) {
         alert("Lütfen geçerli bir resim dosyası seçin.");
@@ -1153,8 +1161,8 @@
           let width = img.width;
           let height = img.height;
           
-          // Akıllı Tahta Netliği Sağlayan İdeal Çözünürlük (1200px)
-          const maxDimension = 1200; 
+          // Akıllı Tahta İçin Optimize Max Çözünürlük (800px limit)
+          const maxDimension = 800; 
 
           if (width > height) {
             if (width > maxDimension) {
@@ -1173,11 +1181,11 @@
           const ctx = canvas.getContext('2d');
           
           ctx.imageSmoothingEnabled = true;
-          ctx.imageSmoothingQuality = 'high';
+          ctx.imageSmoothingQuality = 'medium';
           ctx.drawImage(img, 0, 0, width, height);
 
-          // Cam gibi netlik ve sıfır boyut hatası için dengeli %75 kalite
-          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.75);
+          // 1MB Sınırına takılmaması için JPEG kalitesi %60'a optimize edildi
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.60);
           window.currentEditingImages.push(compressedBase64);
           window.renderFormImageList();
         };
@@ -1261,7 +1269,7 @@
     window.onload = function() {
       window.setupGradeOptions();
       window.updateAdminUI();
-      recordVisit();
+      recordDeviceAccess();
     };
   </script>
 </body>
