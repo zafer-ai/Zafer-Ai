@@ -242,7 +242,7 @@
         <button onclick="closeAdminPanel()" class="text-xl font-bold bg-indigo-900 hover:bg-indigo-800 w-10 h-10 rounded-xl flex items-center justify-center">✕</button>
       </div>
 
-      <!-- YENİLENEN CİHAZ BAZLI ANALİTİK PANELİ -->
+      <!-- CİHAZ BAZLI ANALİTİK PANELİ -->
       <div class="bg-indigo-900 text-white p-4 mx-6 mt-6 rounded-2xl border border-indigo-700 shadow-md">
         <h4 class="text-xs font-black uppercase tracking-wider text-amber-400 mb-3 flex items-center space-x-1">
           <span>🖥️</span> <span>Farklı Cihaz &amp; Erişim İstatistikleri</span>
@@ -383,7 +383,31 @@
 
     window.isAdminLoggedIn = false;
 
-    // FARKLI CİHAZ (UNIQUE VISITOR) TAKİP MOTORU
+    // YEDEK VERİLERİ YÜKLE
+    function getStoredData(grade, week) {
+      const backup = localStorage.getItem(`maarif_backup_g${grade}_w${week}`);
+      if (backup) {
+        try { return JSON.parse(backup); } catch(e) {}
+      }
+      return null;
+    }
+
+    window.curriculumData = { 5: {}, 6: {}, 7: {}, 8: {} };
+    [5, 6, 7, 8].forEach(g => {
+      for (let w = 1; w <= 36; w++) {
+        window.curriculumData[g][w] = getStoredData(g, w) || {};
+      }
+    });
+
+    window.selectedGrade = 8;
+    window.activeWeek = 1;
+    window.currentEditingQuestions = [];
+    window.currentEditingGameTerms = [];
+    window.currentEditingImages = [];
+    window.currentImageIndex = 0;
+    window.lastQuickQuestionIndex = -1;
+
+    // CİHAZ (UNIQUE VISITOR) TAKİP MOTORU
     function getOrCreateVisitorId() {
       let vId = localStorage.getItem('maarif_visitor_id');
       if (!vId) {
@@ -398,7 +422,6 @@
         const vId = getOrCreateVisitorId();
         const nowFormatted = new Date().toLocaleString("tr-TR");
         
-        // Firestore'da mevcut analitiği çek
         const snap = await getDoc(analyticsDocRef);
         let devices = {};
         if (snap.exists() && snap.data().devices) {
@@ -427,38 +450,6 @@
         if (lastEl) lastEl.innerText = data.lastAccessAt || "-";
       }
     });
-
-    // MÜFREDAT VARSAYILANLARI
-    function generateDefaultGradeData(gradeNum) {
-      const data = {};
-      for (let i = 1; i <= 36; i++) {
-        data[i] = {
-          title: `${gradeNum}. Sınıf Din Kültürü - ${i}. Hafta`,
-          outcome: `${gradeNum}.${Math.ceil(i/7)}. Öğretim programı kazanımı.`,
-          body: `<p>${gradeNum}. Sınıf ${i}. hafta ders içeriği metni.</p>`,
-          videoUrl: "https://www.youtube.com/watch?v=84QYx9-H-Yk",
-          imageUrls: [],
-          gameTerms: [{term: "Kavram", def: "Açıklama"}],
-          questions: [{ text: `${gradeNum}. Sınıf ${i}. hafta örnek soru?`, options: ["Doğru Seçenek", "Yanlış Şık", "Yanlış Şık", "Yanlış Şık"], correctIndex: 0 }]
-        };
-      }
-      return data;
-    }
-
-    window.curriculumData = {
-      5: generateDefaultGradeData(5),
-      6: generateDefaultGradeData(6),
-      7: generateDefaultGradeData(7),
-      8: generateDefaultGradeData(8)
-    };
-
-    window.selectedGrade = 8;
-    window.activeWeek = 1;
-    window.currentEditingQuestions = [];
-    window.currentEditingGameTerms = [];
-    window.currentEditingImages = [];
-    window.currentImageIndex = 0;
-    window.lastQuickQuestionIndex = -1;
 
     // YÖNETİCİ ARAYÜZÜ
     window.openLoginModal = function() {
@@ -526,7 +517,7 @@
       }
     };
 
-    // FIRESTORE DINLEME HIZI VE BULUT SIMGESI YENILENDIRMESI
+    // BULUT DİNLEYİCİSİ (BULUTTAKI GERÇEK VERILERIN CEKILDIGI YER)
     [5, 6, 7, 8].forEach(grade => {
       for (let week = 1; week <= 36; week++) {
         const weekDocRef = doc(db, "maarif_portal", `grade_${grade}_week_${week}`);
@@ -547,7 +538,6 @@
       }
     });
 
-    // TEK BİR HAFTAYI BULUTA KAYDETME (1MB KONTROLÜ İLE)
     window.saveWeekToCloud = async function(grade, week, weekData) {
       const statusEl = document.getElementById('cloud-sync-status');
       if (statusEl) statusEl.innerHTML = `<span>⏳</span> <span>Kaydediliyor...</span>`;
@@ -556,7 +546,6 @@
         const jsonString = JSON.stringify(weekData);
         const bytes = new Blob([jsonString]).size;
         
-        // 1MB = 1,048,576 bytes (Güvenlik sınırı 950KB)
         if (bytes > 970000) {
           throw new Error(`Veri boyutu çok yüksek (${(bytes/1024/1024).toFixed(2)} MB)! Lütfen daha az veya daha düşük çözünürlüklü görsel yükleyin.`);
         }
@@ -585,7 +574,6 @@
       }
     }
 
-    // FORM & EKRAN İŞLEMLERİ
     window.setupGradeOptions = function() {
       const gSelect = document.getElementById('form-grade');
       const wSelect = document.getElementById('form-week');
@@ -1147,7 +1135,6 @@
       });
     };
 
-    // AKILLI SIKIŞTIRMA MOTORU (1MB LIMITI AŞMAMAK İÇİN OPTİMİZE EDİLDİ)
     window.processFile = function(file) {
       if (!file || !file.type.startsWith('image/')) {
         alert("Lütfen geçerli bir resim dosyası seçin.");
@@ -1161,7 +1148,6 @@
           let width = img.width;
           let height = img.height;
           
-          // Akıllı Tahta İçin Optimize Max Çözünürlük (800px limit)
           const maxDimension = 800; 
 
           if (width > height) {
@@ -1184,7 +1170,6 @@
           ctx.imageSmoothingQuality = 'medium';
           ctx.drawImage(img, 0, 0, width, height);
 
-          // 1MB Sınırına takılmaması için JPEG kalitesi %60'a optimize edildi
           const compressedBase64 = canvas.toDataURL('image/jpeg', 0.60);
           window.currentEditingImages.push(compressedBase64);
           window.renderFormImageList();
