@@ -188,7 +188,7 @@
           <div id="lesson-image-box" class="hidden relative group bg-slate-900 rounded-2xl overflow-hidden shadow-lg border">
             <img id="lesson-main-image" src="" alt="Ders Görseli / Kitap Sayfası" class="w-full max-h-[550px] object-contain mx-auto bg-slate-950 transition-all duration-300">
             
-            <!-- OK TUŞLARI (AKILLI TAHTA İÇİN BÜYÜK DOKUNMATİK BUTONLAR) -->
+            <!-- OK TUŞLARI -->
             <button onclick="prevImage()" id="slider-prev-btn" class="absolute left-3 top-1/2 -translate-y-1/2 bg-slate-900/80 hover:bg-indigo-600 text-white w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center font-black text-2xl shadow-xl transition-all border border-white/20 active:scale-95 select-none">❮</button>
             <button onclick="nextImage()" id="slider-next-btn" class="absolute right-3 top-1/2 -translate-y-1/2 bg-slate-900/80 hover:bg-indigo-600 text-white w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center font-black text-2xl shadow-xl transition-all border border-white/20 active:scale-95 select-none">❯</button>
             
@@ -285,7 +285,7 @@
           <input type="text" id="form-outcome" class="w-full border rounded-xl p-2.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500 outline-none">
         </div>
 
-        <!-- ÇOKLU RESİM YÜKLEME ALANI (EN AZ 5 VE DAHA FAZLA RESİM İÇİN) -->
+        <!-- ÇOKLU RESİM YÜKLEME ALANI -->
         <div class="space-y-3 border-t pt-3">
           <div class="flex items-center justify-between">
             <label class="block text-xs font-bold text-slate-800">Ders Görselleri / Afişler (Yüksek Kaliteli Multi-Upload)</label>
@@ -306,7 +306,6 @@
             <button type="button" onclick="addUrlImageToList()" class="bg-slate-800 text-white font-bold px-3 py-2 rounded-lg text-xs">URL Ekle</button>
           </div>
 
-          <!-- YÜKLENEN RESİMLERİN LİSTESİ VE ÖNİZLEMELERİ -->
           <div id="form-image-list-container" class="space-y-2 pt-2"></div>
         </div>
 
@@ -447,8 +446,8 @@
     window.activeWeek = 1;
     window.currentEditingQuestions = [];
     window.currentEditingGameTerms = [];
-    window.currentEditingImages = []; // ÇOKLU RESİM LİSTESİ
-    window.currentImageIndex = 0; // SLIDER İNDEKSİ
+    window.currentEditingImages = [];
+    window.currentImageIndex = 0;
     window.lastQuickQuestionIndex = -1;
 
     // YÖNETİCİ ARAYÜZÜ
@@ -517,35 +516,45 @@
       }
     };
 
-    // SINIFLARI AYRI DOKÜMANLARDA CANLI DİNLEME
+    // FIRESTORE 1MB SINIRINI AŞMAMAK İÇİN HER HAFTAYI SEPARATE DOKÜMAN OLARAK DİNLEME VE SAKLAMA
     [5, 6, 7, 8].forEach(grade => {
-      const gradeDocRef = doc(db, "maarif_portal", `grade_${grade}`);
-      onSnapshot(gradeDocRef, (snap) => {
-        const statusEl = document.getElementById('cloud-sync-status');
-        if (snap.exists() && snap.data().weeks) {
-          window.curriculumData[grade] = snap.data().weeks;
-          localStorage.setItem(`maarif_backup_g${grade}`, JSON.stringify(snap.data().weeks));
-          if (statusEl) statusEl.innerHTML = `<span>🟢</span> <span>Bulut Bağlantısı Aktif</span>`;
-        } else {
-          window.saveGradeToCloud(grade);
-        }
-        refreshCurrentView();
-      }, (error) => {
-        console.warn(`Sınıf ${grade} Veri Okuma:`, error);
-        const backup = localStorage.getItem(`maarif_backup_g${grade}`);
-        if (backup) window.curriculumData[grade] = JSON.parse(backup);
-        refreshCurrentView();
-      });
+      // 1-36 haftanın tamamını ayrı dokümanlar halinde dinliyoruz
+      for (let week = 1; week <= 36; week++) {
+        const weekDocRef = doc(db, "maarif_portal", `grade_${grade}_week_${week}`);
+        onSnapshot(weekDocRef, (snap) => {
+          const statusEl = document.getElementById('cloud-sync-status');
+          if (snap.exists()) {
+            window.curriculumData[grade][week] = snap.data();
+            localStorage.setItem(`maarif_backup_g${grade}_w${week}`, JSON.stringify(snap.data()));
+            if (statusEl) statusEl.innerHTML = `<span>🟢</span> <span>Bulut Bağlantısı Aktif</span>`;
+          } else {
+            // Eski tek parça doküman varsa geriye dönük aktar
+            const legacyGradeRef = doc(db, "maarif_portal", `grade_${grade}`);
+            onSnapshot(legacyGradeRef, (legacySnap) => {
+              if (legacySnap.exists() && legacySnap.data().weeks?.[week]) {
+                window.curriculumData[grade][week] = legacySnap.data().weeks[week];
+              }
+            });
+          }
+          refreshCurrentView();
+        }, (error) => {
+          console.warn(`Sınıf ${grade} Hafta ${week} Okuma Hatası:`, error);
+          const backup = localStorage.getItem(`maarif_backup_g${grade}_w${week}`);
+          if (backup) window.curriculumData[grade][week] = JSON.parse(backup);
+          refreshCurrentView();
+        });
+      }
     });
 
-    window.saveGradeToCloud = async function(grade) {
+    // TEK BİR HAFTAYI BULUTA KAYDETME (1MB SINIRINA TAKILMAZ)
+    window.saveWeekToCloud = async function(grade, week, weekData) {
       const statusEl = document.getElementById('cloud-sync-status');
       if (statusEl) statusEl.innerHTML = `<span>⏳</span> <span>Kaydediliyor...</span>`;
       
       try {
-        const gradeDocRef = doc(db, "maarif_portal", `grade_${grade}`);
-        await setDoc(gradeDocRef, { weeks: window.curriculumData[grade] }, { merge: true });
-        localStorage.setItem(`maarif_backup_g${grade}`, JSON.stringify(window.curriculumData[grade]));
+        const weekDocRef = doc(db, "maarif_portal", `grade_${grade}_week_${week}`);
+        await setDoc(weekDocRef, weekData, { merge: true });
+        localStorage.setItem(`maarif_backup_g${grade}_w${week}`, JSON.stringify(weekData));
         if (statusEl) statusEl.innerHTML = `<span>🟢</span> <span>Buluta Kaydedildi</span>`;
         return true;
       } catch (err) {
@@ -618,7 +627,6 @@
       }
     };
 
-    // DERS DOKÜMANINI VE GÖRSEL SLIDER'INI YÜKLEME
     window.openLesson = function(week, data) {
       window.activeWeek = week;
       window.lastQuickQuestionIndex = -1;
@@ -635,7 +643,6 @@
       if (outcome) outcome.innerText = "MEB Kazanımı: " + (data?.outcome || "Genel müfredat kazanımı.");
       if (body) body.innerHTML = data?.body || "<p>Bu ders için henüz metin özeti eklenmemiştir.</p>";
 
-      // RESİM LİSTESİ HAZIRLIĞI (Tekli Eski Resim Varsa Diziye Al)
       let imgs = [];
       if (data?.imageUrls && Array.isArray(data.imageUrls) && data.imageUrls.length > 0) {
         imgs = data.imageUrls;
@@ -694,7 +701,6 @@
       window.updateAdminUI();
     };
 
-    // AKILLI TAHTA SLIDER RENDER MOTORU
     window.renderImageSlider = function() {
       const imgBox = document.getElementById('lesson-image-box');
       const imgTag = document.getElementById('lesson-main-image');
@@ -957,7 +963,6 @@
       document.getElementById('admin-panel')?.classList.add('hidden');
     };
 
-    // FORM YÜKLEME (ÇOKLU RESİMLERİ HAZIRLAMA)
     window.loadLessonToForm = function() {
       const g = document.getElementById('form-grade')?.value;
       const w = document.getElementById('form-week')?.value;
@@ -973,7 +978,6 @@
       if (videoUrlEl) videoUrlEl.value = data.videoUrl || "";
       if (bodyEditorEl) bodyEditorEl.innerHTML = data.body || "";
       
-      // Çoklu Resim Listesini Yükle
       if (data.imageUrls && Array.isArray(data.imageUrls)) {
         window.currentEditingImages = [...data.imageUrls];
       } else if (data.imageUrl) {
@@ -990,7 +994,6 @@
       window.renderFormGameTerms();
     };
 
-    // YÖNETİCİ FORMUNDA ÇOKLU RESİMLERİ RENDER ETME
     window.renderFormImageList = function() {
       const c = document.getElementById('form-image-list-container');
       if (!c) return;
@@ -1043,18 +1046,21 @@
 
       if (!window.curriculumData[g]) window.curriculumData[g] = {};
       
-      window.curriculumData[g][w] = {
+      const newWeekData = {
         title: document.getElementById('form-title')?.value || "",
         outcome: document.getElementById('form-outcome')?.value || "",
-        imageUrl: window.currentEditingImages[0] || "", // Geriye dönük uyum için ilk resim
-        imageUrls: window.currentEditingImages, // Çoklu resim listesi
+        imageUrl: window.currentEditingImages[0] || "",
+        imageUrls: window.currentEditingImages,
         videoUrl: document.getElementById('form-video-url')?.value || "",
         body: document.getElementById('form-body-editor')?.innerHTML || "",
         questions: window.currentEditingQuestions,
         gameTerms: window.currentEditingGameTerms
       };
 
-      const isSuccess = await window.saveGradeToCloud(g);
+      window.curriculumData[g][w] = newWeekData;
+
+      // SADECE GÜNCELLENEN HAFTAYI AYRI DOKÜMAN OLARAK KAYDET (HATA VERMEZ)
+      const isSuccess = await window.saveWeekToCloud(g, w, newWeekData);
       if (isSuccess) {
         alert("Haftalık Ders ve Görseller Başarıyla Buluta Kaydedildi!");
         window.closeAdminPanel();
@@ -1133,7 +1139,7 @@
       });
     };
 
-    // YÜKSEK KALİTELİ GÖRSEL SIKIŞTIRMA & İŞLEME MOTORU (Max Dimension: 1600px, Quality: 0.85)
+    // OPTİMİZE GÖRSEL İŞLEME (AKILLI TAHTA İÇİN HD KALİTE + DÜŞÜK DOSYA BOYUTU)
     window.processFile = function(file) {
       if (!file || !file.type.startsWith('image/')) {
         alert("Lütfen geçerli bir resim dosyası seçin.");
@@ -1147,8 +1153,8 @@
           let width = img.width;
           let height = img.height;
           
-          // Akıllı Tahta Netliği İçin Çözünürlük Limiti Yükseltildi (1600px)
-          const maxDimension = 1600; 
+          // Akıllı Tahta Netliği Sağlayan İdeal Çözünürlük (1200px)
+          const maxDimension = 1200; 
 
           if (width > height) {
             if (width > maxDimension) {
@@ -1166,13 +1172,12 @@
           canvas.height = height;
           const ctx = canvas.getContext('2d');
           
-          // Yüksek Kaliteli Resim Çizim Ayarları
           ctx.imageSmoothingEnabled = true;
           ctx.imageSmoothingQuality = 'high';
           ctx.drawImage(img, 0, 0, width, height);
 
-          // Kalite %85'e Çıkarıldı (Cam Gibi Netlik İçin)
-          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.85);
+          // Cam gibi netlik ve sıfır boyut hatası için dengeli %75 kalite
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.75);
           window.currentEditingImages.push(compressedBase64);
           window.renderFormImageList();
         };
@@ -1181,11 +1186,10 @@
       reader.readAsDataURL(file);
     };
 
-    // ÇOKLU DOSYA SEÇİMİ
     window.handleFileSelect = function(e) {
       const files = Array.from(e.target.files);
       files.forEach(file => window.processFile(file));
-      e.target.value = ""; // Aynı dosya tekrar seçilebilsin diye sıfırla
+      e.target.value = "";
     };
 
     window.handleDragOver = function(e) {
